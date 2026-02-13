@@ -1,5 +1,7 @@
 ## TT KSampler (Context) *TT_KSamplerContext*
 
+*This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
+
 Context-based sampler that extracts parameters from workflow context.
 
 ### Inputs

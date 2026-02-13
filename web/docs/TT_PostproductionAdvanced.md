@@ -1,5 +1,7 @@
 ## TT Postproduction (Advanced) *TT_PostproductionAdvanced*
 
+*This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
+
 Extended post-production node with image enhancement, LUT color grading, film grain, and upscaling.
 
 ### Inputs
@@ -39,7 +41,7 @@ Extended post-production node with image enhancement, LUT color grading, film gr
 
 | Parameter | Type  | Description                          |
 |-----------|-------|--------------------------------------|
-| IMAGE     | IMAGE | Processed image with applied effects |
+| `IMAGE`     | IMAGE | Processed image with applied effects |
 
 ### Usage
 

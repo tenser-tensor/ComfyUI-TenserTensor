@@ -11,6 +11,7 @@ Automatically calculates correct dimensions for FLUX and SDXL models, plus separ
 | Parameter         | Type     | Description                                       |
 |-------------------|----------|---------------------------------------------------|
 | `aspect_ratio`    | DROPDOWN | Image proportions (1:1, 4:3, 3:2, 16:9, 21:9)     |
+| `seed`            | INT      | Seed for reproducible results (0 - 2^64-1)        |         
 | `megapixels`      | DROPDOWN | Total resolution (0.5 MP, 1 MP, 2 MP, 4 MP, 8 MP) |
 | `orientation`     | DROPDOWN | landscape or portrait                             |
 | `model_type`      | DROPDOWN | FLUX (16 channels) or SDXL (4 channels)           |
@@ -19,13 +20,14 @@ Automatically calculates correct dimensions for FLUX and SDXL models, plus separ
 
 ## Outputs
 
-| Output        | Type   | Description                                         |
-|---------------|--------|-----------------------------------------------------|
-| `latent`      | LATENT | Empty latent image tensor with random noise         |
-| `width`       | INT    | Calculated image width (rounded to multiple of 64)  |
-| `height`      | INT    | Calculated image height (rounded to multiple of 64) |
-| `clip_width`  | INT    | CLIP conditioning target width                      |
-| `clip_height` | INT    | CLIP conditioning target height                     |
+| Output          | Type   | Description                                         |
+|-----------------|--------|-----------------------------------------------------|
+| `LATENT`        | LATENT | Empty latent image tensor with random noise         |
+| `SEED`          | INT    | Seed value                                          |
+| `WIDTH`         | INT    | Calculated image width (rounded to multiple of 64)  |
+| `HEIGHT`        | INT    | Calculated image height (rounded to multiple of 64) |
+| `TARGET_WIDTH`  | INT    | CLIP conditioning target width                      |
+| `TARGET_HEIGHT` | INT    | CLIP conditioning target height                     |
 
 ## Example
 

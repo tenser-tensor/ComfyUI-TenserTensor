@@ -35,11 +35,6 @@ CLIP_MULTIPLIERS = [
 
 
 class TT_LatentFactory:
-    RETURN_TYPES = ("LATENT", "INT", "INT", "INT", "INT", "INT")
-    RETURN_NAMES = ("LATENT", "SEED", "WIDTH", "HEIGHT", "TARGET_WIDTH", "TARGET_HEIGHT")
-    FUNCTION = "create_latent"
-    CATEGORY = "TenserTensor/Latent"
-
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -53,6 +48,11 @@ class TT_LatentFactory:
                 "clip_multiplier": (CLIP_MULTIPLIERS,)
             }
         }
+
+    RETURN_TYPES = ("LATENT", "INT", "INT", "INT", "INT", "INT")
+    RETURN_NAMES = ("LATENT", "SEED", "WIDTH", "HEIGHT", "TARGET_WIDTH", "TARGET_HEIGHT")
+    FUNCTION = "create_latent"
+    CATEGORY = "TenserTensor/Latent"
 
     def calculate_dimensions(self, total_pixels, ratio_w, ratio_h):
         import math

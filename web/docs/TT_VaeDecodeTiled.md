@@ -1,4 +1,4 @@
-## TT_VaeDecodeTiled
+## TT VAE Decode (Tiled) *TT_VaeDecodeTiled*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 

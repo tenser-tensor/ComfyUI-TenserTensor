@@ -1,4 +1,4 @@
-## TT_VaeDecodeContext
+## TT VAE Decode (Context) *TT_VaeDecodeContext*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 

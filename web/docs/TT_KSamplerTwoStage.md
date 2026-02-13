@@ -1,5 +1,7 @@
 ## TT KSampler (Two Stages) *TT_KSamplerTwoStage*
 
+*This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
+
 Two-stage sampler with separate draft and refinement passes.
 
 ### Inputs
