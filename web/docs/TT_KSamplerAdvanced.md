@@ -19,8 +19,8 @@ Advanced sampler with fine-grained control over denoising steps and noise additi
 | `start_step`   | INT          | Yes      | Step to start sampling from (0-10000, default: 0)         |
 | `last_step`    | INT          | Yes      | Step to end sampling at (0-10000, default: 10000)         |
 | `cfg`          | FLOAT        | Yes      | Classifier-free guidance scale (0.0-100.0, default: 1.5)  |
-| `sampler_name` | SAMPLER      | Yes      | Sampler algorithm to use                                  |
-| `scheduler`    | SCHEDULER    | Yes      | Noise schedule to use                                     |
+| `sampler_name` | COMBO        | Yes      | Sampler algorithm to use                                  |
+| `scheduler`    | COMBO        | Yes      | Noise schedule to use                                     |
 | `denoise`      | FLOAT        | Yes      | Denoising strength (0.0-1.0, default: 1.0)                |
 
 ### Outputs

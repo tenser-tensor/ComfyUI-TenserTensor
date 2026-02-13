@@ -1,4 +1,4 @@
-## TT Image Enhancer *TT_ImageEnhancer* 
+## TT Image Enhancer *TT_ImageEnhancer*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 

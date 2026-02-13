@@ -20,8 +20,8 @@ Extended context node for Flux workflows with additional CLIP and T5 conditionin
 | `seed`            | INT                | No       | Random seed                                               |
 | `steps`           | INT                | No       | Sampling steps                                            |
 | `cfg`             | FLOAT              | No       | Classifier-free guidance scale                            |
-| `sampler_name`    | STRING             | No       | Sampler name                                              |
-| `scheduler`       | STRING             | No       | Scheduler name                                            |
+| `sampler_name`    | COMBO              | No       | Sampler name                                              |
+| `scheduler`       | COMBO              | No       | Scheduler name                                            |
 | `guidance`        | FLOAT              | No       | Flux guidance value                                       |
 | `clip_l_positive` | STRING             | No       | CLIP-L positive prompt                                    |
 | `t5xxl_positive`  | STRING             | No       | T5-XXL positive prompt                                    |
@@ -46,8 +46,8 @@ Extended context node for Flux workflows with additional CLIP and T5 conditionin
 | `SEED`            | INT                | Random seed                 |
 | `STEPS`           | INT                | Sampling steps              |
 | `CFG`             | FLOAT              | CFG scale                   |
-| `SAMPLER_NAME`    | STRING             | Sampler name                |
-| `SCHEDULER`       | STRING             | Scheduler name              |
+| `SAMPLER_NAME`    | COMBO              | Sampler name                |
+| `SCHEDULER`       | COMBO              | Scheduler name              |
 | `GUIDANCE`        | FLOAT              | Flux guidance               |
 | `CLIP_L_POSITIVE` | STRING             | CLIP-L positive             |
 | `T5XXL_POSITIVE`  | STRING             | T5-XXL positive             |

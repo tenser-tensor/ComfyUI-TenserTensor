@@ -14,10 +14,10 @@ Two-stage sampler with separate draft and refinement passes.
 | `cfg`                  | FLOAT        | Yes      | Classifier-free guidance scale (0.0-100.0, default: 1.5)   |
 | `draft_steps`          | INT          | Yes      | Number of steps for draft pass (1-10000, default: 25)      |
 | `refiner_steps`        | INT          | Yes      | Number of steps for refinement pass (1-10000, default: 25) |
-| `draft_sampler_name`   | SAMPLER      | Yes      | Sampler algorithm for draft pass                           |
-| `draft_scheduler`      | SCHEDULER    | Yes      | Noise schedule for draft pass                              |
-| `refiner_sampler_name` | SAMPLER      | Yes      | Sampler algorithm for refinement pass                      |
-| `refiner_scheduler`    | SCHEDULER    | Yes      | Noise schedule for refinement pass                         |
+| `draft_sampler_name`   | COMBO        | Yes      | Sampler algorithm for draft pass                           |
+| `draft_scheduler`      | COMBO        | Yes      | Noise schedule for draft pass                              |
+| `refiner_sampler_name` | COMBO        | Yes      | Sampler algorithm for refinement pass                      |
+| `refiner_scheduler`    | COMBO        | Yes      | Noise schedule for refinement pass                         |
 | `draft_denoise`        | FLOAT        | Yes      | Denoising strength for draft (0.0-1.0, default: 0.7)       |
 | `refiner_denoise`      | FLOAT        | Yes      | Denoising strength for refinement (0.0-1.0, default: 1.0)  |
 

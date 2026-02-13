@@ -22,8 +22,8 @@ Maximum capacity context node supporting all workflow parameters including Contr
 | `seed`            | INT                | No       | Random seed                                               |
 | `steps`           | INT                | No       | Sampling steps                                            |
 | `cfg`             | FLOAT              | No       | Classifier-free guidance scale                            |
-| `sampler_name`    | SAMPLER            | No       | Sampler name                                              |
-| `scheduler`       | SCHEDULER          | No       | Scheduler name                                            |
+| `sampler_name`    | COMBO              | No       | Sampler name                                              |
+| `scheduler`       | COMBO              | No       | Scheduler name                                            |
 | `guidance`        | FLOAT              | No       | Guidance value                                            |
 | `clip_l_positive` | STRING             | No       | CLIP-L positive prompt                                    |
 | `clip_g_positive` | STRING             | No       | CLIP-G positive prompt                                    |
@@ -56,8 +56,8 @@ Maximum capacity context node supporting all workflow parameters including Contr
 | `SEED`            | INT                | Random seed                 |
 | `STEPS`           | INT                | Sampling steps              |
 | `CFG`             | FLOAT              | CFG scale                   |
-| `SAMPLER_NAME`    | SAMPLER            | Sampler name                |
-| `SCHEDULER`       | SCHEDULER          | Scheduler name              |
+| `SAMPLER_NAME`    | COMBO              | Sampler name                |
+| `SCHEDULER`       | COMBO              | Scheduler name              |
 | `GUIDANCE`        | FLOAT              | Guidance value              |
 | `CLIP_L_POSITIVE` | STRING             | CLIP-L positive             |
 | `CLIP_G_POSITIVE` | STRING             | CLIP-G positive             |

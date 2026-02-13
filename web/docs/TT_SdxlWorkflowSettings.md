@@ -6,13 +6,13 @@ Node for configuring SDXL workflow generation parameters.
 
 ## Inputs
 
-| Parameter      | Type   | Default | Range       | Description                          |
-|----------------|--------|---------|-------------|--------------------------------------|
-| `seed`         | INT    | 0       | 0 - 2^64-1  | Seed for reproducible results        |
-| `steps`        | INT    | 30      | 1 - 10000   | Number of sampling steps             |
-| `cfg`          | FLOAT  | 7.0     | 0.0 - 100.0 | CFG scale (classifier-free guidance) |
-| `sampler_name` | STRING | -       | -           | Sampler name from available list     |
-| `scheduler`    | STRING | -       | -           | Scheduler type                       |
+| Parameter      | Type  | Default | Range       | Description                          |
+|----------------|-------|---------|-------------|--------------------------------------|
+| `seed`         | INT   | 0       | 0 - 2^64-1  | Seed for reproducible results        |
+| `steps`        | INT   | 30      | 1 - 10000   | Number of sampling steps             |
+| `cfg`          | FLOAT | 7.0     | 0.0 - 100.0 | CFG scale (classifier-free guidance) |
+| `sampler_name` | COMBO | -       | -           | Sampler name from available list     |
+| `scheduler`    | COMBO | -       | -           | Scheduler type                       |
 
 ## Outputs
 
@@ -22,8 +22,8 @@ Node for configuring SDXL workflow generation parameters.
 | `SEED`            | INT                | Seed value                   |
 | `STEPS`           | INT                | Number of steps              |
 | `CFG`             | FLOAT              | CFG scale                    |
-| `SAMPLER_NAME`    | STRING             | Sampler name                 |
-| `SCHEDULER`       | STRING             | Scheduler                    |
+| `SAMPLER_NAME`    | COMBO              | Sampler name                 |
+| `SCHEDULER`       | COMBO              | Scheduler                    |
 
 ## Purpose
 

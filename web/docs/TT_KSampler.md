@@ -15,8 +15,8 @@ Standard sampler node for generating images from latents.
 | `seed`         | INT          | Yes      | Random seed for reproducibility (0 to 2^64-1, default: 0) |
 | `steps`        | INT          | Yes      | Number of sampling steps (1-10000, default: 25)           |
 | `cfg`          | FLOAT        | Yes      | Classifier-free guidance scale (0.0-100.0, default: 1.5)  |
-| `sampler_name` | SAMPLER      | Yes      | Sampler algorithm to use                                  |
-| `scheduler`    | SCHEDULER    | Yes      | Noise schedule to use                                     |
+| `sampler_name` | COMBO        | Yes      | Sampler algorithm to use                                  |
+| `scheduler`    | COMBO        | Yes      | Noise schedule to use                                     |
 
 ### Outputs
 

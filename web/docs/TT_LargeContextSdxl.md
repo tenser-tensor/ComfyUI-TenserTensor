@@ -20,8 +20,8 @@ Extended context node for SDXL workflows with CLIP-L/G conditioning and aestheti
 | `seed`            | INT                | No       | Random seed                                               |
 | `steps`           | INT                | No       | Sampling steps                                            |
 | `cfg`             | FLOAT              | No       | Classifier-free guidance scale                            |
-| `sampler_name`    | STRING             | No       | Sampler name                                              |
-| `scheduler`       | STRING             | No       | Scheduler name                                            |
+| `sampler_name`    | COMBO              | No       | Sampler name                                              |
+| `scheduler`       | COMBO              | No       | Scheduler name                                            |
 | `guidance`        | FLOAT              | No       | SDXL guidance value                                       |
 | `clip_l_positive` | STRING             | No       | CLIP-L positive prompt                                    |
 | `clip_g_positive` | STRING             | No       | CLIP-G positive prompt                                    |
@@ -50,8 +50,8 @@ Extended context node for SDXL workflows with CLIP-L/G conditioning and aestheti
 | `SEED`            | INT                | Random seed                 |
 | `STEPS`           | INT                | Sampling steps              |
 | `CFG`             | FLOAT              | CFG scale                   |
-| `SAMPLER_NAME`    | STRING             | Sampler name                |
-| `SCHEDULER`       | STRING             | Scheduler name              |
+| `SAMPLER_NAME`    | COMBO              | Sampler name                |
+| `SCHEDULER`       | COMBO              | Scheduler name              |
 | `GUIDANCE`        | FLOAT              | SDXL guidance               |
 | `CLIP_L_POSITIVE` | STRING             | CLIP-L positive             |
 | `CLIP_G_POSITIVE` | STRING             | CLIP-G positive             |
