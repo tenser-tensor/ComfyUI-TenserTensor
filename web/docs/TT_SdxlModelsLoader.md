@@ -1,5 +1,7 @@
 ## TT_SdxlModelsLoader
 
+*This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
+
 All-in-one model loader for SDXL workflows with checkpoint merging support.
 
 ### Inputs

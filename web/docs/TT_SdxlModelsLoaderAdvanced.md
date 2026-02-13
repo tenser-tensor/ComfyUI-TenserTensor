@@ -1,5 +1,7 @@
 ## TT_SdxlModelsLoaderAdvanced
 
+*This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
+
 Extended all-in-one model loader for SDXL with checkpoint merging and LoRA support.
 
 ### Inputs

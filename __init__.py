@@ -7,6 +7,10 @@ from .nodes.context.large_context_sdxl import TT_LargeContextSdxl
 from .nodes.latent.latent_factory import TT_LatentFactory
 from .nodes.loaders.sdxl_models_loader import TT_SdxlModelsLoader
 from .nodes.loaders.sdxl_models_loader_advanced import TT_SdxlModelsLoaderAdvanced
+from .nodes.sampling.ksampler import TT_KSampler
+from .nodes.sampling.ksampler_advanced import TT_KSamplerAdvanced
+from .nodes.sampling.ksampler_context import TT_KSamplerContext
+from .nodes.sampling.ksampler_two_stage import TT_KSamplerTwoStage
 from .nodes.workflow.flux_workfow_settings import TT_FluxWorkflowSettings
 from .nodes.workflow.flux_workfow_settings_advanced import TT_FluxWorkflowSettingsAdvanced
 from .nodes.workflow.sdxl_workfow_settings import TT_SdxlWorkflowSettings
@@ -26,6 +30,11 @@ NODE_CLASS_MAPPINGS = {
     # Loaders
     "TT_SdxlModelsLoader": TT_SdxlModelsLoader,
     "TT_SdxlModelsLoaderAdvanced": TT_SdxlModelsLoaderAdvanced,
+    # Samplers
+    "TT_KSampler": TT_KSampler,
+    "TT_KSamplerAdvanced": TT_KSamplerAdvanced,
+    "TT_KSamplerContext": TT_KSamplerContext,
+    "TT_KSamplerTwoStage": TT_KSamplerTwoStage,
     # Workflow
     "TT_FluxWorkflowSettings": TT_FluxWorkflowSettings,
     "TT_FluxWorkflowSettingsAdvanced": TT_FluxWorkflowSettingsAdvanced,
@@ -47,6 +56,11 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     # Loaders
     "TT_SdxlModelsLoader": "TT SDXL Models Loader",
     "TT_SdxlModelsLoaderAdvanced": "TT SDXL Models Loader (Advanced)",
+    # Samplers
+    "TT_KSampler": "TT KSampler",
+    "TT_KSamplerAdvanced": "TT KSampler (Advanced)",
+    "TT_KSamplerContext": "TT KSampler (Context)",
+    "TT_KSamplerTwoStage": "TT KSampler (Two Stages)",
     # Workflow
     "TT_FluxWorkflowSettings": "TT FLUX Workflow Settings",
     "TT_FluxWorkflowSettingsAdvanced": "TT FLUX Workflow Settings (Advanced)",
