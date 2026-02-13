@@ -11,6 +11,10 @@ from .nodes.sampling.ksampler import TT_KSampler
 from .nodes.sampling.ksampler_advanced import TT_KSamplerAdvanced
 from .nodes.sampling.ksampler_context import TT_KSamplerContext
 from .nodes.sampling.ksampler_two_stage import TT_KSamplerTwoStage
+from .nodes.text_encoders.clip_text_encode_flux import TT_ClipTextEncodeFlux
+from .nodes.text_encoders.clip_text_encode_flux_context import TT_ClipTextEncodeFluxContext
+from .nodes.text_encoders.clip_text_encode_sdxl import TT_ClipTextEncodeSdxl
+from .nodes.text_encoders.clip_text_encode_sdxl_context import TT_ClipTextEncodeSdxlContext
 from .nodes.workflow.flux_workfow_settings import TT_FluxWorkflowSettings
 from .nodes.workflow.flux_workfow_settings_advanced import TT_FluxWorkflowSettingsAdvanced
 from .nodes.workflow.sdxl_workfow_settings import TT_SdxlWorkflowSettings
@@ -35,6 +39,11 @@ NODE_CLASS_MAPPINGS = {
     "TT_KSamplerAdvanced": TT_KSamplerAdvanced,
     "TT_KSamplerContext": TT_KSamplerContext,
     "TT_KSamplerTwoStage": TT_KSamplerTwoStage,
+    # Text Encoder
+    "TT_ClipTextEncodeFlux": TT_ClipTextEncodeFlux,
+    "TT_ClipTextEncodeFluxContext": TT_ClipTextEncodeFluxContext,
+    "TT_ClipTextEncodeSdxl": TT_ClipTextEncodeSdxl,
+    "TT_ClipTextEncodeSdxlContext": TT_ClipTextEncodeSdxlContext,
     # Workflow
     "TT_FluxWorkflowSettings": TT_FluxWorkflowSettings,
     "TT_FluxWorkflowSettingsAdvanced": TT_FluxWorkflowSettingsAdvanced,
@@ -61,6 +70,11 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_KSamplerAdvanced": "TT KSampler (Advanced)",
     "TT_KSamplerContext": "TT KSampler (Context)",
     "TT_KSamplerTwoStage": "TT KSampler (Two Stages)",
+    # Text Encoder
+    "TT_ClipTextEncodeFlux": "TT CLIP Text Encode FLUX",
+    "TT_ClipTextEncodeFluxContext": "TT CLIP Text Encode FLUX (Context)",
+    "TT_ClipTextEncodeSdxl": "TT CLIP Text Encode SDXL",
+    "TT_ClipTextEncodeSdxlContext": "TT CLIP Text Encode SDXL (Context)",
     # Workflow
     "TT_FluxWorkflowSettings": "TT FLUX Workflow Settings",
     "TT_FluxWorkflowSettingsAdvanced": "TT FLUX Workflow Settings (Advanced)",
