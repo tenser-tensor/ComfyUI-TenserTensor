@@ -5,6 +5,8 @@ from .nodes.context.even_larger_context import TT_EvenLargerContext
 from .nodes.context.large_context_flux import TT_LargeContextFlux
 from .nodes.context.large_context_sdxl import TT_LargeContextSdxl
 from .nodes.latent.latent_factory import TT_LatentFactory
+from .nodes.loaders.sdxl_models_loader import TT_SdxlModelsLoader
+from .nodes.loaders.sdxl_models_loader_advanced import TT_SdxlModelsLoaderAdvanced
 from .nodes.workflow.flux_workfow_settings import TT_FluxWorkflowSettings
 from .nodes.workflow.flux_workfow_settings_advanced import TT_FluxWorkflowSettingsAdvanced
 from .nodes.workflow.sdxl_workfow_settings import TT_SdxlWorkflowSettings
@@ -21,6 +23,9 @@ NODE_CLASS_MAPPINGS = {
     "TT_ContextPassthrough": TT_ContextPassthrough,
     # Latent
     "TT_LatentFactory": TT_LatentFactory,
+    # Loaders
+    "TT_SdxlModelsLoader": TT_SdxlModelsLoader,
+    "TT_SdxlModelsLoaderAdvanced": TT_SdxlModelsLoaderAdvanced,
     # Workflow
     "TT_FluxWorkflowSettings": TT_FluxWorkflowSettings,
     "TT_FluxWorkflowSettingsAdvanced": TT_FluxWorkflowSettingsAdvanced,
@@ -39,6 +44,9 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_ContextPassthrough": "TT Context Passthrough",
     # Latent
     "TT_LatentFactory": "TT Latent Factory",
+    # Loaders
+    "TT_SdxlModelsLoader": "TT SDXL Models Loader",
+    "TT_SdxlModelsLoaderAdvanced": "TT SDXL Models Loader (Advanced)",
     # Workflow
     "TT_FluxWorkflowSettings": "TT FLUX Workflow Settings",
     "TT_FluxWorkflowSettingsAdvanced": "TT FLUX Workflow Settings (Advanced)",
