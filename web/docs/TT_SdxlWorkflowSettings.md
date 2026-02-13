@@ -1,4 +1,4 @@
-# TT_SdxlWorkflowSettings
+# TT SDXL Workflow Settings *TT_SdxlWorkflowSettings*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 

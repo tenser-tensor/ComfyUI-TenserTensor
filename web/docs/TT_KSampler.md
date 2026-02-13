@@ -1,4 +1,4 @@
-## TT_KSampler
+## TT KSampler *TT_KSampler*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 

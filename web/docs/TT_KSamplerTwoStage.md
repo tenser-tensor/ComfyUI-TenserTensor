@@ -1,4 +1,4 @@
-## TT_KSamplerTwoStage
+## TT KSampler (Two Stages) *TT_KSamplerTwoStage*
 
 Two-stage sampler with separate draft and refinement passes.
 

@@ -1,4 +1,4 @@
-## TT Even Larger Context (TT_EvenLargerContext)
+## TT Even Larger Context *TT_EvenLargerContext*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 

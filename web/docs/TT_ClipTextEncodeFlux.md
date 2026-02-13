@@ -1,4 +1,4 @@
-## TT_ClipTextEncodeFlux
+## TT CLIP Text Encode FLUX *TT_ClipTextEncodeFlux*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 

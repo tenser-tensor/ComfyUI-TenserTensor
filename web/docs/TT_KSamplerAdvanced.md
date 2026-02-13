@@ -1,4 +1,4 @@
-## TT_KSamplerAdvanced
+## TT KSampler (Advanced) *TT_KSamplerAdvanced*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 

@@ -1,4 +1,4 @@
-## TT_KSamplerContext
+## TT KSampler (Context) *TT_KSamplerContext*
 
 Context-based sampler that extracts parameters from workflow context.
 

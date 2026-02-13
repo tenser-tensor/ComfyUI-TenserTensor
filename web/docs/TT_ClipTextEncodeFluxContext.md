@@ -1,4 +1,4 @@
-## TT_ClipTextEncodeFluxContext
+## TT CLIP Text Encode FLUX (Context) *TT_ClipTextEncodeFluxContext*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 

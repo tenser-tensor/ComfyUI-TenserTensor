@@ -1,4 +1,4 @@
-## TT FLUX Large Context (TT_LargeContextFlux)
+## TT FLUX Large Context *TT_LargeContextFlux*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 

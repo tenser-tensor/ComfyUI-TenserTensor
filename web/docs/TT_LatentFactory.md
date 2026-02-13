@@ -1,4 +1,4 @@
-# TT Latent Factory
+# TT Latent Factory *TT_LatentFactory*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 

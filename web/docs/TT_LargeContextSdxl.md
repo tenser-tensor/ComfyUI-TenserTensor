@@ -1,4 +1,4 @@
-## TT SDXL Large Context (TT_LargeContextSdxl)
+## TT SDXL Large Context *TT_LargeContextSdxl*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 

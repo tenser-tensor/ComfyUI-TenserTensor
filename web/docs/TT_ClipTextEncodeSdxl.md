@@ -1,4 +1,4 @@
-## TT_ClipTextEncodeSdxl
+## TT CLIP Text Encode SDXL *TT_ClipTextEncodeSdxl*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 

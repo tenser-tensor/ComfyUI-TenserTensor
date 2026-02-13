@@ -1,4 +1,4 @@
-# TT_FluxWorkflowSettingsAdvanced
+# TT FLUX Workflow Settings (Advanced) *TT_FluxWorkflowSettingsAdvanced*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 

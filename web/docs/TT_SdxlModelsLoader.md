@@ -1,4 +1,4 @@
-## TT_SdxlModelsLoader
+## TT SDXL Models Loader *TT_SdxlModelsLoader*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 

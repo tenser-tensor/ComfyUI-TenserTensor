@@ -21,6 +21,12 @@ from .nodes.workflow.flux_workfow_settings import TT_FluxWorkflowSettings
 from .nodes.workflow.flux_workfow_settings_advanced import TT_FluxWorkflowSettingsAdvanced
 from .nodes.workflow.sdxl_workfow_settings import TT_SdxlWorkflowSettings
 from .nodes.workflow.sdxl_workfow_settings_advanced import TT_SdxlWorkflowSettingsAdvanced
+from .nodes.postproduction.add_film_grain import TT_AddFilmGrain
+from .nodes.postproduction.apply_lut import TT_ApplyLut
+from .nodes.postproduction.image_enhancer import TT_ImageEnhancer
+from .nodes.postproduction.postproduction import TT_Postproduction
+from .nodes.postproduction.postproduction_advanced import TT_PostproductionAdvanced
+from .nodes.postproduction.quick_image_upscaler import TT_QuickImageUpscaler
 
 NODE_CLASS_MAPPINGS = {
     # Context
@@ -36,6 +42,13 @@ NODE_CLASS_MAPPINGS = {
     # Loaders
     "TT_SdxlModelsLoader": TT_SdxlModelsLoader,
     "TT_SdxlModelsLoaderAdvanced": TT_SdxlModelsLoaderAdvanced,
+    # Postproduction
+    "TT_ApplyLut": TT_ApplyLut,
+    "TT_AddFilmGrain": TT_AddFilmGrain,
+    "TT_QuickImageUpscaler": TT_QuickImageUpscaler,
+    "TT_ImageEnhancer": TT_ImageEnhancer,
+    "TT_Postproduction": TT_Postproduction,
+    "TT_PostproductionAdvanced": TT_PostproductionAdvanced,
     # Samplers
     "TT_KSampler": TT_KSampler,
     "TT_KSamplerAdvanced": TT_KSamplerAdvanced,
@@ -70,6 +83,13 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     # Loaders
     "TT_SdxlModelsLoader": "TT SDXL Models Loader",
     "TT_SdxlModelsLoaderAdvanced": "TT SDXL Models Loader (Advanced)",
+    # Postproduction
+    "TT_ApplyLut": "TT Apply LUT",
+    "TT_AddFilmGrain": "TT Add Film Grain",
+    "TT_QuickImageUpscaler": "TT Quick Image Upscaler",
+    "TT_ImageEnhancer": "TT Image Enhancer",
+    "TT_Postproduction": "TT Postproduction",
+    "TT_PostproductionAdvanced": "TT Postproduction (Advanced)",
     # Samplers
     "TT_KSampler": "TT KSampler",
     "TT_KSamplerAdvanced": "TT KSampler (Advanced)",
