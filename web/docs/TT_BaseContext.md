@@ -6,19 +6,19 @@ Creates a foundational context object by combining essential workflow components
 
 ### Inputs
 
-| Parameter       | Type               | Required | Description                     |
-|-----------------|--------------------|----------|---------------------------------|
-| model           | MODEL              | Yes      | The diffusion model (UNet/DiT)  |
-| clip            | CLIP               | Yes      | CLIP text encoder               |
-| vae             | VAE                | Yes      | VAE for encoding/decoding       |
-| latent          | LATENT             | Yes      | Latent image tensor             |
-| workflow_config | TT_WORKFLOW_CONFIG | No       | Workflow configuration settings |
+| Parameter         | Type               | Required | Description                     |
+|-------------------|--------------------|----------|---------------------------------|
+| `model`           | MODEL              | Yes      | The diffusion model (UNet/DiT)  |
+| `clip`            | CLIP               | Yes      | CLIP text encoder               |
+| `vae`             | VAE                | Yes      | VAE for encoding/decoding       |
+| `latent`          | LATENT             | Yes      | Latent image tensor             |
+| `workflow_config` | TT_WORKFLOW_CONFIG | No       | Workflow configuration settings |
 
 ### Outputs
 
 | Parameter | Type       | Description                                |
 |-----------|------------|--------------------------------------------|
-| CONTEXT   | TT_CONTEXT | Dictionary containing all input components |
+| `CONTEXT` | TT_CONTEXT | Dictionary containing all input components |
 
 ### Usage
 

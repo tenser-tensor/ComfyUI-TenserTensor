@@ -8,13 +8,13 @@ Pass-through node that forwards context while allowing optional parameter modifi
 
 | Parameter | Type       | Required | Description                   |
 |-----------|------------|----------|-------------------------------|
-| context   | TT_CONTEXT | Yes      | Input context to pass through |
+| `context` | TT_CONTEXT | Yes      | Input context to pass through |
 
 ### Outputs
 
 | Parameter | Type       | Description                                 |
 |-----------|------------|---------------------------------------------|
-| CONTEXT   | TT_CONTEXT | Context with optionally modified parameters |
+| `CONTEXT` | TT_CONTEXT | Context with optionally modified parameters |
 
 ### Usage
 
