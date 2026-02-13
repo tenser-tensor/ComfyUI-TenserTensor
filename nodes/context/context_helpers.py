@@ -115,8 +115,6 @@ CONTEXTS = {
             "ascore_positive",
             "ascore_negative",
             "width",
-            "width",
-            "width",
             "height",
             "target_width",
             "target_height",
