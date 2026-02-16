@@ -128,6 +128,24 @@ CONTEXTS = {
             "context",
         )
     },
+    "set_image":{
+        "required": (
+            "context",
+            "image",
+        ),
+        "return": (
+            "context",
+        )
+    },
+    "set_latent":{
+        "required": (
+            "context",
+            "latent",
+        ),
+        "return": (
+            "context",
+        )
+    },
 }
 
 FORCE_INPUT_TYPES = {
