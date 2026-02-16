@@ -1,0 +1,15 @@
+# pyproject.toml
+[project]
+name = "ComfyUI-TenserTensor"
+description = "A collection of custom nodes for ComfyUI that streamline common workflows. The main goal is to reduce visual clutter by combining frequently used node chains into single, convenient loaders."
+version = "1.0.2"
+license = { file = "LICENSE" }
+dependencies  = []
+
+[project.urls]
+Repository = "https://github.com/tenser-tensor/ComfyUI-TenserTensor"
+
+[tool.comfy]
+PublisherId = "tenser-tensor"
+DisplayName = "Tenser Tensor"
+Icon = "https://raw.githubusercontent.com/tenser-tensor/ComfyUI-TenserTensor/main/icon.png"
