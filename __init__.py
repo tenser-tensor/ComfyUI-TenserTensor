@@ -26,6 +26,8 @@ from .nodes.text_encoders.clip_text_encode_sdxl import TT_ClipTextEncodeSdxl
 from .nodes.text_encoders.clip_text_encode_sdxl_context import TT_ClipTextEncodeSdxlContext
 from .nodes.vae.vae_decode_context import TT_VaeDecodeContext
 from .nodes.vae.vae_decode_tiled import TT_VaeDecodeTiled
+from .nodes.vae.vae_encode_context import TT_VaeEncodeContext
+from .nodes.vae.vae_encode_tiled import TT_VaeEncodeTiled
 from .nodes.workflow.flux_workfow_settings import TT_FluxWorkflowSettings
 from .nodes.workflow.flux_workfow_settings_advanced import TT_FluxWorkflowSettingsAdvanced
 from .nodes.workflow.sdxl_workfow_settings import TT_SdxlWorkflowSettings
@@ -69,6 +71,8 @@ NODE_CLASS_MAPPINGS = {
     # VAE
     "TT_VaeDecodeContext": TT_VaeDecodeContext,
     "TT_VaeDecodeTiled": TT_VaeDecodeTiled,
+    "TT_VaeEncodeContext": TT_VaeEncodeContext,
+    "TT_VaeEncodeTiled": TT_VaeEncodeTiled,
     # Workflow
     "TT_FluxWorkflowSettings": TT_FluxWorkflowSettings,
     "TT_FluxWorkflowSettingsAdvanced": TT_FluxWorkflowSettingsAdvanced,
@@ -113,6 +117,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     # VAE
     "TT_VaeDecodeContext": "TT VAE Decode (Context)",
     "TT_VaeDecodeTiled": "TT VAE Decode (Tiled)",
+    "TT_VaeEncodeContext": "TT Vae Encode (Context)",
+    "TT_VaeEncodeTiled": "TT Vae Encode (Tiled)",
     # Workflow
     "TT_FluxWorkflowSettings": "TT FLUX Workflow Settings",
     "TT_FluxWorkflowSettingsAdvanced": "TT FLUX Workflow Settings (Advanced)",

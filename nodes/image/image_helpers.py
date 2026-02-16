@@ -14,8 +14,8 @@ def _save(
         output_path,
         filename_format="name-###",
         image_format="PNG",
-        quality="50",
-        compress_level="4"
+        quality=50,
+        compress_level=4
 ):
     height, width = images[0].shape[:2]
     save_path, filename, counter, subfolder, _ = FP.get_save_image_path(

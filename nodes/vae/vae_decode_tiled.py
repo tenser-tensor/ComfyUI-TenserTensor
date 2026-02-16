@@ -8,9 +8,9 @@ class TT_VaeDecodeTiled:
             "required": {
                 "vae": ("VAE",),
                 "latent": ("LATENT",),
-                "tile_width": ("INT", {"default": 512, "min": 320, "max": 4096, "step": 64}),
-                "tile_height": ("INT", {"default": 512, "min": 320, "max": 4096, "step": 64}),
-                "overlap": ("INT", {"default": 64, "min": 0, "max": 256, "step": 8}),
+                "tile_width": ("INT", {"default": 512, "min": 64, "max": 4096, "step": 64}),
+                "tile_height": ("INT", {"default": 512, "min": 64, "max": 4096, "step": 64}),
+                "overlap": ("INT", {"default": 64, "min": 0, "max": 4096, "step": 32}),
                 "circular": ("BOOLEAN", {"default": False, "label_on": "Enabled", "label_off": "Disabled"}),
             }
         }
