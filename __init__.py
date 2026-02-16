@@ -4,6 +4,7 @@ from .nodes.context.context_passthrough import TT_ContextPassthrough
 from .nodes.context.even_larger_context import TT_EvenLargerContext
 from .nodes.context.large_context_flux import TT_LargeContextFlux
 from .nodes.context.large_context_sdxl import TT_LargeContextSdxl
+from .nodes.image.image_preview_save import TT_ImagePreviewSave
 from .nodes.latent.latent_factory import TT_LatentFactory
 from .nodes.loaders.flux_models_loader import TT_FluxModelsLoader
 from .nodes.loaders.flux_models_loader_advanced import TT_FluxModelsLoaderAdvanced
@@ -39,6 +40,8 @@ NODE_CLASS_MAPPINGS = {
     "TT_EvenLargerContext": TT_EvenLargerContext,
     # Context Passthrough
     "TT_ContextPassthrough": TT_ContextPassthrough,
+    # Image
+    "TT_ImagePreviewSave": TT_ImagePreviewSave,
     # Latent
     "TT_LatentFactory": TT_LatentFactory,
     # Loaders
@@ -82,6 +85,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_EvenLargerContext": "TT Even Larger Context",
     # Context Passthrough
     "TT_ContextPassthrough": "TT Context Passthrough",
+    "TT_ImagePreviewSave": "TT Image Preview / Save",
     # Latent
     "TT_LatentFactory": "TT Latent Factory",
     # Loaders
