@@ -106,8 +106,6 @@ def upscale_image(timage, device, upscale_model_name, tile, overlap):
     iimage = timage.movedim(-1, 1).to(upscale_device)
     batch, channels, height, width = iimage.shape
 
-    print(f"iimage.shape: {iimage.shape}")
-
     BUFFER_FACTOR = 384.0
 
     model_mem = model_management.module_size(upscale_model.model)
