@@ -12,7 +12,7 @@ def _save(
         images,
         prefix,
         output_path,
-        filename_format="name-###",
+        filename_format=None,
         image_format="PNG",
         quality=50,
         compress_level=4
@@ -36,6 +36,8 @@ def _save(
             case "name-datetime":
                 timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
                 filename = f"{filename}-{timestamp}"
+            case _:
+                pass
 
         params = {}
         match image_format:
