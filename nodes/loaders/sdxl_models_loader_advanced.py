@@ -1,7 +1,7 @@
 import folder_paths
 
 from nodes import VAELoader
-from .loader_helpers import load_checkpoint, load_clip, apply_lora, load_vae
+from .loader_helpers import load_checkpoint, load_sdxl_clip, apply_lora, load_vae
 
 
 class TT_SdxlModelsLoaderAdvanced:
@@ -56,7 +56,7 @@ class TT_SdxlModelsLoaderAdvanced:
             for key in key_patches:
                 model.add_patches({key: key_patches[key]}, 1.0 - primary_weight, primary_weight)
 
-        clip = load_clip(clip_l, clip_g, clip_device)
+        clip = load_sdxl_clip(clip_l, clip_g, clip_device)
 
         loras = [
             (lora_name_1, strength_1, 'loaded_lora_1'),

@@ -1,7 +1,7 @@
 import folder_paths
 
 from nodes import VAELoader
-from .loader_helpers import load_checkpoint, load_clip, load_vae
+from .loader_helpers import load_checkpoint, load_sdxl_clip, load_vae
 
 
 class TT_SdxlModelsLoader:
@@ -34,7 +34,7 @@ class TT_SdxlModelsLoader:
             for key in key_patches:
                 model.add_patches({key: key_patches[key]}, 1.0 - primary_weight, primary_weight)
 
-        clip = load_clip(clip_l, clip_g, clip_device)
+        clip = load_sdxl_clip(clip_l, clip_g, clip_device)
 
         vae = load_vae(vae_name, "cpu", "bfloat16")
 

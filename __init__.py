@@ -5,8 +5,16 @@ from .nodes.context.even_larger_context import TT_EvenLargerContext
 from .nodes.context.large_context_flux import TT_LargeContextFlux
 from .nodes.context.large_context_sdxl import TT_LargeContextSdxl
 from .nodes.latent.latent_factory import TT_LatentFactory
+from .nodes.loaders.flux_models_loader import TT_FluxModelsLoader
+from .nodes.loaders.flux_models_loader_advanced import TT_FluxModelsLoaderAdvanced
 from .nodes.loaders.sdxl_models_loader import TT_SdxlModelsLoader
 from .nodes.loaders.sdxl_models_loader_advanced import TT_SdxlModelsLoaderAdvanced
+from .nodes.postproduction.add_film_grain import TT_AddFilmGrain
+from .nodes.postproduction.apply_lut import TT_ApplyLut
+from .nodes.postproduction.image_enhancer import TT_ImageEnhancer
+from .nodes.postproduction.postproduction import TT_Postproduction
+from .nodes.postproduction.postproduction_advanced import TT_PostproductionAdvanced
+from .nodes.postproduction.quick_image_upscaler import TT_QuickImageUpscaler
 from .nodes.sampling.ksampler import TT_KSampler
 from .nodes.sampling.ksampler_advanced import TT_KSamplerAdvanced
 from .nodes.sampling.ksampler_context import TT_KSamplerContext
@@ -21,12 +29,6 @@ from .nodes.workflow.flux_workfow_settings import TT_FluxWorkflowSettings
 from .nodes.workflow.flux_workfow_settings_advanced import TT_FluxWorkflowSettingsAdvanced
 from .nodes.workflow.sdxl_workfow_settings import TT_SdxlWorkflowSettings
 from .nodes.workflow.sdxl_workfow_settings_advanced import TT_SdxlWorkflowSettingsAdvanced
-from .nodes.postproduction.add_film_grain import TT_AddFilmGrain
-from .nodes.postproduction.apply_lut import TT_ApplyLut
-from .nodes.postproduction.image_enhancer import TT_ImageEnhancer
-from .nodes.postproduction.postproduction import TT_Postproduction
-from .nodes.postproduction.postproduction_advanced import TT_PostproductionAdvanced
-from .nodes.postproduction.quick_image_upscaler import TT_QuickImageUpscaler
 
 NODE_CLASS_MAPPINGS = {
     # Context
@@ -42,6 +44,8 @@ NODE_CLASS_MAPPINGS = {
     # Loaders
     "TT_SdxlModelsLoader": TT_SdxlModelsLoader,
     "TT_SdxlModelsLoaderAdvanced": TT_SdxlModelsLoaderAdvanced,
+    "TT_FluxModelsLoader": TT_FluxModelsLoader,
+    "TT_FluxModelsLoaderAdvanced": TT_FluxModelsLoaderAdvanced,
     # Postproduction
     "TT_ApplyLut": TT_ApplyLut,
     "TT_AddFilmGrain": TT_AddFilmGrain,
@@ -83,6 +87,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     # Loaders
     "TT_SdxlModelsLoader": "TT SDXL Models Loader",
     "TT_SdxlModelsLoaderAdvanced": "TT SDXL Models Loader (Advanced)",
+    "TT_FluxModelsLoader": "TT FLUX Models Loader",
+    "TT_FluxModelsLoaderAdvanced": "TT FLUX Models Loader (Advanced)",
     # Postproduction
     "TT_ApplyLut": "TT Apply LUT",
     "TT_AddFilmGrain": "TT Add Film Grain",
