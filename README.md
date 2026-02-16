@@ -30,3 +30,105 @@ combining frequently used node chains into single, convenient loaders.
   grain, upscaler
     - All-in-one post-production node combining all tools
     - Simplified version without adjustments
+
+## Nodes List
+
+### Workflow
+
+#### TT FLUX Workflow Settings
+
+Node for configuring Flux workflow generation parameters.
+
+#### TT FLUX Workflow Settings (Advanced)
+
+Advanced node for configuring Flux workflow generation parameters with separate CLIP-L and T5XXL prompts.
+
+#### TT SDXL Workflow Settings
+
+Node for configuring SDXL workflow generation parameters.
+
+#### TT SDXL Workflow Settings (Advanced)
+
+Advanced SDXL workflow configuration with separate CLIP-L/G prompts and aesthetic scores.
+
+### Latent
+
+#### TT Latent Factory
+
+Generate empty latent images with precise dimension control based on aspect ratio and megapixel count.
+
+Automatically calculates correct dimensions for FLUX and SDXL models, plus separate CLIP conditioning sizes.
+
+### Loaders
+
+#### TT SDXL Models Loader
+
+All-in-one model loader for SDXL workflows with checkpoint merging support.
+
+#### TT SDXL Models Loader (Advanced)
+
+Extended all-in-one model loader for SDXL with checkpoint merging and LoRA support.
+
+#### TT FLUX Models Loader
+
+All-in-one model loader for Flux workflows.
+
+#### TT FLUX Models Loader (Advanced)
+
+Extended all-in-one model loader for Flux with sampling patches, LoRA support, and advanced settings.
+
+### Text Encoder
+
+#### TT CLIP Text Encode FLUX
+
+Flux text encoder with separate CLIP-L and T5-XXL prompt inputs.
+
+#### TT CLIP Text Encode FLUX (Context)
+
+Context-based Flux text encoder that extracts prompts from workflow config.
+
+#### TT CLIP Text Encode SDXL
+
+SDXL text encoder with separate CLIP-L and CLIP-G prompt inputs and conditioning parameters.
+
+#### TT CLIP Text Encode SDXL (Context)
+
+Context-based SDXL text encoder that extracts prompts and parameters from workflow config.
+
+### Samplers
+
+#### TT KSampler
+#### TT KSampler (Advanced)
+#### TT KSampler (Context)
+#### TT KSampler (Two Stages)
+
+### VAE
+
+#### TT VAE Decode (Context)
+#### TT VAE Decode (Tiled)
+#### TT Vae Encode (Context)
+#### TT Vae Encode (Tiled)
+
+### Postproduction
+
+#### TT Apply LUT
+#### TT Add Film Grain
+#### TT Quick Image Upscaler
+#### TT Image Enhancer
+#### TT Postproduction
+#### TT Postproduction (Advanced)
+
+### Image
+
+#### TT Image Preview / Save
+
+### Context
+
+#### TT Base Context
+#### TT Context
+#### TT FLUX Large Context
+#### TT SDXL Large Context
+#### TT Even Larger Context
+#### TT Context Set Image
+#### TT Context Set Latent
+#### TT Context Passthrough
