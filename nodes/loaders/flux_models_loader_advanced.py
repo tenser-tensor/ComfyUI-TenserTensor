@@ -1,18 +1,20 @@
 from folder_paths import get_filename_list
 
 from nodes import VAELoader, MAX_RESOLUTION
-from .loader_helpers import load_checkpoint, patch_flux_sampling, load_flux_clip, apply_lora, load_vae
+from .loader_helpers import load_unet, patch_flux_sampling, load_flux_clip, apply_lora, load_vae
 
 
 class TT_FluxModelsLoaderAdvanced():
     @classmethod
     def INPUT_TYPES(cls):
+        UNET_DTYPES = ["default", "fp8_e4m3fn", "fp8_e4m3fn_fast", "fp8_e5m2"]
         DEVICES = ["default", "cpu"]
-        DTYPES = ["bfloat16", "float16", "float32"]
+        VAE_DTYPES = ["bfloat16", "float16", "float32"]
 
         return {
             "required": {
-                "ckpt_name": (get_filename_list("checkpoints"),),
+                "unet_name": (get_filename_list("diffusion_models"),),
+                "unet_dtype": (UNET_DTYPES, {"advanced": True}),
                 "apply_sampling": ("BOOLEAN", {"default": True, "label_on": "Enabled", "label_off": "Disabled"}),
                 "base_sampling_shift": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 100.0, "step": 0.01}),
                 "max_sampling_shift": ("FLOAT", {"default": 1.15, "min": 0.0, "max": 100.0, "step": 0.01}),
@@ -31,7 +33,7 @@ class TT_FluxModelsLoaderAdvanced():
                 "strength_4": ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.1}),
                 "vae_name": (VAELoader.vae_list(VAELoader),),
                 "vae_device": (DEVICES, {"advanced": True}),
-                "vae_dtype": (DTYPES, {"advanced": True}),
+                "vae_dtype": (VAE_DTYPES, {"advanced": True}),
             }
         }
 
@@ -41,9 +43,10 @@ class TT_FluxModelsLoaderAdvanced():
     CATEGORY = "TenserTensor/Loaders/FLUX"
 
     def load_models(self, **kwargs):
-        ckpt_name = kwargs.get("ckpt_name")
+        unet_name = kwargs.get("unet_name")
         apply_sampling = kwargs.get("apply_sampling")
-        model = load_checkpoint(ckpt_name)[0]
+        unet_dtype = kwargs.get("unet_dtype")
+        model = load_unet(unet_name, unet_dtype)
 
         if apply_sampling:
             args = {

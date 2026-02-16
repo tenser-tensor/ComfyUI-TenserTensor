@@ -19,13 +19,34 @@ def load_checkpoint(ckpt_name):
     )
 
 
-def _load_clip(clip_type, ckpt_paths, device):
+def load_unet(unet_name, unet_dtype="default"):
+    unet_path = folder_paths.get_full_path_or_raise("diffusion_models", unet_name)
+
+    model_options = {}
+    match unet_dtype:
+        case "fp8_e4m3fn":
+            model_options["dtype"] = torch.float8_e4m3fn
+        case "fp8_e4m3fn_fast":
+            model_options["dtype"] = torch.float8_e4m3fn
+            model_options["fp8_optimizations"] = True
+        case "fp8_e5m2":
+            model_options["dtype"] = torch.float8_e5m2
+        case _:
+            pass
+
+    return SD.load_diffusion_model(
+        unet_path,
+        model_options=model_options
+    )
+
+
+def _load_clip(clip_type, clip_paths, device):
     model_options = {}
     if device == "cpu":
         model_options["load_device"] = model_options["offload_device"] = torch.device("cpu")
 
     return SD.load_clip(
-        ckpt_paths=ckpt_paths,
+        ckpt_paths=clip_paths,
         embedding_directory=folder_paths.get_folder_paths("embeddings"),
         clip_type=clip_type,
         model_options=model_options
@@ -36,18 +57,18 @@ def load_sdxl_clip(clip_l, clip_g, device):
     clip_type = getattr(SD.CLIPType, "SDXL", SD.CLIPType.STABLE_DIFFUSION)
     clip_l_path = folder_paths.get_full_path_or_raise("text_encoders", clip_l)
     clip_g_path = folder_paths.get_full_path_or_raise("text_encoders", clip_g)
-    ckpt_paths = [clip_l_path, clip_g_path]
+    clip_paths = [clip_l_path, clip_g_path]
 
-    return _load_clip(clip_type, ckpt_paths, device)
+    return _load_clip(clip_type, clip_paths, device)
 
 
 def load_flux_clip(clip_l, t5xxl, device):
     clip_type = SD.CLIPType.FLUX
     clip_l_path = folder_paths.get_full_path_or_raise("text_encoders", clip_l)
     t5xxl_path = folder_paths.get_full_path_or_raise("text_encoders", t5xxl)
-    ckpt_paths = [clip_l_path, t5xxl_path]
+    clip_paths = [clip_l_path, t5xxl_path]
 
-    return _load_clip(clip_type, ckpt_paths, device)
+    return _load_clip(clip_type, clip_paths, device)
 
 
 def apply_lora(loaded_lora, model, clip, lora_name, strength):
