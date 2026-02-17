@@ -40,5 +40,6 @@ class TT_KSamplerContext():
         }
 
         samples = sample_latents(**args)
+        context["latent"] = samples
 
         return (context, samples)
