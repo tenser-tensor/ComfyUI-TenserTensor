@@ -1,0 +1,42 @@
+site_name: 'Tenser Tensor'
+site_url: 'https://tenser-tensor.github.io/ComfyUI-TenserTensor/'
+repo_url: 'https://github.com/tenser-tensor/ComfyUI-TenserTensor'
+repo_name: "GitHub"
+edit_uri: 'blob/main/docs/'
+site_description: ''
+site_author: ''
+copyright: ''
+remote_branch: 'gh-pages'
+remote_name: 'origin'
+nav:
+  - Introduction: 'index.md'
+  - 'About the project': 'about.md'
+  - 'Issue Tracker': 'https://github.com/tenser-tensor/ComfyUI-TenserTensor/issues'
+draft_docs: |
+  drafts/
+  _unpublished.md
+validation:
+  nav:
+    omitted_files: info
+    not_found: warn
+    absolute_links: info
+  links:
+    not_found: warn
+    anchors: info
+    absolute_links: info
+    unrecognized_links: info
+docs_dir: 'docs'
+site_dir: 'build'
+extra_css:
+  - css/extra.css
+extra_javascript:
+  - js/extra.js
+extra_templates: [ ]
+extra:
+  version: 1.0.0
+use_directory_urls: true
+strict: true
+dev_addr: '127.0.0.1:8288'
+markdown_extensions:
+  - smarty
+plugins: [ 'search' ]
