@@ -46,3 +46,8 @@ Standard context node that can create a new context or modify an existing one.
 
 Use this node to create a new context from scratch or modify specific parameters in an existing context. All parameters
 are optional - provide only what you need to set or change.
+
+
+---
+
+[View on GitHub](https://github.com/tenser-tensor/ComfyUI-TenserTensor)
