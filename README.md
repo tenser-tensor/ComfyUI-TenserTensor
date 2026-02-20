@@ -31,6 +31,38 @@ combining frequently used node chains into single, convenient loaders.
     - All-in-one post-production node combining all tools
     - Simplified version without adjustments
 
+## Installation
+
+### 1. Via Git Clone (recommended)
+
+```bash
+cd ComfyUI/custom_nodes
+git clone https://github.com/tenser-tensor/ComfyUI-TenserTensor
+```
+
+### 2. Via ComfyUI-Manager
+
+* Open ComfyUI-Manager
+* Click "Install Custom Nodes"
+* Search for: TenserTensor
+* Install → Restart ComfyUI
+
+### 3. Via comfy-cli
+
+```bash
+comfy node install tenser-tensor/ComfyUI-TenserTensor
+```
+
+Restart ComfyUI after installation.
+
 ## Nodes List
 
 [Nodes List](NODES.md)
+
+## Acknowledgments
+
+This project uses GGUF file handling code from [City96](https://github.com/city96).
+
+Great thanks and appreciation for your excellent work!
+
+[ComfyUI-GGUF on Github](https://github.com/city96/ComfyUI-GGUF)
