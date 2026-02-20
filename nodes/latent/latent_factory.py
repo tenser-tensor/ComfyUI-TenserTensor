@@ -1,3 +1,5 @@
+# (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
+
 import torch
 
 ASPECT_RATIOS = [
@@ -23,7 +25,8 @@ ORIENTATIONS = [
 ]
 
 MODEL_TYPES = [
-    "FLUX",
+    "FLUX1.D",
+    "FLUX2.D",
     "SDXL"
 ]
 
@@ -85,13 +88,19 @@ class TT_LatentFactory:
         clip_width = width * multiplier
         clip_height = height * multiplier
 
-        if model_type == "FLUX":
-            channels = 16
-        else:
-            channels = 4
+        match model_type:
+            case "FLUX1.D":
+                scale_factor = 8
+                channels = 16
+            case "FLUX2.D":
+                scale_factor = 16
+                channels = 128
+            case "SDXL":
+                scale_factor = 8
+                channels = 4
 
-        latent_width = width // 8
-        latent_height = height // 8
+        latent_width = width // scale_factor
+        latent_height = height // scale_factor
 
         generator = torch.Generator().manual_seed(seed)
         latent = torch.randn(

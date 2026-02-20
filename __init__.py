@@ -1,3 +1,5 @@
+# (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
+
 from .nodes.context.base_context import TT_BaseContext
 from .nodes.context.context import TT_Context
 from .nodes.context.context_passthrough import TT_ContextPassthrough
@@ -10,6 +12,7 @@ from .nodes.image.image_preview_save import TT_ImagePreviewSave
 from .nodes.latent.latent_factory import TT_LatentFactory
 from .nodes.loaders.flux_models_loader import TT_FluxModelsLoader
 from .nodes.loaders.flux_models_loader_advanced import TT_FluxModelsLoaderAdvanced
+from .nodes.loaders.gguf_models_loader import TT_GgufModelsLoader
 from .nodes.loaders.sdxl_models_loader import TT_SdxlModelsLoader
 from .nodes.loaders.sdxl_models_loader_advanced import TT_SdxlModelsLoaderAdvanced
 from .nodes.postproduction.add_film_grain import TT_AddFilmGrain
@@ -53,6 +56,7 @@ NODE_CLASS_MAPPINGS = {
     # Loaders
     "TT_SdxlModelsLoader": TT_SdxlModelsLoader,
     "TT_SdxlModelsLoaderAdvanced": TT_SdxlModelsLoaderAdvanced,
+    "TT_GgufModelsLoader": TT_GgufModelsLoader,
     "TT_FluxModelsLoader": TT_FluxModelsLoader,
     "TT_FluxModelsLoaderAdvanced": TT_FluxModelsLoaderAdvanced,
     # Postproduction
@@ -102,6 +106,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     # Loaders
     "TT_SdxlModelsLoader": "TT SDXL Models Loader",
     "TT_SdxlModelsLoaderAdvanced": "TT SDXL Models Loader (Advanced)",
+    "TT_GgufModelsLoader": "TT GGUF Models Loader",
     "TT_FluxModelsLoader": "TT FLUX Models Loader",
     "TT_FluxModelsLoaderAdvanced": "TT FLUX Models Loader (Advanced)",
     # Postproduction
