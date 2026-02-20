@@ -1,45 +1,89 @@
 # (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
-"""
+RESET = "\033[0m"
+BOLD = "\033[1m"
+RED = "\033[31m"
+GREEN = "\033[32m"
+YELLOW = "\033[33m"
+BLUE = "\033[34m"
+CYAN = "\033[36m"
+WHITE = "\033[37m"
+BRIGHT_GREEN = "\033[92m"
+BRIGHT_CYAN = "\033[96m"
 
-"""
-from .nodes.context.base_context import TT_BaseContext
-from .nodes.context.context import TT_Context
-from .nodes.context.context_passthrough import TT_ContextPassthrough
-from .nodes.context.context_set_image import TT_ContextSetImage
-from .nodes.context.context_set_latent import TT_ContextSetLatent
-from .nodes.context.even_larger_context import TT_EvenLargerContext
-from .nodes.context.large_context_flux import TT_LargeContextFlux
-from .nodes.context.large_context_sdxl import TT_LargeContextSdxl
-from .nodes.image.image_preview_save import TT_ImagePreviewSave
-from .nodes.latent.latent_factory import TT_LatentFactory
-from .nodes.loaders.flux_models_loader import TT_FluxModelsLoader
-from .nodes.loaders.flux_models_loader_advanced import TT_FluxModelsLoaderAdvanced
-from .nodes.loaders.gguf_models_loader import TT_GgufModelsLoader
-from .nodes.loaders.sdxl_models_loader import TT_SdxlModelsLoader
-from .nodes.loaders.sdxl_models_loader_advanced import TT_SdxlModelsLoaderAdvanced
-from .nodes.postproduction.add_film_grain import TT_AddFilmGrain
-from .nodes.postproduction.apply_lut import TT_ApplyLut
-from .nodes.postproduction.image_enhancer import TT_ImageEnhancer
-from .nodes.postproduction.postproduction import TT_Postproduction
-from .nodes.postproduction.postproduction_advanced import TT_PostproductionAdvanced
-from .nodes.postproduction.quick_image_upscaler import TT_QuickImageUpscaler
-from .nodes.sampling.ksampler import TT_KSampler
-from .nodes.sampling.ksampler_advanced import TT_KSamplerAdvanced
-from .nodes.sampling.ksampler_context import TT_KSamplerContext
-from .nodes.sampling.ksampler_two_stage import TT_KSamplerTwoStage
-from .nodes.text_encoders.clip_text_encode_flux import TT_ClipTextEncodeFlux
-from .nodes.text_encoders.clip_text_encode_flux_context import TT_ClipTextEncodeFluxContext
-from .nodes.text_encoders.clip_text_encode_sdxl import TT_ClipTextEncodeSdxl
-from .nodes.text_encoders.clip_text_encode_sdxl_context import TT_ClipTextEncodeSdxlContext
-from .nodes.vae.vae_decode_context import TT_VaeDecodeContext
-from .nodes.vae.vae_decode_tiled import TT_VaeDecodeTiled
-from .nodes.vae.vae_encode_context import TT_VaeEncodeContext
-from .nodes.vae.vae_encode_tiled import TT_VaeEncodeTiled
-from .nodes.workflow.flux_workfow_settings import TT_FluxWorkflowSettings
-from .nodes.workflow.flux_workfow_settings_advanced import TT_FluxWorkflowSettingsAdvanced
-from .nodes.workflow.sdxl_workfow_settings import TT_SdxlWorkflowSettings
-from .nodes.workflow.sdxl_workfow_settings_advanced import TT_SdxlWorkflowSettingsAdvanced
+try:
+    from .nodes.context.base_context import TT_BaseContext
+    from .nodes.context.context import TT_Context
+    from .nodes.context.context_passthrough import TT_ContextPassthrough
+    from .nodes.context.context_set_image import TT_ContextSetImage
+    from .nodes.context.context_set_latent import TT_ContextSetLatent
+    from .nodes.context.even_larger_context import TT_EvenLargerContext
+    from .nodes.context.large_context_flux import TT_LargeContextFlux
+    from .nodes.context.large_context_sdxl import TT_LargeContextSdxl
+except ImportError:
+    print("{YELLOW}TenserTensor: {RED}ERROR: Context nodes unavailable{RESET}")
+
+try:
+    from .nodes.image.image_preview_save import TT_ImagePreviewSave
+except ImportError:
+    print("{YELLOW}TenserTensor: {RED}ERROR: Image nodes unavailable{RESET}")
+
+try:
+    from .nodes.latent.latent_factory import TT_LatentFactory
+except ImportError:
+    print("{YELLOW}TenserTensor: {RED}ERROR: Latent nodes unavailable{RESET}")
+
+try:
+    from .nodes.loaders.flux_models_loader import TT_FluxModelsLoader
+    from .nodes.loaders.flux_models_loader_advanced import TT_FluxModelsLoaderAdvanced
+    from .nodes.loaders.gguf_models_loader import TT_GgufModelsLoader
+    from .nodes.loaders.gguf_models_loader_advanced import TT_GgufModelsLoaderAdvanced
+    from .nodes.loaders.sdxl_models_loader import TT_SdxlModelsLoader
+    from .nodes.loaders.sdxl_models_loader_advanced import TT_SdxlModelsLoaderAdvanced
+except ImportError:
+    print("{YELLOW}TenserTensor: {RED}ERROR: Loader nodes unavailable{RESET}")
+
+try:
+    from .nodes.postproduction.add_film_grain import TT_AddFilmGrain
+    from .nodes.postproduction.apply_lut import TT_ApplyLut
+    from .nodes.postproduction.image_enhancer import TT_ImageEnhancer
+    from .nodes.postproduction.postproduction import TT_Postproduction
+    from .nodes.postproduction.postproduction_advanced import TT_PostproductionAdvanced
+    from .nodes.postproduction.quick_image_upscaler import TT_QuickImageUpscaler
+except ImportError:
+    print("{YELLOW}TenserTensor: {RED}ERROR: Postproduction nodes unavailable{RESET}")
+
+try:
+    from .nodes.sampling.ksampler import TT_KSampler
+    from .nodes.sampling.ksampler_advanced import TT_KSamplerAdvanced
+    from .nodes.sampling.ksampler_context import TT_KSamplerContext
+    from .nodes.sampling.ksampler_two_stage import TT_KSamplerTwoStage
+except ImportError:
+    print("{YELLOW}TenserTensor: {RED}ERROR: Sampler nodes unavailable{RESET}")
+
+try:
+    from .nodes.text_encoders.clip_text_encode_flux import TT_ClipTextEncodeFlux
+    from .nodes.text_encoders.clip_text_encode_flux_context import TT_ClipTextEncodeFluxContext
+    from .nodes.text_encoders.clip_text_encode_sdxl import TT_ClipTextEncodeSdxl
+    from .nodes.text_encoders.clip_text_encode_sdxl_context import TT_ClipTextEncodeSdxlContext
+except ImportError:
+    print("{YELLOW}TenserTensor: {RED}ERROR: Text Encoder nodes unavailable{RESET}")
+
+try:
+    from .nodes.vae.vae_decode_context import TT_VaeDecodeContext
+    from .nodes.vae.vae_decode_tiled import TT_VaeDecodeTiled
+    from .nodes.vae.vae_encode_context import TT_VaeEncodeContext
+    from .nodes.vae.vae_encode_tiled import TT_VaeEncodeTiled
+except ImportError:
+    print("{YELLOW}TenserTensor: {RED}ERROR: VAE nodes unavailable{RESET}")
+
+try:
+    from .nodes.workflow.flux_workfow_settings import TT_FluxWorkflowSettings
+    from .nodes.workflow.flux_workfow_settings_advanced import TT_FluxWorkflowSettingsAdvanced
+    from .nodes.workflow.sdxl_workfow_settings import TT_SdxlWorkflowSettings
+    from .nodes.workflow.sdxl_workfow_settings_advanced import TT_SdxlWorkflowSettingsAdvanced
+except ImportError:
+    print("{YELLOW}TenserTensor: {RED}ERROR: Workflow nodes unavailable{RESET}")
 
 NODE_CLASS_MAPPINGS = {
     # Context
@@ -60,6 +104,7 @@ NODE_CLASS_MAPPINGS = {
     "TT_SdxlModelsLoader": TT_SdxlModelsLoader,
     "TT_SdxlModelsLoaderAdvanced": TT_SdxlModelsLoaderAdvanced,
     "TT_GgufModelsLoader": TT_GgufModelsLoader,
+    "TT_GgufModelsLoaderAdvanced": TT_GgufModelsLoaderAdvanced,
     "TT_FluxModelsLoader": TT_FluxModelsLoader,
     "TT_FluxModelsLoaderAdvanced": TT_FluxModelsLoaderAdvanced,
     # Postproduction
@@ -110,6 +155,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_SdxlModelsLoader": "TT SDXL Models Loader",
     "TT_SdxlModelsLoaderAdvanced": "TT SDXL Models Loader (Advanced)",
     "TT_GgufModelsLoader": "TT GGUF Models Loader",
+    "TT_GgufModelsLoaderAdvanced": "TT GGUF Models Loader (Advanced)",
     "TT_FluxModelsLoader": "TT FLUX Models Loader",
     "TT_FluxModelsLoaderAdvanced": "TT FLUX Models Loader (Advanced)",
     # Postproduction
