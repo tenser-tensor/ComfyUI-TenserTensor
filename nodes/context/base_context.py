@@ -1,3 +1,5 @@
+# (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
+
 from .context_helpers import create_context_schema
 
 
