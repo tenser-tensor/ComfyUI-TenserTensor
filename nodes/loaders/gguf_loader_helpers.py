@@ -155,4 +155,4 @@ def load_clip(clip_name, type="flux2"):
     clip_path = FP.get_full_path("clip", clip_name)
     clip_type = getattr(SD.CLIPType, type.upper(), SD.CLIPType.FLUX2)
 
-    return (_load_patcher(clip_type, _load_data([clip_path])),)
+    return _load_patcher(clip_type, _load_data([clip_path]))

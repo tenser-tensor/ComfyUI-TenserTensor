@@ -3,7 +3,7 @@
 import folder_paths as FP
 
 from nodes import VAELoader as VL
-from .gguf_loader_helpers import update_folder_names_and_paths, load_unet, get_filename_list, load_clip
+from .gguf_loader_helpers import update_folder_names_and_paths, load_unet, load_clip
 from .loader_helpers import load_vae
 
 update_folder_names_and_paths("unet_gguf", ["diffusion_models", "unet"])
@@ -13,15 +13,15 @@ update_folder_names_and_paths("clip_gguf", ["text_encoders", "clip"])
 class TT_GgufModelsLoader():
     @classmethod
     def INPUT_TYPES(cls):
-        unet_names = [x for x in FP.get_filename_list("unet_gguf")]
-        clip_names = [x for x in FP.get_filename_list("clip_gguf")]
-        vae_names = [x for x in VL.vae_list(VL)]
+        UNET_NAMES = [x for x in FP.get_filename_list("unet_gguf")]
+        CLIP_NAMES = [x for x in FP.get_filename_list("clip_gguf")]
+        VAE_NAMES = [x for x in VL.vae_list(VL)]
 
         return {
             "required": {
-                "unet_name": (unet_names,),
-                "clip_name": (clip_names,),
-                "vae_name": (vae_names,)
+                "unet_name": (UNET_NAMES,),
+                "clip_name": (CLIP_NAMES,),
+                "vae_name": (VAE_NAMES,)
             }
         }
 

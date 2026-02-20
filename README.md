@@ -69,3 +69,13 @@ This project uses GGUF file handling code from [City96](https://github.com/city9
 Great thanks and appreciation for your excellent work!
 
 [ComfyUI-GGUF on Github](https://github.com/city96/ComfyUI-GGUF)
+
+## Additional
+
+> [!TIP]  
+> You can download Flux.2-dev along with additional models (CLIP, VAE) via the link below:  
+> [Comfy-Org/flux2-dev](https://huggingface.co/Comfy-Org/flux2-dev/tree/main/split_files)
+
+---
+
+(c) 2026 TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
