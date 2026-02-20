@@ -87,7 +87,7 @@ def apply_lora(loaded_lora, model, clip, lora_name, strength):
     return (patched_model, patched_clip, lora)
 
 
-def load_vae(vae_name, vae_device="default", vae_dtype):
+def load_vae(vae_name, vae_device="default", vae_dtype="bfloat16"):
     dtype = {"bfloat16": bfloat16, "float16": float16, "float32": float32}[vae_dtype]
 
     torch_device = None
