@@ -1,3 +1,5 @@
+# (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
+
 import nodes
 from .encoder_helpers import encode_prompts_sdxl
 
