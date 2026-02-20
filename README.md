@@ -33,6 +33,9 @@ combining frequently used node chains into single, convenient loaders.
 
 ## Installation
 
+> [!IMPORTANT]  
+> Ensure your ComfyUI version is recent enough to properly support custom operations when loading UNET-only models.
+
 ### 1. Via Git Clone (recommended)
 
 ```bash
