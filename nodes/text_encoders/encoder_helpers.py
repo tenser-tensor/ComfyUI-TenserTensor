@@ -1,3 +1,5 @@
+# (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
+
 def encode_prompts_flux(clip, clip_l_positive, t5xxl_positive, clip_l_negative, t5xxl_negative, guidance):
     positive_tokens = clip.tokenize(clip_l_positive)
     positive_tokens["t5xxl"] = clip.tokenize(t5xxl_positive)["t5xxl"]

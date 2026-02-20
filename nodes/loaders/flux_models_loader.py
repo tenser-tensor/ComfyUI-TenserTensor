@@ -1,3 +1,5 @@
+# (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
+
 from folder_paths import get_filename_list
 
 from nodes import VAELoader

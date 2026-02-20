@@ -31,6 +31,51 @@ combining frequently used node chains into single, convenient loaders.
     - All-in-one post-production node combining all tools
     - Simplified version without adjustments
 
+## Installation
+
+> [!IMPORTANT]  
+> Ensure your ComfyUI version is recent enough to properly support custom operations when loading UNET-only models.
+
+### 1. Via Git Clone (recommended)
+
+```bash
+cd ComfyUI/custom_nodes
+git clone https://github.com/tenser-tensor/ComfyUI-TenserTensor
+```
+
+### 2. Via ComfyUI-Manager
+
+* Open ComfyUI-Manager
+* Click "Install Custom Nodes"
+* Search for: TenserTensor
+* Install → Restart ComfyUI
+
+### 3. Via comfy-cli
+
+```bash
+comfy node install tenser-tensor/ComfyUI-TenserTensor
+```
+
+Restart ComfyUI after installation.
+
 ## Nodes List
 
 [Nodes List](NODES.md)
+
+## Acknowledgments
+
+This project uses GGUF file handling code from [City96](https://github.com/city96).
+
+Great thanks and appreciation for your excellent work!
+
+[ComfyUI-GGUF on Github](https://github.com/city96/ComfyUI-GGUF)
+
+## Additional
+
+> [!TIP]  
+> You can download Flux.2-dev along with additional models (CLIP, VAE) via the link below:  
+> [Comfy-Org/flux2-dev](https://huggingface.co/Comfy-Org/flux2-dev/tree/main/split_files)
+
+---
+
+(c) 2026 TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
