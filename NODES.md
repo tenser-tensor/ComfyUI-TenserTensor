@@ -10,6 +10,20 @@ Node for configuring Flux workflow generation parameters.
 
 Advanced node for configuring Flux workflow generation parameters with separate CLIP-L and T5XXL prompts.
 
+#### TT Flux2 Workflow Settings
+
+Use this node as the single source of truth for FLUX2 workflow parameters. The `WORKFLOW_CONFIG` output is
+designed for context-aware nodes that consume a TT_WORKFLOW_CONFIG directly. Individual outputs are available
+for connecting to standard ComfyUI nodes. The sigma schedule (`SCHEDULER`) is computed automatically from
+the seed and resolution via `get_schedule`.
+
+#### TT Flux2 Workflow Settings (Advanced)
+
+Advanced version of TT Flux2 Workflow Settings with `prompt` and `lora_triggers` fields included directly in the
+node. Both are stored in the `WORKFLOW_CONFIG` output alongside all other sampling parameters, making this node
+sufficient as the sole configuration source for full context-driven FLUX2 pipelines. Individual outputs remain
+available for connecting to standard ComfyUI nodes.
+
 #### TT SDXL Workflow Settings
 
 Node for configuring SDXL workflow generation parameters.
@@ -22,9 +36,10 @@ Advanced SDXL workflow configuration with separate CLIP-L/G prompts and aestheti
 
 #### TT Latent Factory
 
-Generate empty latent images with precise dimension control based on aspect ratio and megapixel count.
-
-Automatically calculates correct dimensions for FLUX and SDXL models, plus separate CLIP conditioning sizes.
+Select aspect ratio, resolution, and orientation to automatically compute pixel dimensions suited for the chosen
+model. FLUX1.D uses 16-channel latents, FLUX2.D uses 128-channel, SDXL uses 4-channel. `clip_multiplier` scales the TARGET
+dimensions relative to the image dimensions — useful for multi-resolution CLIP conditioning. Connect `RANDOM_NOISE`
+directly to a sampler node for reproducible noise tied to `noise_seed`.
 
 ### Loaders
 
@@ -70,6 +85,19 @@ SDXL text encoder with separate CLIP-L and CLIP-G prompt inputs and conditioning
 
 Context-based SDXL text encoder that extracts prompts and parameters from workflow config.
 
+#### TT Clip Text Encode Flux2
+
+Encodes text prompts specifically for FLUX2 models. Enter your main prompt in `prompt` and any LoRA-specific trigger
+words separately in `lora_triggers` — the node combines them internally. Adjust `guidance` to control how strongly
+the model follows the prompt (3.5 is a good starting point for FLUX2).
+
+#### TT Clip Text Encode Flux2 (Context)
+
+Context-aware version of the FLUX2 text encoder. Instead of individual inputs, it reads `model`, `clip`, and
+`workflow_config` (containing `prompt`, `lora_triggers`, and `guidance`) from the passed `context`. The resulting
+guider is both returned as an output and stored back into the context under the `guider` key. Raises an error if
+any of the required fields are missing from the context.
+
 ### Samplers
 
 #### TT KSampler
@@ -97,6 +125,12 @@ Requires context to contain: model, latent, and workflow_config. Raises error if
 Automated two-stage sampling workflow. First performs a draft pass with partial denoising, then refines the result with
 a second pass. Each stage can use different samplers, schedulers, and step counts. Useful for quick previews followed by
 quality refinement, or combining different sampling strategies.
+
+#### TT KSampler (Guided)
+
+Runs guided diffusion sampling on the input latent. Connect a guider from a text encoder node, sigmas from a
+scheduler, and a sampler from a workflow settings node. `random_noise` controls stochasticity — use a seeded
+noise node for reproducible results.
 
 ### VAE
 
@@ -206,6 +240,11 @@ Stores pixel-space image in context for use by downstream nodes. Overwrites exis
 #### TT Context Set Latent
 
 Stores latent representation in context for use by downstream nodes. Overwrites existing latent if present.
+
+#### TT Context Set Guider
+
+Sets the `guider` field inside a TT_CONTEXT object. Use this node when you have a guider produced outside the
+context pipeline and need to inject it back in for use by subsequent context-aware nodes.
 
 #### TT Context Passthrough
 
