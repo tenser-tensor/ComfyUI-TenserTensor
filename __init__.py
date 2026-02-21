@@ -6,9 +6,12 @@ WEB_DIRECTORY = "./web"
 
 __all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS', 'WEB_DIRECTORY']
 
+nodes_count = len(NODE_CLASS_MAPPINGS)
+
+print()
 SEP = f"{CYAN}{'=' * 60}{RESET}"
 print(SEP)
-print(f"{YELLOW}TenserTensor ComfyUI Nodes Pack (v1.3.1): {BRIGHT_GREEN}38 Nodes Loaded{RESET}")
+print(f"{YELLOW}TenserTensor ComfyUI Nodes Pack (v1.4.0): {BRIGHT_GREEN}{nodes_count} Nodes Loaded{RESET}")
 print(SEP)
 print(f"{BRIGHT_CYAN}[V] Repository: https://github.com/tenser-tensor/ComfyUI-TenserTensor{RESET}")
 print(f"{BRIGHT_CYAN}[V] ComfyUI Registry: https://registry.comfy.org/publishers/tenser-tensor{RESET}")

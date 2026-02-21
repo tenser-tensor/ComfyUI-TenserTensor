@@ -21,17 +21,17 @@ try:
     from .nodes.context.large_context_flux import TT_LargeContextFlux
     from .nodes.context.large_context_sdxl import TT_LargeContextSdxl
 except ImportError:
-    print("{YELLOW}TenserTensor: {RED}ERROR: Context nodes unavailable{RESET}")
+    print(f"{YELLOW}TenserTensor: {RED}ERROR: Context nodes unavailable{RESET}")
 
 try:
     from .nodes.image.image_preview_save import TT_ImagePreviewSave
 except ImportError:
-    print("{YELLOW}TenserTensor: {RED}ERROR: Image nodes unavailable{RESET}")
+    print(f"{YELLOW}TenserTensor: {RED}ERROR: Image nodes unavailable{RESET}")
 
 try:
     from .nodes.latent.latent_factory import TT_LatentFactory
 except ImportError:
-    print("{YELLOW}TenserTensor: {RED}ERROR: Latent nodes unavailable{RESET}")
+    print(f"{YELLOW}TenserTensor: {RED}ERROR: Latent nodes unavailable{RESET}")
 
 try:
     from .nodes.loaders.flux_models_loader import TT_FluxModelsLoader
@@ -41,7 +41,7 @@ try:
     from .nodes.loaders.sdxl_models_loader import TT_SdxlModelsLoader
     from .nodes.loaders.sdxl_models_loader_advanced import TT_SdxlModelsLoaderAdvanced
 except ImportError:
-    print("{YELLOW}TenserTensor: {RED}ERROR: Loader nodes unavailable{RESET}")
+    print(f"{YELLOW}TenserTensor: {RED}ERROR: Loader nodes unavailable{RESET}")
 
 try:
     from .nodes.postproduction.add_film_grain import TT_AddFilmGrain
@@ -51,23 +51,26 @@ try:
     from .nodes.postproduction.postproduction_advanced import TT_PostproductionAdvanced
     from .nodes.postproduction.quick_image_upscaler import TT_QuickImageUpscaler
 except ImportError:
-    print("{YELLOW}TenserTensor: {RED}ERROR: Postproduction nodes unavailable{RESET}")
+    print(f"{YELLOW}TenserTensor: {RED}ERROR: Postproduction nodes unavailable{RESET}")
 
 try:
     from .nodes.sampling.ksampler import TT_KSampler
     from .nodes.sampling.ksampler_advanced import TT_KSamplerAdvanced
     from .nodes.sampling.ksampler_context import TT_KSamplerContext
     from .nodes.sampling.ksampler_two_stage import TT_KSamplerTwoStage
+    from .nodes.sampling.ksampler_guided import TT_KSamplerGuided
 except ImportError:
-    print("{YELLOW}TenserTensor: {RED}ERROR: Sampler nodes unavailable{RESET}")
+    print("f{YELLOW}TenserTensor: {RED}ERROR: Sampler nodes unavailable{RESET}")
 
 try:
     from .nodes.text_encoders.clip_text_encode_flux import TT_ClipTextEncodeFlux
     from .nodes.text_encoders.clip_text_encode_flux_context import TT_ClipTextEncodeFluxContext
     from .nodes.text_encoders.clip_text_encode_sdxl import TT_ClipTextEncodeSdxl
     from .nodes.text_encoders.clip_text_encode_sdxl_context import TT_ClipTextEncodeSdxlContext
+    from .nodes.text_encoders.clip_text_encode_flux2 import TT_ClipTextEncodeFlux2
+    from .nodes.text_encoders.clip_text_encode_flux2_context import TT_ClipTextEncodeFlux2Context
 except ImportError:
-    print("{YELLOW}TenserTensor: {RED}ERROR: Text Encoder nodes unavailable{RESET}")
+    print(f"{YELLOW}TenserTensor: {RED}ERROR: Text Encoder nodes unavailable{RESET}")
 
 try:
     from .nodes.vae.vae_decode_context import TT_VaeDecodeContext
@@ -75,15 +78,17 @@ try:
     from .nodes.vae.vae_encode_context import TT_VaeEncodeContext
     from .nodes.vae.vae_encode_tiled import TT_VaeEncodeTiled
 except ImportError:
-    print("{YELLOW}TenserTensor: {RED}ERROR: VAE nodes unavailable{RESET}")
+    print(f"{YELLOW}TenserTensor: {RED}ERROR: VAE nodes unavailable{RESET}")
 
 try:
-    from .nodes.workflow.flux_workfow_settings import TT_FluxWorkflowSettings
-    from .nodes.workflow.flux_workfow_settings_advanced import TT_FluxWorkflowSettingsAdvanced
-    from .nodes.workflow.sdxl_workfow_settings import TT_SdxlWorkflowSettings
-    from .nodes.workflow.sdxl_workfow_settings_advanced import TT_SdxlWorkflowSettingsAdvanced
+    from .nodes.workflow.flux_workflow_settings import TT_FluxWorkflowSettings
+    from .nodes.workflow.flux_workflow_settings_advanced import TT_FluxWorkflowSettingsAdvanced
+    from .nodes.workflow.sdxl_workflow_settings import TT_SdxlWorkflowSettings
+    from .nodes.workflow.sdxl_workflow_settings_advanced import TT_SdxlWorkflowSettingsAdvanced
+    from .nodes.workflow.flux2_workflow_settings import TT_Flux2WorkflowSettings
+    from .nodes.workflow.flux2_workflow_settings_advanced import TT_Flux2WorkflowSettingsAdvanced
 except ImportError:
-    print("{YELLOW}TenserTensor: {RED}ERROR: Workflow nodes unavailable{RESET}")
+    print(f"{YELLOW}TenserTensor: {RED}ERROR: Workflow nodes unavailable{RESET}")
 
 NODE_CLASS_MAPPINGS = {
     # Context
@@ -119,11 +124,14 @@ NODE_CLASS_MAPPINGS = {
     "TT_KSamplerAdvanced": TT_KSamplerAdvanced,
     "TT_KSamplerContext": TT_KSamplerContext,
     "TT_KSamplerTwoStage": TT_KSamplerTwoStage,
+    "TT_KSamplerGuided": TT_KSamplerGuided,
     # Text Encoder
     "TT_ClipTextEncodeFlux": TT_ClipTextEncodeFlux,
     "TT_ClipTextEncodeFluxContext": TT_ClipTextEncodeFluxContext,
     "TT_ClipTextEncodeSdxl": TT_ClipTextEncodeSdxl,
     "TT_ClipTextEncodeSdxlContext": TT_ClipTextEncodeSdxlContext,
+    "TT_ClipTextEncodeFlux2": TT_ClipTextEncodeFlux2,
+    "TT_ClipTextEncodeFlux2Context": TT_ClipTextEncodeFlux2Context,
     # VAE
     "TT_VaeDecodeContext": TT_VaeDecodeContext,
     "TT_VaeDecodeTiled": TT_VaeDecodeTiled,
@@ -134,6 +142,8 @@ NODE_CLASS_MAPPINGS = {
     "TT_FluxWorkflowSettingsAdvanced": TT_FluxWorkflowSettingsAdvanced,
     "TT_SdxlWorkflowSettings": TT_SdxlWorkflowSettings,
     "TT_SdxlWorkflowSettingsAdvanced": TT_SdxlWorkflowSettingsAdvanced,
+    "TT_Flux2WorkflowSettings": TT_Flux2WorkflowSettings,
+    "TT_Flux2WorkflowSettingsAdvanced": TT_Flux2WorkflowSettingsAdvanced,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -170,11 +180,14 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_KSamplerAdvanced": "TT KSampler (Advanced)",
     "TT_KSamplerContext": "TT KSampler (Context)",
     "TT_KSamplerTwoStage": "TT KSampler (Two Stages)",
+    "TT_KSamplerGuided": "TT KSampler (Guided)",
     # Text Encoder
     "TT_ClipTextEncodeFlux": "TT CLIP Text Encode FLUX",
     "TT_ClipTextEncodeFluxContext": "TT CLIP Text Encode FLUX (Context)",
     "TT_ClipTextEncodeSdxl": "TT CLIP Text Encode SDXL",
     "TT_ClipTextEncodeSdxlContext": "TT CLIP Text Encode SDXL (Context)",
+    "TT_ClipTextEncodeFlux2": "TT CLIP Text Encode FLUX2",
+    "TT_ClipTextEncodeFlux2Context": "TT CLIP Text Encode FLUX2 (Context)",
     # VAE
     "TT_VaeDecodeContext": "TT VAE Decode (Context)",
     "TT_VaeDecodeTiled": "TT VAE Decode (Tiled)",
@@ -185,4 +198,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_FluxWorkflowSettingsAdvanced": "TT FLUX Workflow Settings (Advanced)",
     "TT_SdxlWorkflowSettings": "TT SDXL Workflow Settings",
     "TT_SdxlWorkflowSettingsAdvanced": "TT SDXL Workflow Settings (Advanced)",
+    "TT_Flux2WorkflowSettings": "TT FLUX2 Workflow Settings",
+    "TT_Flux2WorkflowSettingsAdvanced": "TT FLUX2 Workflow Settings (Advanced)",
 }

@@ -36,6 +36,14 @@ All-in-one model loader for SDXL workflows with checkpoint merging support.
 
 Extended all-in-one model loader for SDXL with checkpoint merging and LoRA support.
 
+#### TT GGUF Models Loader
+
+All-in-one loader for GGUF-quantized models. Place your `.gguf` diffusion model files in the `diffusion_models` or `unet` directory, CLIP files in `text_encoders` or `clip` directory. VAE can be any standard ComfyUI-compatible VAE file.
+
+#### TT GGUF Models Loader (Advanced)
+
+Extended version of GGUF Models Loader. Supports up to 4 LoRAs loaded simultaneously. Enable `apply_sampling` to apply flux sampling shift patch — useful for improving quality at non-standard resolutions. Advanced parameters are hidden by default and can be revealed via the node's show/hide controls.
+
 #### TT FLUX Models Loader
 
 All-in-one model loader for Flux workflows.

@@ -14,15 +14,16 @@ Load GGUF-quantized diffusion model (UNet), CLIP text encoder, and VAE in a sing
 
 ### Outputs
 
-| Parameter | Type  | Description             |
-|-----------|-------|-------------------------|
-| `MODEL`   | MODEL | Loaded diffusion model  |
-| `CLIP`    | CLIP  | Loaded text encoder     |
-| `VAE`     | VAE   | Loaded VAE decoder      |
+| Parameter | Type  | Description            |
+|-----------|-------|------------------------|
+| `MODEL`   | MODEL | Loaded diffusion model |
+| `CLIP`    | CLIP  | Loaded text encoder    |
+| `VAE`     | VAE   | Loaded VAE decoder     |
 
 ### Usage
 
-All-in-one loader for GGUF-quantized models. Place your `.gguf` diffusion model files in the `diffusion_models` or `unet` directory, CLIP files in `text_encoders` or `clip` directory. VAE can be any standard ComfyUI-compatible VAE file.
+All-in-one loader for GGUF-quantized models. Place your `.gguf` diffusion model files in the `diffusion_models` or `unet` directory, CLIP files in
+`text_encoders` or `clip` directory. VAE can be any standard ComfyUI-compatible VAE file.
 
 ---
 

@@ -16,8 +16,10 @@ FORMAT_EXT = {
     "WEBP": ".webp",
 }
 
+
 class InvalidSavePathError(Exception):
     pass
+
 
 def _build_filename(save_path, filename_mask):
     count = sum(1 for f in os.scandir(save_path) if fnmatch.fnmatch(f.name, filename_mask)) + 1

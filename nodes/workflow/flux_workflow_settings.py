@@ -1,6 +1,6 @@
 # (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
-import comfy.samplers
+import comfy.samplers as S
 
 
 class TT_FluxWorkflowSettings:
@@ -11,14 +11,30 @@ class TT_FluxWorkflowSettings:
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                 "steps": ("INT", {"default": 25, "min": 1, "max": 10000}),
                 "cfg": ("FLOAT", {"default": 1.5, "min": 0.0, "max": 100.0, "step": 0.1}),
-                "sampler_name": (comfy.samplers.KSampler.SAMPLERS,),
-                "scheduler": (comfy.samplers.KSampler.SCHEDULERS,),
+                "sampler_name": (S.KSampler.SAMPLERS,),
+                "scheduler": (S.KSampler.SCHEDULERS,),
                 "guidance": ("FLOAT", {"default": 3.5, "min": 1.0, "max": 10.0, "step": 0.1})
             }
         }
 
-    RETURN_TYPES = ("TT_WORKFLOW_CONFIG", "INT", "INT", "FLOAT", "STRING", "STRING", "FLOAT")
-    RETURN_NAMES = ("WORKFLOW_CONFIG", "SEED", "STEPS", "CFG", "SAMPLER_NAME", "SCHEDULER", "GUIDANCE")
+    RETURN_TYPES = (
+        "TT_WORKFLOW_CONFIG",
+        "INT",
+        "INT",
+        "FLOAT",
+        S.KSampler.SAMPLERS,
+        S.KSampler.SCHEDULERS,
+        "FLOAT"
+    )
+    RETURN_NAMES = (
+        "WORKFLOW_CONFIG",
+        "SEED",
+        "STEPS",
+        "CFG",
+        "SAMPLER_NAME",
+        "SCHEDULER",
+        "GUIDANCE"
+    )
     FUNCTION = "get_settings"
     CATEGORY = "TenserTensor/Workflow/FLUX"
 

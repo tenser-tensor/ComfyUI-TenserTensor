@@ -196,6 +196,7 @@ def solarize(image, thresholds=0.5, additions=None):
 
     return kornia.enhance.solarize(timage, thresholds, additions).movedim(1, -1)
 
+
 def enhance_image(
         timage,
         brightness_factor,

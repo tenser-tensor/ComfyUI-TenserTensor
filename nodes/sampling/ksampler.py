@@ -23,7 +23,7 @@ class TT_KSampler():
         }
 
     RETURN_TYPES = ("LATENT",)
-    RETURN_NAMES = ("LATENT",)
+    RETURN_NAMES = ("SAMPLES",)
     FUNCTION = "execute_sampling"
     CATEGORY = "TenserTensor/Sampling"
 
