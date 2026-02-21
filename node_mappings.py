@@ -17,6 +17,7 @@ try:
     from .nodes.context.context_passthrough import TT_ContextPassthrough
     from .nodes.context.context_set_image import TT_ContextSetImage
     from .nodes.context.context_set_latent import TT_ContextSetLatent
+    from .nodes.context.context_set_guider import TT_ContextSetGuider
     from .nodes.context.even_larger_context import TT_EvenLargerContext
     from .nodes.context.large_context_flux import TT_LargeContextFlux
     from .nodes.context.large_context_sdxl import TT_LargeContextSdxl
@@ -99,6 +100,7 @@ NODE_CLASS_MAPPINGS = {
     "TT_EvenLargerContext": TT_EvenLargerContext,
     "TT_ContextSetImage": TT_ContextSetImage,
     "TT_ContextSetLatent": TT_ContextSetLatent,
+    "TT_ContextSetGuider": TT_ContextSetGuider,
     # Context Passthrough
     "TT_ContextPassthrough": TT_ContextPassthrough,
     # Image
@@ -155,6 +157,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_EvenLargerContext": "TT Even Larger Context",
     "TT_ContextSetImage": "TT Context Set Image",
     "TT_ContextSetLatent": "TT Context Set Latent",
+    "TT_ContextSetGuider": "TT Context Set Guider",
     # Context Passthrough
     "TT_ContextPassthrough": "TT Context Passthrough",
     # Image
