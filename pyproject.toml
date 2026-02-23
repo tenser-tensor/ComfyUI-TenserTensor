@@ -2,7 +2,7 @@
 [project]
 name = "ComfyUI-TenserTensor"
 description = "A collection of custom nodes for ComfyUI that streamline common workflows. Includes all-in-one model loaders (checkpoint, LoRA, CLIP, VAE), GGUF quantized model support (Flux, Flux.2, SDXL), workflow settings nodes, latent factory (aspect ratio, megapixel, Flux/SDXL), context nodes, CLIP text encoders, KSamplers, VAE decoders (basic, tiled, two-pass), and post-production tools (brightness, contrast, LUT color grading, film grain, upscaler)."
-version = "1.4.0"
+version = "1.4.4"
 license = { file = "LICENSE" }
 dependencies = ["gguf"]
 
