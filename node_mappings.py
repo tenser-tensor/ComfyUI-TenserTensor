@@ -26,6 +26,7 @@ except ImportError:
 
 try:
     from .nodes.image.image_preview_save import TT_ImagePreviewSave
+    from .nodes.image.image_preview_upscale_save import TT_ImagePreviewUpscaleSave
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Image nodes unavailable{RESET}")
 
@@ -105,6 +106,7 @@ NODE_CLASS_MAPPINGS = {
     "TT_ContextPassthrough": TT_ContextPassthrough,
     # Image
     "TT_ImagePreviewSave": TT_ImagePreviewSave,
+    "TT_ImagePreviewUpscaleSave": TT_ImagePreviewUpscaleSave,
     # Latent
     "TT_LatentFactory": TT_LatentFactory,
     # Loaders
@@ -162,6 +164,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_ContextPassthrough": "TT Context Passthrough",
     # Image
     "TT_ImagePreviewSave": "TT Image Preview / Save",
+    "TT_ImagePreviewUpscaleSave": "TT Image Preview / Upscale /Save",
     # Latent
     "TT_LatentFactory": "TT Latent Factory",
     # Loaders
