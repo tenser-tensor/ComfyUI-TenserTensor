@@ -33,4 +33,4 @@ def get_schedule(num_steps, width, height):
     timesteps = torch.linspace(1, 0, num_steps + 1)
     timesteps = _generalized_time_snr_shift(timesteps, mu, 1.0)
 
-    return (timesteps,)
+    return timesteps

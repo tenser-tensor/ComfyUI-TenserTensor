@@ -7,6 +7,12 @@ from .loader_helpers import load_unet, patch_flux_sampling, load_flux_clip, appl
 
 
 class TT_FluxModelsLoaderAdvanced():
+    def __init__(self):
+        self.loaded_lora_1 = None
+        self.loaded_lora_2 = None
+        self.loaded_lora_3 = None
+        self.loaded_lora_4 = None
+
     @classmethod
     def INPUT_TYPES(cls):
         UNET_DTYPES = ["default", "fp8_e4m3fn", "fp8_e4m3fn_fast", "fp8_e5m2"]

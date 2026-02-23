@@ -11,6 +11,12 @@ update_folder_names_and_paths("clip_gguf", ["text_encoders", "clip"])
 
 
 class TT_GgufModelsLoaderAdvanced():
+    def __init__(self):
+        self.loaded_lora_1 = None
+        self.loaded_lora_2 = None
+        self.loaded_lora_3 = None
+        self.loaded_lora_4 = None
+
     @classmethod
     def INPUT_TYPES(cls):
         UNET_NAMES = [x for x in FP.get_filename_list("unet_gguf")]

@@ -28,11 +28,13 @@ class TT_Flux2WorkflowSettingsAdvanced:
         "INT",
         "INT",
         "FLOAT",
-        "SAMPLER",
         S.KSampler.SAMPLERS,
+        "SAMPLER",
         "SIGMAS",
         "INT",
         "INT",
+        "STRING",
+        "STRING",
         "FLOAT"
     )
     RETURN_NAMES = (
@@ -40,19 +42,20 @@ class TT_Flux2WorkflowSettingsAdvanced:
         "SEED",
         "STEPS",
         "CFG",
-        "SAMPLER",
         "SAMPLER_NAME",
+        "SAMPLER",
         "SCHEDULER",
         "WIDTH",
         "HEIGHT",
         "PROMPT",
+        "LORA_TRIGGERS",
         "GUIDANCE"
     )
     FUNCTION = "get_settings"
     CATEGORY = "TenserTensor/Workflow/FLUX2"
 
     def get_settings(self, seed, steps, cfg, sampler_name, width, height, prompt, lora_triggers, guidance):
-        scheduler = get_schedule(seed, width, height)
+        scheduler = get_schedule(steps, width, height)
         sampler = S.sampler_object(sampler_name)
 
         workflow_config = {
@@ -69,4 +72,4 @@ class TT_Flux2WorkflowSettingsAdvanced:
             "guidance": guidance
         }
 
-        return (workflow_config, seed, steps, cfg, sampler, scheduler, width, height, prompt, lora_triggers, guidance)
+        return (workflow_config, seed, steps, cfg, sampler_name, sampler, scheduler, width, height, prompt, lora_triggers, guidance)
