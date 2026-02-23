@@ -49,7 +49,7 @@ class TT_Flux2WorkflowSettings:
     CATEGORY = "TenserTensor/Workflow/FLUX2"
 
     def get_settings(self, seed, steps, cfg, sampler_name, width, height, guidance):
-        scheduler = get_schedule(seed, width, height)
+        scheduler = get_schedule(steps, width, height)
         sampler = S.sampler_object(sampler_name)
 
         workflow_config = {

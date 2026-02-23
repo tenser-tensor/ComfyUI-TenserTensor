@@ -52,14 +52,8 @@ def encode_prompts_flux(clip, clip_l_positive, t5xxl_positive, clip_l_negative, 
     negative_tokens["t5xxl"] = clip.tokenize(t5xxl_negative)["t5xxl"]
 
     return (
-        clip.encode_from_tokens_scheduled(
-            positive_tokens,
-            add_dict={"guidance": guidance, }
-        ),
-        clip.encode_from_tokens_scheduled(
-            negative_tokens,
-            add_dict={"guidance": guidance, }
-        )
+        clip.encode_from_tokens_scheduled(positive_tokens, add_dict={"guidance": guidance, }),
+        clip.encode_from_tokens_scheduled(negative_tokens, add_dict={"guidance": guidance, })
     )
 
 
@@ -67,7 +61,7 @@ def encode_prompts_flux2(model, clip, prompt, lora_triggers, guidance):
     if clip is None:
         raise ValueError("ERROR: CLIP is required for text encoder")
 
-    tokens = clip.tokenize(f"{lora_triggers} {prompt}")
+    tokens = clip.tokenize(f"{lora_triggers}, {prompt}")
     conditioning = clip.encode_from_tokens_scheduled(tokens, add_dict={"guidance": guidance, })
     guider = Guider_Basic(model)
     guider.set_conds(conditioning)
