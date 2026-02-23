@@ -31,8 +31,9 @@ class TT_ImagePreviewUpscaleSave():
             }
         }
 
-    RETURN_TYPES = ("IMAGE",)
-    RETURN_NAMES = ("IMAGE",)
+    RETURN_TYPES = ()
+    RETURN_NAMES = ()
+    OUTPUT_NODE = True
     FUNCTION = "preview_upscale_save_image"
     CATEGORY = "TenserTensor/Image"
 
@@ -54,7 +55,7 @@ class TT_ImagePreviewUpscaleSave():
         if save_image:
             timage = store(
                 image=timage,
-                filename_prefix=kwargs.get("upscale_model_name"),
+                filename_prefix=kwargs.get("filename_prefix"),
                 subfolder=kwargs.get("subfolder"),
                 filename_format=kwargs.get("filename_format"),
                 image_format=kwargs.get("image_format"),
@@ -64,7 +65,7 @@ class TT_ImagePreviewUpscaleSave():
         else:
             timage = preview(
                 image=timage,
-                filename_prefix=kwargs.get("upscale_model_name"),
+                filename_prefix=kwargs.get("filename_prefix"),
             )
 
         return {"ui": {"images": timage}}

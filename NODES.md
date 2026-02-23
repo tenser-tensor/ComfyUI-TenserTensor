@@ -206,6 +206,10 @@ saturation, sharpness, posterize, and solarize adjustments. All effects are opti
 
 Dual-purpose node that can preview images in the UI and/or save them to disk with extensive formatting options.
 
+#### TT Image Preview / Upscale / Save
+
+All-in-one node that can preview, upscale, and save images in a single step. Upscaling is applied before saving — the upscaled result is both displayed in the UI and written to disk. When `upscale_image` is disabled, the original image is used. When `save_image` is disabled, the image is only previewed in the UI without writing to disk.
+
 ### Context
 
 #### TT Base Context

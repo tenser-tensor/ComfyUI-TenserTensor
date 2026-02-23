@@ -164,7 +164,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_ContextPassthrough": "TT Context Passthrough",
     # Image
     "TT_ImagePreviewSave": "TT Image Preview / Save",
-    "TT_ImagePreviewUpscaleSave": "TT Image Preview / Upscale /Save",
+    "TT_ImagePreviewUpscaleSave": "TT Image Preview / Upscale / Save",
     # Latent
     "TT_LatentFactory": "TT Latent Factory",
     # Loaders
