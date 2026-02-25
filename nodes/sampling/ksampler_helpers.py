@@ -1,8 +1,9 @@
 # (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
 import comfy
-import latent_preview
+import latent_preview as LP
 import torch
+from comfy import sample as S, utils as U, model_management as MM, nested_tensor as NT
 
 
 def sample_latents(**kwargs):
@@ -26,7 +27,7 @@ def sample_latents(**kwargs):
     else:
         noise = torch.zeros(latent_img.size(), dtype=latent_img.dtype, layout=latent_img.layout, device="cpu")
 
-    callback = latent_preview.prepare_callback(model, steps)
+    callback = LP.prepare_callback(model, steps)
 
     args = {
         "model": model,
@@ -53,5 +54,41 @@ def sample_latents(**kwargs):
 
     retval = latent.copy()
     retval["samples"] = samples
+
+    return retval
+
+
+def guided_sample_latents(latent, guider, sigmas, sampler, random_noise):
+    model_patcher = guider.model_patcher
+    latent_dict = latent.copy()
+    latent_tensor = S.fix_empty_latent_channels(model_patcher, latent_dict["samples"], latent.get("downscale_ratio_spacial", None))
+    latent_dict["samples"] = latent_tensor
+
+    noise_mask = latent.get("noise_mask", None)
+
+    interim_buffer = {}
+    callback = LP.prepare_callback(model_patcher, sigmas.shape[-1] - 1, interim_buffer)
+    disable_pbar = not U.PROGRESS_BAR_ENABLED
+
+    samples = guider.sample(
+        random_noise.generate_noise(latent),
+        latent_tensor,
+        sampler,
+        sigmas,
+        denoise_mask=noise_mask,
+        callback=callback,
+        disable_pbar=disable_pbar,
+        seed=random_noise.seed
+    ).to(MM.intermediate_device())
+
+    retval = latent_dict.copy()
+    retval.pop("downscale_ratio_spacial", None)
+    retval["samples"] = samples
+
+#    if "x0" in interim_buffer:
+#        clean_latent = guider.model_patcher.model.process_latent_out(interim_buffer["x0"].cpu())
+#        if samples.is_nested:
+#            clean_latent = NT.NestedTensor(U.unpack_latents(clean_latent, [t.shape for t in samples.unbind()]))
+#        retval["samples"] = clean_latent
 
     return retval

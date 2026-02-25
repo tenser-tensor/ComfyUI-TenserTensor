@@ -1,8 +1,8 @@
 # (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
-import comfy.samplers
+import comfy.samplers as S
 
-import nodes
+from nodes import MAX_RESOLUTION
 
 
 class TT_SdxlWorkflowSettingsAdvanced:
@@ -13,30 +13,18 @@ class TT_SdxlWorkflowSettingsAdvanced:
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                 "steps": ("INT", {"default": 30, "min": 1, "max": 10000}),
                 "cfg": ("FLOAT", {"default": 7.0, "min": 0.0, "max": 100.0, "step": 0.1}),
-                "sampler_name": (comfy.samplers.KSampler.SAMPLERS,),
-                "scheduler": (comfy.samplers.KSampler.SCHEDULERS,),
-                "clip_l_positive": (
-                    "STRING",
-                    {"multiline": True, "placeholder": "CLIP_L Positive", "dynamicPrompts": True}
-                ),
-                "clip_g_positive": (
-                    "STRING",
-                    {"multiline": True, "placeholder": "CLIP_G Positive", "dynamicPrompts": True}
-                ),
-                "clip_l_negative": (
-                    "STRING",
-                    {"multiline": True, "placeholder": "CLIP_L Negative", "dynamicPrompts": True}
-                ),
-                "clip_g_negative": (
-                    "STRING",
-                    {"multiline": True, "placeholder": "CLIP_G Negative", "dynamicPrompts": True}
-                ),
+                "sampler_name": (S.KSampler.SAMPLERS,),
+                "scheduler": (S.KSampler.SCHEDULERS,),
+                "clip_l_positive": ("STRING", {"multiline": True, "placeholder": "CLIP_L Positive", "dynamicPrompts": True}),
+                "clip_g_positive": ("STRING", {"multiline": True, "placeholder": "CLIP_G Positive", "dynamicPrompts": True}),
+                "clip_l_negative": ("STRING", {"multiline": True, "placeholder": "CLIP_L Negative", "dynamicPrompts": True}),
+                "clip_g_negative": ("STRING", {"multiline": True, "placeholder": "CLIP_G Negative", "dynamicPrompts": True}),
                 "ascore_positive": ("FLOAT", {"default": 9.0, "min": 0.0, "max": 1000.0, "step": 0.1}),
                 "ascore_negative": ("FLOAT", {"default": 6.0, "min": 0.0, "max": 1000.0, "step": 0.1}),
-                "width": ("INT", {"default": 512, "min": 0.0, "max": nodes.MAX_RESOLUTION}),
-                "height": ("INT", {"default": 512, "min": 0.0, "max": nodes.MAX_RESOLUTION}),
-                "target_width": ("INT", {"default": 512, "min": 0.0, "max": nodes.MAX_RESOLUTION}),
-                "target_height": ("INT", {"default": 512, "min": 0.0, "max": nodes.MAX_RESOLUTION}),
+                "width": ("INT", {"default": 512, "min": 0.0, "max": MAX_RESOLUTION}),
+                "height": ("INT", {"default": 512, "min": 0.0, "max": MAX_RESOLUTION}),
+                "target_width": ("INT", {"default": 512, "min": 0.0, "max": MAX_RESOLUTION}),
+                "target_height": ("INT", {"default": 512, "min": 0.0, "max": MAX_RESOLUTION}),
             }
         }
 
@@ -45,8 +33,8 @@ class TT_SdxlWorkflowSettingsAdvanced:
         "INT",
         "INT",
         "FLOAT",
-        "STRING",
-        "STRING",
+        S.KSampler.SAMPLERS,
+        S.KSampler.SCHEDULERS,
         "STRING",
         "STRING",
         "STRING",

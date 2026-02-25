@@ -3,14 +3,20 @@
 import folder_paths as FP
 
 from nodes import VAELoader as VL, MAX_RESOLUTION
-from .gguf_loader_helpers import update_folder_names_and_paths, load_unet, load_clip
-from .loader_helpers import load_vae, patch_flux_sampling, apply_lora
+from .gguf_loader_helpers import update_folder_names_and_paths, load_unet, load_clip, apply_bypass_lora_for_models
+from .loader_helpers import load_vae, patch_flux_sampling
 
 update_folder_names_and_paths("unet_gguf", ["diffusion_models", "unet"])
 update_folder_names_and_paths("clip_gguf", ["text_encoders", "clip"])
 
 
-class TT_GgufModelsLoaderAdvanced():
+class TT_Flux2GgufModelsLoaderAdvanced():
+    def __init__(self):
+        self.loaded_lora_1 = None
+        self.loaded_lora_2 = None
+        self.loaded_lora_3 = None
+        self.loaded_lora_4 = None
+
     @classmethod
     def INPUT_TYPES(cls):
         UNET_NAMES = [x for x in FP.get_filename_list("unet_gguf")]
@@ -24,8 +30,8 @@ class TT_GgufModelsLoaderAdvanced():
         return {
             "required": {
                 "unet_name": (UNET_NAMES,),
-                "dequant_dtype": (DTYPES, {"default": "default", "advanced": True},),
-                "patch_dtype": (DTYPES, {"default": "default", "advanced": True},),
+                "dequant_dtype": (DTYPES, {"default": "bfloat16", "advanced": True},),
+                "patch_dtype": (DTYPES, {"default": "bfloat16", "advanced": True},),
                 "apply_sampling": ("BOOLEAN", {"default": True, "label_on": "Enabled", "label_off": "Disabled"},),
                 "base_sampling_shift": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 100.0, "step": 0.01, "advanced": True},),
                 "max_sampling_shift": ("FLOAT", {"default": 1.15, "min": 0.0, "max": 100.0, "step": 0.01, "advanced": True},),
@@ -49,7 +55,7 @@ class TT_GgufModelsLoaderAdvanced():
     RETURN_TYPES = ("MODEL", "CLIP", "VAE",)
     RETURN_NAMES = ("MODEL", "CLIP", "VAE",)
     FUNCTION = "load_models"
-    CATEGORY = "TenserTensor/Loaders/GGUF"
+    CATEGORY = "TenserTensor/Loaders/FLUX2 GGUF"
 
     def load_models(self, **kwargs):
         model = load_unet(
@@ -82,7 +88,7 @@ class TT_GgufModelsLoaderAdvanced():
         for name, strength, attr in loras:
             if name != "None" and strength != 0:
                 cached = getattr(self, attr)
-                model, clip, lora = apply_lora(cached, model, clip, name, strength)
+                model, clip, lora = apply_bypass_lora_for_models(cached, model, clip, name, strength)
                 setattr(self, attr, lora)
 
         vae = load_vae(kwargs.get("vae_name"), kwargs.get("vae_device"), kwargs.get("vae_dtype"))

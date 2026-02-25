@@ -1,6 +1,6 @@
 # (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
-import comfy.samplers
+import comfy.samplers as S
 
 
 class TT_SdxlWorkflowSettings:
@@ -11,8 +11,8 @@ class TT_SdxlWorkflowSettings:
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                 "steps": ("INT", {"default": 30, "min": 1, "max": 10000}),
                 "cfg": ("FLOAT", {"default": 7.0, "min": 0.0, "max": 100.0, "step": 0.1}),
-                "sampler_name": (comfy.samplers.KSampler.SAMPLERS,),
-                "scheduler": (comfy.samplers.KSampler.SCHEDULERS,),
+                "sampler_name": (S.KSampler.SAMPLERS,),
+                "scheduler": (S.KSampler.SCHEDULERS,),
             }
         }
 
@@ -21,8 +21,8 @@ class TT_SdxlWorkflowSettings:
         "INT",
         "INT",
         "FLOAT",
-        comfy.samplers.KSampler.SAMPLERS,
-        comfy.samplers.KSampler.SCHEDULERS,
+        S.KSampler.SAMPLERS,
+        S.KSampler.SCHEDULERS,
     )
 
     RETURN_NAMES = (

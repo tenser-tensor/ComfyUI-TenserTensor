@@ -1,5 +1,8 @@
 # (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
+from .vae_helpers import vae_encode
+
+
 class TT_VaeEncodeContext:
     @classmethod
     def INPUT_TYPES(cls):
@@ -23,8 +26,7 @@ class TT_VaeEncodeContext:
         if image is None:
             raise ValueError("Pixel image is required for encode")
 
-        samples = vae.encode(image)
-        latent_dict = {"samples": samples}
-        context["latent"] = latent_dict
+        samples = vae_encode(image, vae)
+        context["latent"] = samples
 
-        return (context, latent_dict,)
+        return (context, samples,)

@@ -1,40 +1,12 @@
 # (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
-import torch
+from .latent_helpers import create_empty_latent
+from ...lib.common import CommonTypes
 
-ASPECT_RATIOS = [
-    "1:1",
-    "4:3",
-    "3:2",
-    "16:9",
-    "21:9"
-]
-
-MEGAPIXELS = [
-    "0.25 MP",
-    "0.5 MP",
-    "1 MP",
-    "2 MP",
-    "4 MP",
-    "8 MP"
-]
-
-ORIENTATIONS = [
-    "landscape",
-    "portrait"
-]
-
-MODEL_TYPES = [
-    "FLUX1.D",
-    "FLUX2.D",
-    "SDXL"
-]
-
-CLIP_MULTIPLIERS = [
-    "1x",
-    "2x",
-    "4x"
-]
+ASPECT_RATIOS = ["1:1", "4:3", "3:2", "16:9", "21:9"]
+ORIENTATIONS = ["landscape", "portrait"]
+MODEL_TYPES = ["FLUX1.D", "FLUX2.D", "SDXL"]
+CLIP_MULTIPLIERS = ["1x", "2x", "4x"]
 
 
 class TT_LatentFactory:
@@ -42,75 +14,21 @@ class TT_LatentFactory:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff},),
+                "noise_seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff},),
                 "aspect_ratio": (ASPECT_RATIOS,),
-                "megapixels": (MEGAPIXELS,),
+                "megapixels": (CommonTypes.MEGAPIXELS,),
                 "orientation": (ORIENTATIONS,),
                 "model_type": (MODEL_TYPES,),
-                "batch_size": ("INT", {"default": 1, "min": 1, "max": 64}),
-                "clip_multiplier": (CLIP_MULTIPLIERS,)
+                "batch_size": ("INT", {"default": 1, "min": 1, "max": 64, "advanced": True},),
+                "clip_multiplier": (CLIP_MULTIPLIERS, {"advanced": True},)
             }
         }
 
-    RETURN_TYPES = ("LATENT", "INT", "INT", "INT", "INT", "INT")
-    RETURN_NAMES = ("LATENT", "SEED", "WIDTH", "HEIGHT", "TARGET_WIDTH", "TARGET_HEIGHT")
+    RETURN_TYPES = ("LATENT", "NOISE", "INT", "INT", CommonTypes.MEGAPIXELS, "INT", "INT", "INT", "INT")
+    RETURN_NAMES = ("LATENT", "RANDOM_NOISE", "SEED", "NOISE_SEED", "MEGAPIXELS", "WIDTH", "HEIGHT", "TARGET_WIDTH", "TARGET_HEIGHT")
     FUNCTION = "create_latent"
     CATEGORY = "TenserTensor/Latent"
 
-    def calculate_dimensions(self, total_pixels, ratio_w, ratio_h):
-        import math
-
-        height = math.sqrt(total_pixels * ratio_h / ratio_w)
-        width = height * ratio_w / ratio_h
-
-        width = int(width)
-        height = int(height)
-
-        width = round(width / 64) * 64
-        height = round(height / 64) * 64
-
-        return width, height
-
-    def create_latent(self, seed, aspect_ratio, megapixels, orientation, model_type, batch_size, clip_multiplier):
-        mp_value = float(megapixels.split()[0])
-        total_pixels = int(mp_value * 1_000_000)
-
-        ratio_parts = aspect_ratio.split(':')
-        ratio_w = int(ratio_parts[0])
-        ratio_h = int(ratio_parts[1])
-
-        if orientation == "portrait":
-            ratio_w, ratio_h = ratio_h, ratio_w
-
-        width, height = self.calculate_dimensions(total_pixels, ratio_w, ratio_h)
-
-        multiplier = int(clip_multiplier.replace('x', ''))
-        clip_width = width * multiplier
-        clip_height = height * multiplier
-
-        match model_type:
-            case "FLUX1.D":
-                scale_factor = 8
-                channels = 16
-            case "FLUX2.D":
-                scale_factor = 16
-                channels = 128
-            case "SDXL":
-                scale_factor = 8
-                channels = 4
-
-        latent_width = width // scale_factor
-        latent_height = height // scale_factor
-
-        generator = torch.Generator().manual_seed(seed)
-        latent = torch.randn(
-            batch_size,
-            channels,
-            latent_height,
-            latent_width,
-            generator=generator
-        )
-
-        latent_dict = {"samples": latent}
-
-        return (latent_dict, seed, width, height, clip_width, clip_height)
+    def create_latent(self, **kwargs):
+        return create_empty_latent(**kwargs)

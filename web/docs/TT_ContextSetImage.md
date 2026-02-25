@@ -6,16 +6,16 @@ Adds or updates image in context object.
 
 ### Inputs
 
-| Parameter | Type       | Required | Description                    |
-|-----------|------------|----------|--------------------------------|
-| `context` | TT_CONTEXT | Yes      | Context to update              |
-| `image`   | IMAGE      | Yes      | Image to store in context      |
+| Parameter | Type       | Required | Description               |
+|-----------|------------|----------|---------------------------|
+| `context` | TT_CONTEXT | Yes      | Context to update         |
+| `image`   | IMAGE      | Yes      | Image to store in context |
 
 ### Outputs
 
-| Parameter | Type       | Description             |
-|-----------|------------|-------------------------|
-| `CONTEXT` | TT_CONTEXT | Updated context object  |
+| Parameter | Type       | Description            |
+|-----------|------------|------------------------|
+| `CONTEXT` | TT_CONTEXT | Updated context object |
 
 ### Usage
 

@@ -41,7 +41,7 @@ Extended post-production node with image enhancement, LUT color grading, film gr
 
 | Parameter | Type  | Description                          |
 |-----------|-------|--------------------------------------|
-| `IMAGE`     | IMAGE | Processed image with applied effects |
+| `IMAGE`   | IMAGE | Processed image with applied effects |
 
 ### Usage
 

@@ -1,6 +1,6 @@
 # (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
-import comfy.samplers
+import comfy.samplers as S
 
 CONTEXT_FIELDS = [
     # input_name, return_name, field_type
@@ -13,14 +13,18 @@ CONTEXT_FIELDS = [
     ("negative", "NEGATIVE", "CONDITIONING"),
     ("image", "IMAGE", "IMAGE"),
     ("mask", "MASK", "MASK"),
+    ("guider", "GUIDER", "GUIDER"),
     ("control_net", "CONTROL_NET", "CONTROL_NET"),
     ("workflow_config", "WORKFLOW_CONFIG", "TT_WORKFLOW_CONFIG",),
     ("seed", "SEED", "INT"),
     ("steps", "STEPS", "INT"),
     ("cfg", "CFG", "FLOAT"),
-    ("sampler_name", "SAMPLER_NAME", comfy.samplers.KSampler.SAMPLERS),
-    ("scheduler", "SCHEDULER", comfy.samplers.KSampler.SCHEDULERS),
+    ("sampler_name", "SAMPLER_NAME", S.KSampler.SAMPLERS),
+    ("sampler", "SAMPLER", "SAMPLER"),
+    ("scheduler", "SCHEDULER", S.KSampler.SCHEDULERS),
     ("guidance", "GUIDANCE", "FLOAT"),
+    ("prompt", "PROMPT", "STRING"),
+    ("lora_triggers", "LORA_TRIGGERS", "STRING"),
     ("clip_l_positive", "CLIP_L_POSITIVE", "STRING"),
     ("clip_g_positive", "CLIP_L_POSITIVE", "STRING"),
     ("t5xxl_positive", "T5XXL_POSITIVE", "STRING"),
@@ -93,6 +97,28 @@ CONTEXTS = {
             "height",
         )
     },
+    "big_flux2": {
+        "optional": (
+            "context",
+            "workflow_config",
+            "model",
+            "clip",
+            "vae",
+            "latent",
+            "image",
+            "seed",
+            "steps",
+            "cfg",
+            "sampler_name",
+            "sampler",
+            "scheduler",
+            "guidance",
+            "prompt",
+            "lora_triggers",
+            "width",
+            "height",
+        )
+    },
     "big_sdxl": {
         "optional": (
             "context",
@@ -130,7 +156,7 @@ CONTEXTS = {
             "context",
         )
     },
-    "set_image":{
+    "set_image": {
         "required": (
             "context",
             "image",
@@ -139,10 +165,19 @@ CONTEXTS = {
             "context",
         )
     },
-    "set_latent":{
+    "set_latent": {
         "required": (
             "context",
             "latent",
+        ),
+        "return": (
+            "context",
+        )
+    },
+    "set_guider": {
+        "required": (
+            "context",
+            "guider",
         ),
         "return": (
             "context",
@@ -162,6 +197,7 @@ WORKFOW_SETTINGS_KEYS = [
     "steps",
     "cfg",
     "sampler_name",
+    "sampler",
     "scheduler",
     "pos_a_score",
     "clip_l_positive",

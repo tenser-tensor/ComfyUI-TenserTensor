@@ -1,8 +1,8 @@
 # pyproject.toml
 [project]
 name = "ComfyUI-TenserTensor"
-description = "A collection of custom nodes for ComfyUI that streamline common workflows. The main goal is to reduce visual clutter by combining frequently used node chains into single, convenient loaders."
-version = "1.3.1"
+description = "A collection of custom nodes for ComfyUI that streamline common workflows. Includes all-in-one model loaders (checkpoint/unet, LoRA, CLIP, VAE), GGUF quantized model support (FLUX, FLUX2, SDXL), workflow settings nodes, latent factory (aspect ratio, megapixels, FLUX/SDXL), context nodes, CLIP text encoders, KSamplers (context, advanced, two-stage - draft/refine), VAE encoders/decoders (context, tiled), and post-production tools (brightness, contrast, LUT color grading, film grain, upscaler)."
+version = "1.4.7"
 license = { file = "LICENSE" }
 dependencies = ["gguf"]
 

@@ -14,11 +14,11 @@ class TT_ImagePreviewSave():
                 "image": ("IMAGE",),
                 "save_image": ("BOOLEAN", {"default": True, "label_on": "Enabled", "label_off": "Disabled"}),
                 "filename_prefix": ("STRING", {"default": "tenser-tensor"}),
-                "filename_format": (FILENAME_FORMATS, {"advanced": True, "default": "name-###"}),
+                "filename_format": (FILENAME_FORMATS, {"default": "name-###", "advanced": True}),
                 "subfolder": ("STRING", {"default": "", "advanced": True}),
-                "image_format": (IMAGE_FORMATS, {"advanced": True, "default": "PNG"}),
-                "image_quality": ("INT", {"default": 100, "min": 0, "max": 100}),
-                "compression_level": ("INT", {"default": 9, "min": 0, "max": 9}),
+                "image_format": (IMAGE_FORMATS, {"default": "PNG", "advanced": True}),
+                "image_quality": ("INT", {"default": 100, "min": 0, "max": 100, "advanced": True}),
+                "compression_level": ("INT", {"default": 9, "min": 0, "max": 9, "advanced": True}),
             }
         }
 
