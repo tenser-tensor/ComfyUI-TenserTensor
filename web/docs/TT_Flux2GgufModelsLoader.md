@@ -1,4 +1,4 @@
-## TT GGUF Models Loader *TT_GgufModelsLoader*
+## TT FLUX2 GGUF Models Loader *TT_GgufModelsLoader*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 
@@ -22,7 +22,7 @@ Load GGUF-quantized diffusion model (UNet), CLIP text encoder, and VAE in a sing
 
 ### Usage
 
-All-in-one loader for GGUF-quantized models. Place your `.gguf` diffusion model files in the `diffusion_models` or `unet` directory, CLIP files in
+All-in-one loader for GGUF-quantized FLUX2 models. Place your `.gguf` diffusion model files in the `diffusion_models` or `unet` directory, CLIP files in
 `text_encoders` or `clip` directory. VAE can be any standard ComfyUI-compatible VAE file.
 
 ---

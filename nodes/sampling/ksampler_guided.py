@@ -13,7 +13,7 @@ class TT_KSamplerGuided:
                 "sigmas": ("SIGMAS",),
                 "sampler": ("SAMPLER",),
                 "random_noise": ("NOISE",),
-            }
+            },
         }
 
     RETURN_TYPES = ("LATENT",)

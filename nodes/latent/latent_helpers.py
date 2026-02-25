@@ -2,6 +2,7 @@
 
 import comfy.sample as S
 import torch
+import math
 
 
 class RandomNoise:
@@ -14,15 +15,16 @@ class RandomNoise:
         return S.prepare_noise(latent_image, self.seed, batch_idx)
 
 
-def _calculate_dimensions(total_pixels, ratio_w, ratio_h):
-    import math
+LATENT_DIMENSION_STEP = 64
 
+
+def _calculate_dimensions(total_pixels, ratio_w, ratio_h):
     height = math.sqrt(total_pixels * ratio_h / ratio_w)
     width = height * ratio_w / ratio_h
     width = int(width)
     height = int(height)
-    width = round(width / 64) * 64
-    height = round(height / 64) * 64
+    width = round(width / LATENT_DIMENSION_STEP) * LATENT_DIMENSION_STEP
+    height = round(height / LATENT_DIMENSION_STEP) * LATENT_DIMENSION_STEP
 
     return width, height
 
@@ -70,4 +72,19 @@ def create_empty_latent(seed, noise_seed, aspect_ratio, megapixels, orientation,
     latent_dict = {"samples": latent}
     noise = RandomNoise(noise_seed)
 
-    return (latent_dict, noise, seed, noise_seed, width, height, clip_width, clip_height,)
+    return (latent_dict, noise, seed, noise_seed, megapixels, width, height, clip_width, clip_height,)
+
+
+def vae_encode(latent, image, vae):
+    tile_width, tile_height, overlap = 512, 512, 64
+
+    samples = vae.encode_tiled(
+        image,
+        tile_x=tile_width,
+        tile_y=tile_height,
+        overlap=overlap
+    )
+
+    latent["samples"] = samples
+
+    return (latent,)

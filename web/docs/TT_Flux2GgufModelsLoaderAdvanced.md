@@ -1,4 +1,4 @@
-## TT GGUF Models Loader (Advanced) *TT_GgufModelsLoaderAdvanced*
+## TT FLUX2 GGUF Models Loader (Advanced) *TT_GgufModelsLoaderAdvanced*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 
@@ -33,7 +33,7 @@ All-in-one loader for GGUF-quantized models with extended control over quantizat
 
 ### Usage
 
-Extended version of GGUF Models Loader. Supports up to 4 LoRAs loaded simultaneously. Enable `apply_sampling` to apply flux sampling shift patch —
+Extended version of FLUX2 GGUF Models Loader. Supports up to 4 LoRAs loaded simultaneously. Enable `apply_sampling` to apply flux sampling shift patch —
 useful for improving quality at non-standard resolutions. Advanced parameters are hidden by default and can be revealed via the node's show/hide
 controls.
 

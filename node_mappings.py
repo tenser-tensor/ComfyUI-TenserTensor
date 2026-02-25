@@ -27,6 +27,7 @@ except ImportError:
 try:
     from .nodes.image.image_preview_save import TT_ImagePreviewSave
     from .nodes.image.image_preview_upscale_save import TT_ImagePreviewUpscaleSave
+    from .nodes.image.guider_image_reference import TT_GuiderImageReference
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Image nodes unavailable{RESET}")
 
@@ -38,8 +39,8 @@ except ImportError:
 try:
     from .nodes.loaders.flux_models_loader import TT_FluxModelsLoader
     from .nodes.loaders.flux_models_loader_advanced import TT_FluxModelsLoaderAdvanced
-    from .nodes.loaders.gguf_models_loader import TT_GgufModelsLoader
-    from .nodes.loaders.gguf_models_loader_advanced import TT_GgufModelsLoaderAdvanced
+    from .nodes.loaders.gguf_models_loader import TT_Flux2GgufModelsLoader
+    from .nodes.loaders.gguf_models_loader_advanced import TT_Flux2GgufModelsLoaderAdvanced
     from .nodes.loaders.sdxl_models_loader import TT_SdxlModelsLoader
     from .nodes.loaders.sdxl_models_loader_advanced import TT_SdxlModelsLoaderAdvanced
 except ImportError:
@@ -107,13 +108,14 @@ NODE_CLASS_MAPPINGS = {
     # Image
     "TT_ImagePreviewSave": TT_ImagePreviewSave,
     "TT_ImagePreviewUpscaleSave": TT_ImagePreviewUpscaleSave,
+    "TT_GuiderImageReference": TT_GuiderImageReference,
     # Latent
     "TT_LatentFactory": TT_LatentFactory,
     # Loaders
     "TT_SdxlModelsLoader": TT_SdxlModelsLoader,
     "TT_SdxlModelsLoaderAdvanced": TT_SdxlModelsLoaderAdvanced,
-    "TT_GgufModelsLoader": TT_GgufModelsLoader,
-    "TT_GgufModelsLoaderAdvanced": TT_GgufModelsLoaderAdvanced,
+    "TT_Flux2GgufModelsLoader": TT_Flux2GgufModelsLoader,
+    "TT_Flux2GgufModelsLoaderAdvanced": TT_Flux2GgufModelsLoaderAdvanced,
     "TT_FluxModelsLoader": TT_FluxModelsLoader,
     "TT_FluxModelsLoaderAdvanced": TT_FluxModelsLoaderAdvanced,
     # Postproduction
@@ -165,13 +167,14 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     # Image
     "TT_ImagePreviewSave": "TT Image Preview / Save",
     "TT_ImagePreviewUpscaleSave": "TT Image Preview / Upscale / Save",
+    "TT_GuiderImageReference": "TT Guider Image Reference",
     # Latent
     "TT_LatentFactory": "TT Latent Factory",
     # Loaders
     "TT_SdxlModelsLoader": "TT SDXL Models Loader",
     "TT_SdxlModelsLoaderAdvanced": "TT SDXL Models Loader (Advanced)",
-    "TT_GgufModelsLoader": "TT GGUF Models Loader",
-    "TT_GgufModelsLoaderAdvanced": "TT GGUF Models Loader (Advanced)",
+    "TT_Flux2GgufModelsLoader": "TT FLUX2 GGUF Models Loader",
+    "TT_Flux2GgufModelsLoaderAdvanced": "TT FLUX2 GGUF Models Loader (Advanced)",
     "TT_FluxModelsLoader": "TT FLUX Models Loader",
     "TT_FluxModelsLoaderAdvanced": "TT FLUX Models Loader (Advanced)",
     # Postproduction

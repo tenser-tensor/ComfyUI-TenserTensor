@@ -156,3 +156,15 @@ def load_clip(clip_name, type="flux2"):
     clip_type = getattr(SD.CLIPType, type.upper(), SD.CLIPType.FLUX2)
 
     return _load_patcher(clip_type, _load_data([clip_path]))
+
+
+def apply_bypass_lora_for_models(loaded_lora, model, clip, lora_name, strength):
+    if loaded_lora == None:
+        lora_path = FP.get_full_path_or_raise("loras", lora_name)
+        lora = U.load_torch_file(lora_path, safe_load=True)
+    else:
+        lora = loaded_lora
+
+    patched_model, patched_clip = SD.load_bypass_lora_for_models(model, clip, lora, strength, strength)
+
+    return (patched_model, patched_clip, lora,)

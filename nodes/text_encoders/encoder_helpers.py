@@ -2,6 +2,8 @@
 
 import comfy.samplers as S
 
+from ...lib.common import BasicGuider
+
 
 class Guider_Basic(S.CFGGuider):
     def set_conds(self, positive):
@@ -61,9 +63,10 @@ def encode_prompts_flux2(model, clip, prompt, lora_triggers, guidance):
     if clip is None:
         raise ValueError("ERROR: CLIP is required for text encoder")
 
-    tokens = clip.tokenize(f"{lora_triggers}, {prompt}")
+    full_prompt = f"{lora_triggers}, {prompt}" if lora_triggers.strip() else prompt
+    tokens = clip.tokenize(full_prompt)
     conditioning = clip.encode_from_tokens_scheduled(tokens, add_dict={"guidance": guidance, })
-    guider = Guider_Basic(model)
+    guider = BasicGuider(model)
     guider.set_conds(conditioning)
 
     return (guider,)

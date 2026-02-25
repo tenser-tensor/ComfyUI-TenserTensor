@@ -1,4 +1,6 @@
 # (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
+from .vae_helpers import vae_decode
+
 
 class TT_VaeDecodeContext:
     @classmethod
@@ -19,19 +21,11 @@ class TT_VaeDecodeContext:
         latent = context["latent"]
 
         if vae is None:
-            raise ValueError("VAE is required for decode")
+            raise ValueError("ERROR: VAE is required for decode")
         if latent is None:
-            raise ValueError("Latent image is required for decode")
+            raise ValueError("ERROR: Latent image is required for decode")
 
-        samples = latent["samples"]
-        if samples.is_nested:
-            samples = samples.unbind()[0]
-
-        images = vae.decode(samples)
-
-        if len(images.shape) == 5:
-            images = images.reshape(-1, images.shape[-3], images.shape[-2], images.shape[-1])
-
+        images = vae_decode(latent, vae)
         context["image"] = images
 
         return (context, images,)

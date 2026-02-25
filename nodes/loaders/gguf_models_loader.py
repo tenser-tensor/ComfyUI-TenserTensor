@@ -10,7 +10,7 @@ update_folder_names_and_paths("unet_gguf", ["diffusion_models", "unet"])
 update_folder_names_and_paths("clip_gguf", ["text_encoders", "clip"])
 
 
-class TT_GgufModelsLoader():
+class TT_Flux2GgufModelsLoader():
     @classmethod
     def INPUT_TYPES(cls):
         UNET_NAMES = [x for x in FP.get_filename_list("unet_gguf")]
@@ -28,7 +28,7 @@ class TT_GgufModelsLoader():
     RETURN_TYPES = ("MODEL", "CLIP", "VAE",)
     RETURN_NAMES = ("MODEL", "CLIP", "VAE",)
     FUNCTION = "load_models"
-    CATEGORY = "TenserTensor/Loaders/GGUF"
+    CATEGORY = "TenserTensor/Loaders/FLUX2 GGUF"
 
     VAE_DEVICE = "cpu"
     VAE_DTYPE = "bfloat16"

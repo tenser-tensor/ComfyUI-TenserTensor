@@ -1,5 +1,8 @@
 # (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
+from .vae_helpers import vae_encode
+
+
 class TT_VaeEncodeTiled:
     @classmethod
     def INPUT_TYPES(cls):
@@ -19,12 +22,4 @@ class TT_VaeEncodeTiled:
     CATEGORY = "TenserTensor/VAE"
 
     def vae_encode(self, image, vae, tile_width, tile_height, overlap):
-        samples = vae.encode_tiled(
-            image,
-            tile_x=tile_width,
-            tile_y=tile_height,
-            overlap=overlap
-        )
-        latent_dict = {"samples": samples}
-
-        return (latent_dict,)
+        return (vae_encode(image, vae, tile_width, tile_height, overlap),)
