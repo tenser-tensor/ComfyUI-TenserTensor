@@ -6,7 +6,7 @@ from .context_helpers import (build_return_tuple, create_context_schema, init_co
 class TT_LargeContextSdxl:
     INPUT_TYPES_DICT, RETURN_TYPES, RETURN_NAMES = create_context_schema("big_sdxl")
     FUNCTION = "process_context"
-    CATEGORY = "TenserTensor/Context"
+    CATEGORY = "TenserTensor/Deprecated/Context"
 
     @classmethod
     def INPUT_TYPES(cls):

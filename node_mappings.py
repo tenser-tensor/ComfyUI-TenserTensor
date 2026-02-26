@@ -11,90 +11,120 @@ WHITE = "\033[37m"
 BRIGHT_GREEN = "\033[92m"
 BRIGHT_CYAN = "\033[96m"
 
+NODES_COUNT = 0
+
 try:
+    before = set(dir())
+    from .context_nodes import *
     from .nodes.context.base_context import TT_BaseContext
     from .nodes.context.context import TT_Context
     from .nodes.context.context_passthrough import TT_ContextPassthrough
+    from .nodes.context.context_set_guider import TT_ContextSetGuider
     from .nodes.context.context_set_image import TT_ContextSetImage
     from .nodes.context.context_set_latent import TT_ContextSetLatent
-    from .nodes.context.context_set_guider import TT_ContextSetGuider
     from .nodes.context.even_larger_context import TT_EvenLargerContext
     from .nodes.context.large_context_flux import TT_LargeContextFlux
     from .nodes.context.large_context_sdxl import TT_LargeContextSdxl
-except ImportError:
-    print(f"{YELLOW}TenserTensor: {RED}ERROR: Context nodes unavailable{RESET}")
 
-try:
-    from .nodes.image.image_preview_save import TT_ImagePreviewSave
-    from .nodes.image.image_preview_upscale_save import TT_ImagePreviewUpscaleSave
-    from .nodes.image.guider_image_reference import TT_GuiderImageReference
+    NODES_COUNT += len(set(dir()) - before)
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Image nodes unavailable{RESET}")
 
 try:
+    before = set(dir())
+    from .nodes.image.image_preview_save import TT_ImagePreviewSave
+    from .nodes.image.image_preview_upscale_save import TT_ImagePreviewUpscaleSave
+    from .nodes.image.guider_image_reference import TT_GuiderImageReference
+
+    NODES_COUNT += len(set(dir()) - before)
+except ImportError:
+    print(f"{YELLOW}TenserTensor: {RED}ERROR: Image nodes unavailable{RESET}")
+
+try:
+    before = set(dir())
     from .nodes.latent.latent_factory import TT_LatentFactory
+
+    NODES_COUNT += len(set(dir()) - before)
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Latent nodes unavailable{RESET}")
 
 try:
+    before = set(dir())
     from .nodes.loaders.flux_models_loader import TT_FluxModelsLoader
     from .nodes.loaders.flux_models_loader_advanced import TT_FluxModelsLoaderAdvanced
     from .nodes.loaders.gguf_models_loader import TT_Flux2GgufModelsLoader
     from .nodes.loaders.gguf_models_loader_advanced import TT_Flux2GgufModelsLoaderAdvanced
     from .nodes.loaders.sdxl_models_loader import TT_SdxlModelsLoader
     from .nodes.loaders.sdxl_models_loader_advanced import TT_SdxlModelsLoaderAdvanced
+
+    NODES_COUNT += len(set(dir()) - before)
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Loader nodes unavailable{RESET}")
 
 try:
+    before = set(dir())
     from .nodes.postproduction.add_film_grain import TT_AddFilmGrain
     from .nodes.postproduction.apply_lut import TT_ApplyLut
     from .nodes.postproduction.image_enhancer import TT_ImageEnhancer
     from .nodes.postproduction.postproduction import TT_Postproduction
     from .nodes.postproduction.postproduction_advanced import TT_PostproductionAdvanced
     from .nodes.postproduction.quick_image_upscaler import TT_QuickImageUpscaler
+
+    NODES_COUNT += len(set(dir()) - before)
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Postproduction nodes unavailable{RESET}")
 
 try:
+    before = set(dir())
     from .nodes.sampling.ksampler import TT_KSampler
     from .nodes.sampling.ksampler_advanced import TT_KSamplerAdvanced
     from .nodes.sampling.ksampler_context import TT_KSamplerContext
     from .nodes.sampling.ksampler_two_stage import TT_KSamplerTwoStage
     from .nodes.sampling.ksampler_guided import TT_KSamplerGuided
+
+    NODES_COUNT += len(set(dir()) - before)
 except ImportError:
     print("f{YELLOW}TenserTensor: {RED}ERROR: Sampler nodes unavailable{RESET}")
 
 try:
+    before = set(dir())
     from .nodes.text_encoders.clip_text_encode_flux import TT_ClipTextEncodeFlux
     from .nodes.text_encoders.clip_text_encode_flux_context import TT_ClipTextEncodeFluxContext
     from .nodes.text_encoders.clip_text_encode_sdxl import TT_ClipTextEncodeSdxl
     from .nodes.text_encoders.clip_text_encode_sdxl_context import TT_ClipTextEncodeSdxlContext
     from .nodes.text_encoders.clip_text_encode_flux2 import TT_ClipTextEncodeFlux2
     from .nodes.text_encoders.clip_text_encode_flux2_context import TT_ClipTextEncodeFlux2Context
+
+    NODES_COUNT += len(set(dir()) - before)
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Text Encoder nodes unavailable{RESET}")
 
 try:
+    before = set(dir())
     from .nodes.vae.vae_decode_context import TT_VaeDecodeContext
     from .nodes.vae.vae_decode_tiled import TT_VaeDecodeTiled
     from .nodes.vae.vae_encode_context import TT_VaeEncodeContext
     from .nodes.vae.vae_encode_tiled import TT_VaeEncodeTiled
+
+    NODES_COUNT += len(set(dir()) - before)
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: VAE nodes unavailable{RESET}")
 
 try:
+    before = set(dir())
     from .nodes.workflow.flux_workflow_settings import TT_FluxWorkflowSettings
     from .nodes.workflow.flux_workflow_settings_advanced import TT_FluxWorkflowSettingsAdvanced
     from .nodes.workflow.sdxl_workflow_settings import TT_SdxlWorkflowSettings
     from .nodes.workflow.sdxl_workflow_settings_advanced import TT_SdxlWorkflowSettingsAdvanced
     from .nodes.workflow.flux2_workflow_settings import TT_Flux2WorkflowSettings
     from .nodes.workflow.flux2_workflow_settings_advanced import TT_Flux2WorkflowSettingsAdvanced
+
+    NODES_COUNT += len(set(dir()) - before)
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Workflow nodes unavailable{RESET}")
 
 NODE_CLASS_MAPPINGS = {
-    # Context
+    # Context Deprecated
     "TT_BaseContext": TT_BaseContext,
     "TT_Context": TT_Context,
     "TT_LargeContextFlux": TT_LargeContextFlux,
@@ -103,8 +133,11 @@ NODE_CLASS_MAPPINGS = {
     "TT_ContextSetImage": TT_ContextSetImage,
     "TT_ContextSetLatent": TT_ContextSetLatent,
     "TT_ContextSetGuider": TT_ContextSetGuider,
-    # Context Passthrough
     "TT_ContextPassthrough": TT_ContextPassthrough,
+    # Context V3 Nodes
+    "TT_BaseContextNode": TT_BaseContextNode,
+    "TT_BaseContextFlux2Node": TT_BaseContextFlux2Node,
+    "TT_BaseContextPassthroughNode": TT_BaseContextPassthroughNode,
     # Image
     "TT_ImagePreviewSave": TT_ImagePreviewSave,
     "TT_ImagePreviewUpscaleSave": TT_ImagePreviewUpscaleSave,
@@ -153,17 +186,20 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    # Context
-    "TT_BaseContext": "TT Base Context",
-    "TT_Context": "TT Context",
-    "TT_LargeContextFlux": "TT FLUX Large Context",
-    "TT_LargeContextSdxl": "TT SDXL Large Context",
-    "TT_EvenLargerContext": "TT Even Larger Context",
-    "TT_ContextSetImage": "TT Context Set Image",
-    "TT_ContextSetLatent": "TT Context Set Latent",
-    "TT_ContextSetGuider": "TT Context Set Guider",
-    # Context Passthrough
-    "TT_ContextPassthrough": "TT Context Passthrough",
+    # Context Deprecated
+    "TT_BaseContext": "TT Base Context (Deprecated)",
+    "TT_Context": "TT Context  (Deprecated)",
+    "TT_LargeContextFlux": "TT FLUX Large Context (Deprecated)",
+    "TT_LargeContextSdxl": "TT SDXL Large Context (Deprecated)",
+    "TT_EvenLargerContext": "TT Even Larger Context (Deprecated)",
+    "TT_ContextSetImage": "TT Context Set Image (Deprecated)",
+    "TT_ContextSetLatent": "TT Context Set Latent (Deprecated)",
+    "TT_ContextSetGuider": "TT Context Set Guider (Deprecated)",
+    "TT_ContextPassthrough": "TT Context Passthrough (Deprecated)",
+    # Context V3 Nodes
+    "TT_BaseContextNode": "TT Base Context",
+    "TT_BaseContextFlux2Node": "TT FLUX2 Base Context",
+    "TT_BaseContextPassthroughNode": "TT Context Passthrough",
     # Image
     "TT_ImagePreviewSave": "TT Image Preview / Save",
     "TT_ImagePreviewUpscaleSave": "TT Image Preview / Upscale / Save",
