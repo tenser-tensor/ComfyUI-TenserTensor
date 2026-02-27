@@ -8,7 +8,7 @@ from typing import override
 import torch
 
 from comfy.samplers import KSampler, sampler_object, Sampler
-from comfy_api.latest import IO
+from comfy_api.latest import IO, ComfyExtension
 from nodes import MAX_RESOLUTION
 
 
