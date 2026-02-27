@@ -13,10 +13,10 @@ required for guided diffusion sampling.
 | `clip`            | CLIP               | Yes      | CLIP text encoder             |
 | `vae`             | VAE                | Yes      | VAE encoder/decoder           |
 | `latent`          | LATENT             | Yes      | Latent image tensor           |
-| `sampler`         | SAMPLER            | Yes      | Instantiated sampler object   |
 | `rnd_noise`       | NOISE              | Yes      | Random noise for sampling     |
-| `sigmas`          | SIGMAS             | Yes      | Sigma schedule for sampling   |
 | `workflow_config` | TT_WORKFLOW_CONFIG | No       | Workflow configuration object |
+| `sampler`         | SAMPLER            | No       | Instantiated sampler object   |
+| `sigmas`          | SIGMAS             | No       | Sigma schedule for sampling   |
 
 ### Outputs
 

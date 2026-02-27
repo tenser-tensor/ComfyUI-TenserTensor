@@ -8,7 +8,7 @@ from typing import override
 import torch
 
 from comfy.samplers import KSampler, sampler_object, Sampler
-from comfy_api.latest import IO, ComfyExtension
+from comfy_api.latest import IO
 from nodes import MAX_RESOLUTION
 
 
@@ -147,18 +147,21 @@ class TT_Flux2WorkflowSettingsNode(IO.ComfyNode):
 
     @classmethod
     def execute(cls, **kwargs) -> IO.NodeOutput:
-        kwargs["sampler"], kwargs["sigmas"] = build_sampler_sigmas(
+        sampler, sigmas = build_sampler_sigmas(
             kwargs.get("sampler_name"),
             kwargs.get("steps"),
             kwargs.get("width"),
             kwargs.get("height"),
         )
 
+        kwargs["sampler"] = sampler
+        kwargs["sigmas"] = sigmas
+
         workflow_config = TTWorkflowSettings.create(**kwargs)
         args = {
             "workflow_config": workflow_config,
-            "sampler": kwargs.get("sampler"),
-            "sigmas": kwargs.get("sigmas"),
+            "sampler": sampler,
+            "sigmas": sigmas,
             "seed": kwargs.get("seed"),
             "steps": kwargs.get("steps"),
             "cfg": kwargs.get("cfg"),
@@ -206,18 +209,21 @@ class TT_Flux2WorkflowSettingsAdvancedNode(IO.ComfyNode):
 
     @classmethod
     def execute(cls, **kwargs) -> IO.NodeOutput:
-        kwargs["sampler"], kwargs["sigmas"] = build_sampler_sigmas(
+        sampler, sigmas = build_sampler_sigmas(
             kwargs.get("sampler_name"),
             kwargs.get("steps"),
             kwargs.get("width"),
             kwargs.get("height"),
         )
 
+        kwargs["sampler"] = sampler
+        kwargs["sigmas"] = sigmas
+
         workflow_config = TTWorkflowSettings.create(**kwargs)
         args = {
             "workflow_config": workflow_config,
-            "sampler": kwargs.get("sampler"),
-            "sigmas": kwargs.get("sigmas"),
+            "sampler": sampler,
+            "sigmas": sigmas,
             "seed": kwargs.get("seed"),
             "steps": kwargs.get("steps"),
             "cfg": kwargs.get("cfg"),

@@ -29,13 +29,16 @@ class TTContext():
     clip: IO.Clip | None = None
     control_net: IO.ControlNet | None = None
     conditioning: IO.Conditioning | None = None
+    guidance: IO.Float | None = None
     guider: IO.Guider | None = None
     image: IO.Image | None = None
     latent: IO.Latent | None = None
+    lora_triggers: IO.String | None = None
     mask: IO.Mask | None = None
     model: IO.Model | None = None
     negative: IO.Conditioning | None = None
     positive: IO.Conditioning | None = None
+    prompt: IO.String | None = None
     rnd_noise: IO.Noise | None = None
     sampler: IO.Sampler | None = None
     seed: IO.Int | None = None
@@ -228,8 +231,8 @@ class TT_BaseContextFlux2Node(ContextNode):
     Base context node for FLUX2 workflows. Accepts model, clip, vae, latent, sampler, noise, and sigmas.
     Optionally accepts workflow_config. Returns context.
     """
-    REQUIRED = ("model", "clip", "vae", "latent", "sampler", "rnd_noise", "sigmas",)
-    OPTIONAL = ("workflow_config",)
+    REQUIRED = ("model", "clip", "vae", "latent", "rnd_noise",)
+    OPTIONAL = ("workflow_config", "sampler", "sigmas",)
     RETURNS = ("context",)
 
 
@@ -281,6 +284,34 @@ class TT_ContextSetLatentNode(ContextNode):
     RETURNS = ("context",)
 
 
+class TT_ContextExtractEncoderFlux2Node(ContextNode):
+    """Extracts model, clip, and encoding parameters from context for use with a FLUX2 text encoder."""
+    REQUIRED = ("context",)
+    OPTIONAL = ()
+    RETURNS = ("context", "model", "clip", "prompt", "lora_triggers", "guidance",)
+
+
+class TT_ContextExtractGuidedSamplerFlux2Node(ContextNode):
+    """Extracts latent, guider, sigmas, sampler, and noise from context for use with a FLUX2 guided sampler."""
+    REQUIRED = ("context",)
+    OPTIONAL = ()
+    RETURNS = ("context", "latent", "guider", "sigmas", "sampler", "rnd_noise",)
+
+
+class TT_ContextExtractVaeNode(ContextNode):
+    """Extracts VAE from context for use with a VAE decoder or encoder node."""
+    REQUIRED = ("context",)
+    OPTIONAL = ()
+    RETURNS = ("context", "vae",)
+
+
+class TT_ContextExtractImageNode(ContextNode):
+    """Extracts Image from context for use with e.g. preview or postproduction node."""
+    REQUIRED = ("context",)
+    OPTIONAL = ()
+    RETURNS = ("context", "image",)
+
+
 # ==============================================================================
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
@@ -297,6 +328,10 @@ class ContextExtension(ComfyExtension):
             TT_ContextSetGuiderNode,
             TT_ContextSetImageNode,
             TT_ContextSetLatentNode,
+            TT_ContextExtractEncoderFlux2Node,
+            TT_ContextExtractGuidedSamplerFlux2Node,
+            TT_ContextExtractVaeNode,
+            TT_ContextExtractImageNode,
         ]
 
 
@@ -317,4 +352,8 @@ __all__ = [
     "TT_ContextSetGuiderNode",
     "TT_ContextSetImageNode",
     "TT_ContextSetLatentNode",
+    "TT_ContextExtractEncoderFlux2Node",
+    "TT_ContextExtractGuidedSamplerFlux2Node",
+    "TT_ContextExtractVaeNode",
+    "TT_ContextExtractImageNode",
 ]

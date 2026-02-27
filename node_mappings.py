@@ -144,6 +144,10 @@ NODE_CLASS_MAPPINGS = {
     "TT_ContextSetGuiderNode": TT_ContextSetGuiderNode,
     "TT_ContextSetImageNode": TT_ContextSetImageNode,
     "TT_ContextSetLatentNode": TT_ContextSetLatentNode,
+    "TT_ContextExtractEncoderFlux2Node": TT_ContextExtractEncoderFlux2Node,
+    "TT_ContextExtractGuidedSamplerFlux2Node": TT_ContextExtractGuidedSamplerFlux2Node,
+    "TT_ContextExtractVaeNode": TT_ContextExtractVaeNode,
+    "TT_ContextExtractImageNode": TT_ContextExtractImageNode,
     # Image
     "TT_ImagePreviewSave": TT_ImagePreviewSave,
     "TT_ImagePreviewUpscaleSave": TT_ImagePreviewUpscaleSave,
@@ -214,6 +218,10 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_ContextSetGuiderNode": "TT Context Set Guider",
     "TT_ContextSetImageNode": "TT Context Set Image",
     "TT_ContextSetLatentNode": "TT Context Set Latent",
+    "TT_ContextExtractEncoderFlux2Node": "TT Context Extract Encoder FLUX2",
+    "TT_ContextExtractGuidedSamplerFlux2Node": "TT Context Extract Guided Sampler Flux2",
+    "TT_ContextExtractVaeNode": "TT Context Extract VAE Flux2",
+    "TT_ContextExtractImageNode": "TT Context Extract Image Flux2",
     # Image
     "TT_ImagePreviewSave": "TT Image Preview / Save",
     "TT_ImagePreviewUpscaleSave": "TT Image Preview / Upscale / Save",
