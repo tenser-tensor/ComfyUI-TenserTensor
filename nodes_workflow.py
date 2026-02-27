@@ -129,7 +129,7 @@ class TT_Flux2WorkflowSettingsNode(IO.ComfyNode):
                 IO.Float.Input("cfg", default=3.0, min=0.0, max=100.0, step=0.1),
                 IO.Float.Input("guidance", default=3.0, min=1.0, max=10.0, step=0.1),
                 IO.Int.Input("width", default=1024, min=16, max=MAX_RESOLUTION, step=8),
-                IO.Int.Input("height", default=1024, min=16, max=MAX_RESOLUTION, step=9),
+                IO.Int.Input("height", default=1024, min=16, max=MAX_RESOLUTION, step=8),
                 IO.Combo.Input("sampler_name", options=KSampler.SAMPLERS)
             ],
             outputs=[
