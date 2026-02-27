@@ -141,6 +141,9 @@ NODE_CLASS_MAPPINGS = {
     "TT_BaseContextPassthroughNode": TT_BaseContextPassthroughNode,
     "TT_ContextNode": TT_ContextNode,
     "TT_ContextFlux2Node": TT_ContextFlux2Node,
+    "TT_ContextSetGuiderNode": TT_ContextSetGuiderNode,
+    "TT_ContextSetImageNode": TT_ContextSetImageNode,
+    "TT_ContextSetLatentNode": TT_ContextSetLatentNode,
     # Image
     "TT_ImagePreviewSave": TT_ImagePreviewSave,
     "TT_ImagePreviewUpscaleSave": TT_ImagePreviewUpscaleSave,
@@ -208,6 +211,9 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_BaseContextPassthroughNode": "TT Context Passthrough",
     "TT_ContextNode": "TT Context",
     "TT_ContextFlux2Node": "TT FLUX2 Context",
+    "TT_ContextSetGuiderNode": "TT Context Set Guider",
+    "TT_ContextSetImageNode": "TT Context Set Image",
+    "TT_ContextSetLatentNode": "TT Context Set Latent",
     # Image
     "TT_ImagePreviewSave": "TT Image Preview / Save",
     "TT_ImagePreviewUpscaleSave": "TT Image Preview / Upscale / Save",

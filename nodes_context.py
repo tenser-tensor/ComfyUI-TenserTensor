@@ -260,6 +260,27 @@ class TT_ContextFlux2Node(ContextNode):
     RETURNS = ()
 
 
+class TT_ContextSetGuiderNode(ContextNode):
+    """Sets the guider field in the context object."""
+    REQUIRED = ("context", "guider",)
+    OPTIONAL = ()
+    RETURNS = ("context",)
+
+
+class TT_ContextSetImageNode(ContextNode):
+    """Sets the image field in the context object."""
+    REQUIRED = ("context", "image",)
+    OPTIONAL = ()
+    RETURNS = ("context",)
+
+
+class TT_ContextSetLatentNode(ContextNode):
+    """Sets the latent field in the context object."""
+    REQUIRED = ("context", "latent",)
+    OPTIONAL = ()
+    RETURNS = ("context",)
+
+
 # ==============================================================================
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
@@ -273,6 +294,9 @@ class ContextExtension(ComfyExtension):
             TT_BaseContextPassthroughNode,
             TT_ContextNode,
             TT_ContextFlux2Node,
+            TT_ContextSetGuiderNode,
+            TT_ContextSetImageNode,
+            TT_ContextSetLatentNode,
         ]
 
 
@@ -290,4 +314,7 @@ __all__ = [
     "TT_BaseContextPassthroughNode",
     "TT_ContextNode",
     "TT_ContextFlux2Node",
+    "TT_ContextSetGuiderNode",
+    "TT_ContextSetImageNode",
+    "TT_ContextSetLatentNode",
 ]
