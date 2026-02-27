@@ -1,5 +1,7 @@
 ## TT Context Passthrough *TT_ContextPassthrough*
 
+⚠️ Deprecated: This node will be removed in version 3.0. Please migrate to the new context nodes.
+
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 
 Pass-through node that forwards context while allowing optional parameter modifications.

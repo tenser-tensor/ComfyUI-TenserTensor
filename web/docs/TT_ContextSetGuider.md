@@ -1,5 +1,7 @@
 ## TT Context Set Guider *TT_ContextSetGuider*
 
+⚠️ Deprecated: This node will be removed in version 3.0. Please migrate to the new context nodes.
+
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 
 Writes a GUIDER object into the TT_CONTEXT, making it available for downstream context-aware nodes.

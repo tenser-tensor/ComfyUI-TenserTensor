@@ -1,5 +1,7 @@
 ## TT Base Context *TT_BaseContext*
 
+⚠️ Deprecated: This node will be removed in version 3.0. Please migrate to the new context nodes.
+
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 
 Creates a foundational context object by combining essential workflow components.

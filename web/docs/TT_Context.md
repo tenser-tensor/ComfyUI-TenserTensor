@@ -1,5 +1,7 @@
 ## TT Context *TT_Context*
 
+⚠️ Deprecated: This node will be removed in version 3.0. Please migrate to the new context nodes.
+
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 
 Standard context node that can create a new context or modify an existing one.

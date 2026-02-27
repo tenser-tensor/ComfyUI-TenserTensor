@@ -1,5 +1,7 @@
 ## TT Context Set Image *TT_ContextSetImage*
 
+⚠️ Deprecated: This node will be removed in version 3.0. Please migrate to the new context nodes.
+
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 
 Adds or updates image in context object.
