@@ -15,7 +15,7 @@ NODES_COUNT = 0
 
 try:
     before = set(dir())
-    from .context_nodes import *
+    from .nodes_context import *
     from .nodes.context.base_context import TT_BaseContext
     from .nodes.context.context import TT_Context
     from .nodes.context.context_passthrough import TT_ContextPassthrough
@@ -118,6 +118,7 @@ try:
     from .nodes.workflow.sdxl_workflow_settings_advanced import TT_SdxlWorkflowSettingsAdvanced
     from .nodes.workflow.flux2_workflow_settings import TT_Flux2WorkflowSettings
     from .nodes.workflow.flux2_workflow_settings_advanced import TT_Flux2WorkflowSettingsAdvanced
+    from .nodes_workflow import *
 
     NODES_COUNT += len(set(dir()) - before)
 except ImportError:
@@ -138,6 +139,8 @@ NODE_CLASS_MAPPINGS = {
     "TT_BaseContextNode": TT_BaseContextNode,
     "TT_BaseContextFlux2Node": TT_BaseContextFlux2Node,
     "TT_BaseContextPassthroughNode": TT_BaseContextPassthroughNode,
+    "TT_ContextNode": TT_ContextNode,
+    "TT_ContextFlux2Node": TT_ContextFlux2Node,
     # Image
     "TT_ImagePreviewSave": TT_ImagePreviewSave,
     "TT_ImagePreviewUpscaleSave": TT_ImagePreviewUpscaleSave,
@@ -183,6 +186,9 @@ NODE_CLASS_MAPPINGS = {
     "TT_SdxlWorkflowSettingsAdvanced": TT_SdxlWorkflowSettingsAdvanced,
     "TT_Flux2WorkflowSettings": TT_Flux2WorkflowSettings,
     "TT_Flux2WorkflowSettingsAdvanced": TT_Flux2WorkflowSettingsAdvanced,
+    # Workflow V3 Nodes
+    "TT_Flux2WorkflowSettingsNode": TT_Flux2WorkflowSettingsNode,
+    "TT_Flux2WorkflowSettingsAdvancedNode": TT_Flux2WorkflowSettingsAdvancedNode,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -200,6 +206,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_BaseContextNode": "TT Base Context",
     "TT_BaseContextFlux2Node": "TT FLUX2 Base Context",
     "TT_BaseContextPassthroughNode": "TT Context Passthrough",
+    "TT_ContextNode": "TT Context",
+    "TT_ContextFlux2Node": "TT FLUX2 Context",
     # Image
     "TT_ImagePreviewSave": "TT Image Preview / Save",
     "TT_ImagePreviewUpscaleSave": "TT Image Preview / Upscale / Save",
@@ -243,6 +251,9 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_FluxWorkflowSettingsAdvanced": "TT FLUX Workflow Settings (Advanced)",
     "TT_SdxlWorkflowSettings": "TT SDXL Workflow Settings",
     "TT_SdxlWorkflowSettingsAdvanced": "TT SDXL Workflow Settings (Advanced)",
-    "TT_Flux2WorkflowSettings": "TT FLUX2 Workflow Settings",
-    "TT_Flux2WorkflowSettingsAdvanced": "TT FLUX2 Workflow Settings (Advanced)",
+    "TT_Flux2WorkflowSettings": "TT FLUX2 Workflow Settings (Deprecated)",
+    "TT_Flux2WorkflowSettingsAdvanced": "TT FLUX2 Workflow Settings (Deprecated/Advanced)",
+    # Workflow V3 Nodes
+    "TT_Flux2WorkflowSettingsNode": "TT FLUX2 Workflow Settings",
+    "TT_Flux2WorkflowSettingsAdvancedNode": "TT FLUX2 Workflow Settings (Advanced)",
 }

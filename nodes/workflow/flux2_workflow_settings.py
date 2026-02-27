@@ -46,7 +46,7 @@ class TT_Flux2WorkflowSettings:
         "GUIDANCE"
     )
     FUNCTION = "get_settings"
-    CATEGORY = "TenserTensor/Workflow/FLUX2"
+    CATEGORY = "TenserTensor/Deprecated/Workflow/FLUX2"
 
     def get_settings(self, seed, steps, cfg, sampler_name, width, height, guidance):
         scheduler = get_schedule(steps, width, height)
