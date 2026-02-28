@@ -1,1 +1,149 @@
 # (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
+
+import math
+from typing import Any, override
+
+import torch
+
+import comfy.sample
+from comfy_api.latest import IO, ComfyExtension
+from lib.common import CommonTypes
+
+CATEGORY = "TenserTensor/Latent"
+ASPECT_RATIOS = ["1:1", "4:3", "3:2", "16:9", "21:9"]
+ORIENTATIONS = ["landscape", "portrait"]
+MODEL_TYPES = ["FLUX1.D", "FLUX2.D", "SDXL"]
+CLIP_MULTIPLIERS = ["1x", "2x", "4x"]
+
+
+class TT_LatentFactoryNode(IO.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> IO.Schema:
+        return IO.Schema(
+            node_id="TT_LatentFactoryNode",
+            display_name="TT Latent Factory",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                IO.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
+                IO.Int.Input("noise_seed", default=0, min=0, max=0xffffffffffffffff, control_after_generate=True),
+                IO.Combo.Input("aspect_ratio", options=ASPECT_RATIOS),
+                IO.Combo.Input("megapixels", options=CommonTypes.MEGAPIXELS),
+                IO.Combo.Input("orientation", options=ORIENTATIONS),
+                IO.Combo.Input("model_type", options=MODEL_TYPES),
+                IO.Int.Input("batch_size", default=1, min=1, max=64, advanced=True),
+                IO.Combo.Input("clip_multiplier", options=CLIP_MULTIPLIERS, advanced=True),
+            ],
+            outputs=[
+                IO.Latent.Output(display_name="LATENT"),
+                IO.Noise.Output(display_name="RND_NOISE"),
+                IO.Int.Output(display_name="SEED"),
+                IO.Int.Output(display_name="NOISE_SEED"),
+                IO.String.Output(display_name="MEGAPIXELS"),
+                IO.Int.Output(display_name="WIDTH"),
+                IO.Int.Output(display_name="HEIGHT"),
+                IO.Int.Output(display_name="TARGET_WIDTH"),
+                IO.Int.Output(display_name="TARGET_HEIGHT"),
+            ]
+        )
+
+    LATENT_DIMENSION_STEP = 64
+
+    @classmethod
+    def calculate_dimensions(cls, total_pixels, ratio_w, ratio_h) -> tuple[int, int]:
+        height = int(math.sqrt(total_pixels * ratio_h / ratio_w))
+        width = int(height * ratio_w / ratio_h)
+        width = round(width / cls.LATENT_DIMENSION_STEP) * cls.LATENT_DIMENSION_STEP
+        height = round(height / cls.LATENT_DIMENSION_STEP) * cls.LATENT_DIMENSION_STEP
+
+        return (width, height,)
+
+    @classmethod
+    def build_latent(cls, seed, batch_size, channels, latent_width, latent_height) -> torch.Tensor:
+        generator = torch.Generator().manual_seed(seed)
+        latent = torch.randn(
+            batch_size,
+            channels,
+            latent_height,
+            latent_width,
+            generator=generator
+        )
+
+        return latent
+
+    @classmethod
+    def create_empty_latent(cls, **kwargs) -> tuple[dict[str, Any], int, int]:
+        total_pixels = int(float(kwargs.get("megapixels").split()[0]) * 1_000_000)
+        ratio_parts = kwargs.get("aspect_ratio").split(':')
+        ratio_w, ratio_h = (
+            (int(ratio_parts[0]), int(ratio_parts[1]))
+            if kwargs.get("orientation") == "landscape"
+            else (int(ratio_parts[1]), int(ratio_parts[0]))
+        )
+        width, height = cls.calculate_dimensions(total_pixels, ratio_w, ratio_h)
+
+        match kwargs.get("model_type"):
+            case "FLUX1.D":
+                scale_factor, channels = 8, 16
+            case "FLUX2.D":
+                scale_factor, channels = 16, 128
+            case "SDXL":
+                scale_factor, channels = 8, 4
+
+        latent_width, latent_height = (width // scale_factor, height // scale_factor,)
+        latent = cls.build_latent(kwargs.get("seed"), kwargs.get("batch_size"), channels, latent_width, latent_height)
+
+        return {"samples": latent}, width, height,
+
+    @classmethod
+    def generate_noise(cls, latent, seed):
+        samples = latent["samples"]
+        batch_idx = latent["batch_index"] if "batch_index" in latent else None
+        return comfy.sample.prepare_noise(samples, seed, batch_idx)
+
+    @classmethod
+    def execute(cls, **kwargs) -> IO.NodeOutput:
+        samples, width, height = cls.create_empty_latent(**kwargs)
+        seed, noise_seed = kwargs.get("seed"), kwargs.get("noise_seed")
+        noise = cls.generate_noise(samples, noise_seed)
+        multiplier = int(kwargs.get("clip_multiplier").replace('x', ''))
+        clip_width, clip_height = (width * multiplier, height * multiplier,)
+
+        args = {
+            "latent": samples,
+            "noise": noise,
+            "seed": seed,
+            "noise_seed": noise_seed,
+            "megapixels": kwargs.get("megapixels"),
+            "width": width,
+            "height": height,
+            "target_width": clip_width,
+            "target_height": clip_height,
+        }
+
+        return IO.NodeOutput(*args.values())
+
+
+# ==============================================================================
+# V3 entrypoint — registers context nodes with ComfyUI
+# ==============================================================================
+
+class ContextExtension(ComfyExtension):
+    @override
+    async def get_node_list(self) -> list[type[IO.ComfyNode]]:
+        return [
+            TT_LatentFactoryNode,
+        ]
+
+
+async def comfy_entrypoint() -> ContextExtension:
+    return ContextExtension()
+
+
+# ==============================================================================
+# Re-exports for backward compatibility
+# ==============================================================================
+
+__all__ = [
+    "TT_LatentFactoryNode",
+]

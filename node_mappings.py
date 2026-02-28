@@ -43,6 +43,7 @@ except ImportError:
 try:
     before = set(dir())
     from .nodes.latent.latent_factory import TT_LatentFactory
+    from .nodes_latent import *
 
     NODES_COUNT += len(set(dir()) - before)
 except ImportError:
@@ -154,6 +155,8 @@ NODE_CLASS_MAPPINGS = {
     "TT_GuiderImageReference": TT_GuiderImageReference,
     # Latent
     "TT_LatentFactory": TT_LatentFactory,
+    # Latent V3 Nodes
+    "TT_LatentFactoryNode": TT_LatentFactoryNode,
     # Loaders
     "TT_SdxlModelsLoader": TT_SdxlModelsLoader,
     "TT_SdxlModelsLoaderAdvanced": TT_SdxlModelsLoaderAdvanced,
@@ -227,7 +230,9 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_ImagePreviewUpscaleSave": "TT Image Preview / Upscale / Save",
     "TT_GuiderImageReference": "TT Guider Image Reference",
     # Latent
-    "TT_LatentFactory": "TT Latent Factory",
+    "TT_LatentFactory": "TT Latent Factory (Deprecated)",
+    # Latent V3 Nodes
+    "TT_LatentFactoryNode": "TT Latent Factory",
     # Loaders
     "TT_SdxlModelsLoader": "TT SDXL Models Loader",
     "TT_SdxlModelsLoaderAdvanced": "TT SDXL Models Loader (Advanced)",
