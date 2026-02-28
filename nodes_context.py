@@ -58,24 +58,27 @@ class TTContext():
         return ctx
 
     def set_attr(self, key, attr):
-        if hasattr(self, key):
-            setattr(self, key, attr)
-        else:
-            self.set_workflow_config_attr(key, attr)
+        if attr is not None:
+            if hasattr(self.workflow_config, key):
+                self.set_workflow_config_attr(key, attr)
+            else:
+                setattr(self, key, attr)
 
     def get_attr(self, key, default=None):
-        if hasattr(self, key):
-            val = getattr(self, key)
-            return val if val is not None else default
+        if hasattr(self.workflow_config, key):
+            val = self.get_workflow_config_attr(key, default)
         else:
-            self.get_workflow_config_attr(key, default)
+            val = getattr(self, key)
+
+        return val if val is not None else default
 
     def update_attrs(self, **kwargs):
         for key in kwargs.keys():
-            if hasattr(self, key):
-                val = kwargs.get(key)
-                if val is not None:
-                    setattr(self, key, val)
+            val = kwargs.get(key, None)
+            if hasattr(self.workflow_config, key):
+                self.set_workflow_config_attr(key, val)
+            else:
+                self.set_attr(key, val)
 
     def set_workflow_config_attr(self, key, attr):
         if self.workflow_config:
@@ -157,7 +160,7 @@ class ContextNode(IO.ComfyNode):
     def outputs(cls) -> list[Output]:
         output_schema = []
 
-        for f_name in cls.RETURNS if len(cls.RETURNS) > 0 else cls.OPTIONAL:
+        for f_name in cls.RETURNS if len(cls.RETURNS) > 0 else cls.REQUIRED + cls.OPTIONAL:
             output_schema.append(
                 Context.Output(display_name="CONTEXT")
                 if f_name == "context"
@@ -169,13 +172,9 @@ class ContextNode(IO.ComfyNode):
     @classmethod
     def node_output(cls, context) -> IO.NodeOutput:
         args = [context]
-        for f_name in cls.RETURNS if len(cls.RETURNS) > 0 else cls.OPTIONAL:
+        for f_name in cls.RETURNS if len(cls.RETURNS) > 0 else cls.REQUIRED + cls.OPTIONAL:
             if f_name != "context":
-                wf = context.get_attr("workflow_config")
-                if hasattr(wf, f_name):
-                    args.append(wf.get_attr(f_name))
-                else:
-                    args.append(context.get_attr(f_name))
+                args.append(context.get_attr(f_name))
 
         return IO.NodeOutput(*args)
 
@@ -198,7 +197,7 @@ class ContextNode(IO.ComfyNode):
 
     @classmethod
     def handle(cls, context, **kwargs):
-        workflow_config = kwargs.get("workflow_config")
+        workflow_config = context.get_attr("workflow_config")
         kwargs["workflow_config"] = (
             TTWorkflowSettings.create(**kwargs)
             if not workflow_config

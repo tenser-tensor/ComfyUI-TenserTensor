@@ -41,7 +41,7 @@ class TTWorkflowSettings():
     def create(cls, **kwargs) -> TTWorkflowSettings:
         wf = cls()
         for field in dataclasses.fields(wf):
-            setattr(wf, field.name, kwargs.get(field.name, None))
+            wf.set_attr(field.name, kwargs.get(field.name, None))
 
         return wf
 
@@ -50,7 +50,7 @@ class TTWorkflowSettings():
             if hasattr(self, key):
                 val = kwargs.get(key)
                 if val is not None:
-                    setattr(self, key, val)
+                    self.set_attr(key, val)
 
         return self
 
@@ -116,6 +116,12 @@ def build_sampler_sigmas(sampler_name, steps, width, height):
 
 
 class TT_Flux2WorkflowSettingsNode(IO.ComfyNode):
+    """
+    Use this node as the single source of truth for FLUX2 workflow parameters. The sampler and sigma schedule
+    are computed automatically from the selected sampler, step count, and resolution. Connect `WORKFLOW_CONFIG`
+    to context nodes, or use individual outputs to connect to standard ComfyUI nodes.
+    """
+
     @classmethod
     def define_schema(cls) -> IO.Schema:
         return IO.Schema(
@@ -147,21 +153,18 @@ class TT_Flux2WorkflowSettingsNode(IO.ComfyNode):
 
     @classmethod
     def execute(cls, **kwargs) -> IO.NodeOutput:
-        sampler, sigmas = build_sampler_sigmas(
+        kwargs["sampler"], kwargs["sigmas"] = build_sampler_sigmas(
             kwargs.get("sampler_name"),
             kwargs.get("steps"),
             kwargs.get("width"),
             kwargs.get("height"),
         )
 
-        kwargs["sampler"] = sampler
-        kwargs["sigmas"] = sigmas
-
         workflow_config = TTWorkflowSettings.create(**kwargs)
         args = {
             "workflow_config": workflow_config,
-            "sampler": sampler,
-            "sigmas": sigmas,
+            "sampler": kwargs["sampler"],
+            "sigmas": kwargs["sigmas"],
             "seed": kwargs.get("seed"),
             "steps": kwargs.get("steps"),
             "cfg": kwargs.get("cfg"),
@@ -174,6 +177,13 @@ class TT_Flux2WorkflowSettingsNode(IO.ComfyNode):
 
 
 class TT_Flux2WorkflowSettingsAdvancedNode(IO.ComfyNode):
+    """
+    Advanced version of TT FLUX2 Workflow Settings with `prompt` and `lora_triggers` fields included directly in the
+    node. Both are stored in the `WORKFLOW_CONFIG` output alongside all other sampling parameters, making this node
+    sufficient as the sole configuration source for full context-driven FLUX2 pipelines. Individual outputs remain
+    available for connecting to standard ComfyUI nodes.
+    """
+
     @classmethod
     def define_schema(cls) -> IO.Schema:
         return IO.Schema(
@@ -209,21 +219,18 @@ class TT_Flux2WorkflowSettingsAdvancedNode(IO.ComfyNode):
 
     @classmethod
     def execute(cls, **kwargs) -> IO.NodeOutput:
-        sampler, sigmas = build_sampler_sigmas(
+        kwargs["sampler"], kwargs["sigmas"] = build_sampler_sigmas(
             kwargs.get("sampler_name"),
             kwargs.get("steps"),
             kwargs.get("width"),
             kwargs.get("height"),
         )
 
-        kwargs["sampler"] = sampler
-        kwargs["sigmas"] = sigmas
-
         workflow_config = TTWorkflowSettings.create(**kwargs)
         args = {
             "workflow_config": workflow_config,
-            "sampler": sampler,
-            "sigmas": sigmas,
+            "sampler": kwargs["sampler"],
+            "sigmas": kwargs["sigmas"],
             "seed": kwargs.get("seed"),
             "steps": kwargs.get("steps"),
             "cfg": kwargs.get("cfg"),
