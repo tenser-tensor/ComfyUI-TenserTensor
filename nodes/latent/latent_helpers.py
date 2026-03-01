@@ -1,8 +1,10 @@
 # (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
-import comfy.sample as S
-import torch
 import math
+
+import torch
+
+import comfy.sample as S
 
 
 class RandomNoise:
@@ -48,14 +50,11 @@ def create_empty_latent(seed, noise_seed, aspect_ratio, megapixels, orientation,
 
     match model_type:
         case "FLUX1.D":
-            scale_factor = 8
-            channels = 16
+            scale_factor, channels = 8, 16
         case "FLUX2.D":
-            scale_factor = 16
-            channels = 128
+            scale_factor, channels = 16, 128
         case "SDXL":
-            scale_factor = 8
-            channels = 4
+            scale_factor, channels = 8, 4
 
     latent_width = width // scale_factor
     latent_height = height // scale_factor

@@ -1,5 +1,7 @@
 ## TT Flux2 Workflow Settings *TT_Flux2WorkflowSettings*
 
+⚠️ Deprecated: This node will be removed in a future major release. Please migrate to the new context nodes.
+
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 
 Central workflow configuration node for FLUX2 pipelines. Consolidates all sampling parameters into a single

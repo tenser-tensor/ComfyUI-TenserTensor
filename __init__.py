@@ -1,17 +1,15 @@
 # (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
-from .node_mappings import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS, RESET, BRIGHT_GREEN, BRIGHT_CYAN, CYAN, YELLOW
+from .node_mappings import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS, NODES_COUNT, RESET, BRIGHT_GREEN, BRIGHT_CYAN, CYAN, YELLOW
 
 WEB_DIRECTORY = "./web"
 
 __all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS', 'WEB_DIRECTORY']
 
-nodes_count = len(NODE_CLASS_MAPPINGS)
-
 print()
 SEP = f"{CYAN}{'=' * 60}{RESET}"
 print(SEP)
-print(f"{YELLOW}TenserTensor ComfyUI Nodes Pack (v1.4.7): {BRIGHT_GREEN}{nodes_count} Nodes Loaded{RESET}")
+print(f"{YELLOW}TenserTensor ComfyUI Nodes Pack (v1.5.6): {BRIGHT_GREEN}{NODES_COUNT} Nodes Loaded{RESET}")
 print(SEP)
 print(f"{BRIGHT_CYAN}[V] Repository: https://github.com/tenser-tensor/ComfyUI-TenserTensor{RESET}")
 print(f"{BRIGHT_CYAN}[V] ComfyUI Registry: https://registry.comfy.org/publishers/tenser-tensor{RESET}")

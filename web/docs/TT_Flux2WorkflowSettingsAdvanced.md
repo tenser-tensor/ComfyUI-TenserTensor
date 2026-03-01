@@ -1,5 +1,7 @@
 ## TT Flux2 Workflow Settings (Advanced) *TT_Flux2WorkflowSettingsAdvanced*
 
+⚠️ Deprecated: This node will be removed in a future major release. Please migrate to the new context nodes.
+
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 
 Extended workflow configuration node for FLUX2 pipelines. Includes all parameters from the base version plus

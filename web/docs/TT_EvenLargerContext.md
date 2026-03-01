@@ -1,5 +1,7 @@
 ## TT Even Larger Context *TT_EvenLargerContext*
 
+⚠️ Deprecated: This node will be removed in a future major release. Please migrate to the new context nodes.
+
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 
 Maximum capacity context node supporting all workflow parameters including ControlNet and masking.

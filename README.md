@@ -14,6 +14,9 @@
 A collection of custom nodes for ComfyUI that streamline common workflows. The main goal is to reduce visual clutter by
 combining frequently used node chains into single, convenient loaders.
 
+> [!IMPORTANT]  
+> ⚠️ **Note:** The pack is currently undergoing refactoring and migration to ComfyUI API V3. Some nodes are marked as deprecated and will be removed in a future major release. Please check node descriptions for migration guidance.
+
 ## Features
 
 - **Workflow settings nodes** - configure entire workflow parameters (basic and advanced variants)
