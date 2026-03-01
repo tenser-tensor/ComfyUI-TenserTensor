@@ -7,13 +7,24 @@ import torch
 
 import comfy.sample
 from comfy_api.latest import IO, ComfyExtension
-from lib.common import CommonTypes
+from .lib.common import CommonTypes
 
 CATEGORY = "TenserTensor/Latent"
 ASPECT_RATIOS = ["1:1", "4:3", "3:2", "16:9", "21:9"]
 ORIENTATIONS = ["landscape", "portrait"]
 MODEL_TYPES = ["FLUX1.D", "FLUX2.D", "SDXL"]
 CLIP_MULTIPLIERS = ["1x", "2x", "4x"]
+
+
+class RandomNoise:
+    def __init__(self, seed):
+        self.seed = seed
+
+    def generate_noise(self, input_latent):
+        latent_image = input_latent["samples"]
+        batch_idx = input_latent["batch_index"] if "batch_index" in input_latent else None
+        return comfy.sample.prepare_noise(latent_image, self.seed, batch_idx)
+
 
 
 class TT_LatentFactoryNode(IO.ComfyNode):
@@ -56,7 +67,7 @@ class TT_LatentFactoryNode(IO.ComfyNode):
         width = round(width / cls.LATENT_DIMENSION_STEP) * cls.LATENT_DIMENSION_STEP
         height = round(height / cls.LATENT_DIMENSION_STEP) * cls.LATENT_DIMENSION_STEP
 
-        return (width, height,)
+        return width, height,
 
     @classmethod
     def build_latent(cls, seed, batch_size, channels, latent_width, latent_height) -> torch.Tensor:
@@ -96,16 +107,10 @@ class TT_LatentFactoryNode(IO.ComfyNode):
         return {"samples": latent}, width, height,
 
     @classmethod
-    def generate_noise(cls, latent, seed):
-        samples = latent["samples"]
-        batch_idx = latent["batch_index"] if "batch_index" in latent else None
-        return comfy.sample.prepare_noise(samples, seed, batch_idx)
-
-    @classmethod
     def execute(cls, **kwargs) -> IO.NodeOutput:
         samples, width, height = cls.create_empty_latent(**kwargs)
         seed, noise_seed = kwargs.get("seed"), kwargs.get("noise_seed")
-        noise = cls.generate_noise(samples, noise_seed)
+        noise = RandomNoise(noise_seed)
         multiplier = int(kwargs.get("clip_multiplier").replace('x', ''))
         clip_width, clip_height = (width * multiplier, height * multiplier,)
 

@@ -28,7 +28,7 @@ class TT_LatentFactory:
     RETURN_TYPES = ("LATENT", "NOISE", "INT", "INT", CommonTypes.MEGAPIXELS, "INT", "INT", "INT", "INT")
     RETURN_NAMES = ("LATENT", "RANDOM_NOISE", "SEED", "NOISE_SEED", "MEGAPIXELS", "WIDTH", "HEIGHT", "TARGET_WIDTH", "TARGET_HEIGHT")
     FUNCTION = "create_latent"
-    CATEGORY = "TenserTensor/Latent"
+    CATEGORY = "TenserTensor/Deprecated/Latent"
 
     def create_latent(self, **kwargs):
         return create_empty_latent(**kwargs)
