@@ -220,10 +220,7 @@ class TT_Flux2WorkflowSettingsAdvancedNode(IO.ComfyNode):
     @classmethod
     def execute(cls, **kwargs) -> IO.NodeOutput:
         kwargs["sampler"], kwargs["sigmas"] = build_sampler_sigmas(
-            kwargs.get("sampler_name"),
-            kwargs.get("steps"),
-            kwargs.get("width"),
-            kwargs.get("height"),
+            kwargs.get("sampler_name"), kwargs.get("steps"), kwargs.get("width"), kwargs.get("height"),
         )
 
         workflow_config = TTWorkflowSettings.create(**kwargs)
@@ -248,7 +245,7 @@ class TT_Flux2WorkflowSettingsAdvancedNode(IO.ComfyNode):
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
 
-class ContextExtension(ComfyExtension):
+class WorkflowNodesExtension(ComfyExtension):
     @override
     async def get_node_list(self) -> list[type[IO.ComfyNode]]:
         return [
@@ -257,8 +254,8 @@ class ContextExtension(ComfyExtension):
         ]
 
 
-async def comfy_entrypoint() -> ContextExtension:
-    return ContextExtension()
+async def comfy_entrypoint() -> WorkflowNodesExtension:
+    return WorkflowNodesExtension()
 
 
 # ==============================================================================

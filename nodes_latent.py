@@ -7,10 +7,11 @@ import torch
 
 import comfy.sample
 from comfy_api.latest import IO, ComfyExtension
-from .lib.common import CommonTypes
 
 CATEGORY = "TenserTensor/Latent"
+
 ASPECT_RATIOS = ["1:1", "4:3", "3:2", "16:9", "21:9"]
+MEGAPIXELS = ["0.25 MP", "0.5 MP", "1 MP", "2 MP", "4 MP", "8 MP"]
 ORIENTATIONS = ["landscape", "portrait"]
 MODEL_TYPES = ["FLUX1.D", "FLUX2.D", "SDXL"]
 CLIP_MULTIPLIERS = ["1x", "2x", "4x"]
@@ -26,7 +27,6 @@ class RandomNoise:
         return comfy.sample.prepare_noise(latent_image, self.seed, batch_idx)
 
 
-
 class TT_LatentFactoryNode(IO.ComfyNode):
     @classmethod
     def define_schema(cls) -> IO.Schema:
@@ -39,7 +39,7 @@ class TT_LatentFactoryNode(IO.ComfyNode):
                 IO.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
                 IO.Int.Input("noise_seed", default=0, min=0, max=0xffffffffffffffff, control_after_generate=True),
                 IO.Combo.Input("aspect_ratio", options=ASPECT_RATIOS),
-                IO.Combo.Input("megapixels", options=CommonTypes.MEGAPIXELS),
+                IO.Combo.Input("megapixels", options=MEGAPIXELS),
                 IO.Combo.Input("orientation", options=ORIENTATIONS),
                 IO.Combo.Input("model_type", options=MODEL_TYPES),
                 IO.Int.Input("batch_size", default=1, min=1, max=64, advanced=True),
@@ -133,7 +133,7 @@ class TT_LatentFactoryNode(IO.ComfyNode):
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
 
-class ContextExtension(ComfyExtension):
+class LatentNodesExtension(ComfyExtension):
     @override
     async def get_node_list(self) -> list[type[IO.ComfyNode]]:
         return [
@@ -141,8 +141,8 @@ class ContextExtension(ComfyExtension):
         ]
 
 
-async def comfy_entrypoint() -> ContextExtension:
-    return ContextExtension()
+async def comfy_entrypoint() -> LatentNodesExtension:
+    return LatentNodesExtension()
 
 
 # ==============================================================================

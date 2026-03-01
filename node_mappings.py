@@ -35,6 +35,7 @@ try:
     from .nodes.image.image_preview_save import TT_ImagePreviewSave
     from .nodes.image.image_preview_upscale_save import TT_ImagePreviewUpscaleSave
     from .nodes.image.guider_image_reference import TT_GuiderImageReference
+    from .nodes_image import *
 
     NODES_COUNT += len(set(dir()) - before)
 except ImportError:
@@ -153,6 +154,8 @@ NODE_CLASS_MAPPINGS = {
     "TT_ImagePreviewSave": TT_ImagePreviewSave,
     "TT_ImagePreviewUpscaleSave": TT_ImagePreviewUpscaleSave,
     "TT_GuiderImageReference": TT_GuiderImageReference,
+    # Image V3 Nodes
+    "TT_ImageLoaderResizerNode": TT_ImageLoaderResizerNode,
     # Latent
     "TT_LatentFactory": TT_LatentFactory,
     # Latent V3 Nodes
@@ -229,6 +232,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_ImagePreviewSave": "TT Image Preview / Save",
     "TT_ImagePreviewUpscaleSave": "TT Image Preview / Upscale / Save",
     "TT_GuiderImageReference": "TT Guider Image Reference",
+    # Image V3 Nodes
+    "TT_ImageLoaderResizerNode": "TT Image Loader / Resizer",
     # Latent
     "TT_LatentFactory": "TT Latent Factory (Deprecated)",
     # Latent V3 Nodes

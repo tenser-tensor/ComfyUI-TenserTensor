@@ -315,7 +315,7 @@ class TT_ContextExtractImageNode(ContextNode):
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
 
-class ContextExtension(ComfyExtension):
+class ContextNodesExtension(ComfyExtension):
     @override
     async def get_node_list(self) -> list[type[IO.ComfyNode]]:
         return [
@@ -334,8 +334,8 @@ class ContextExtension(ComfyExtension):
         ]
 
 
-async def comfy_entrypoint() -> ContextExtension:
-    return ContextExtension()
+async def comfy_entrypoint() -> ContextNodesExtension:
+    return ContextNodesExtension()
 
 
 # ==============================================================================
