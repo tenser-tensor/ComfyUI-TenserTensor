@@ -156,6 +156,9 @@ NODE_CLASS_MAPPINGS = {
     "TT_GuiderImageReference": TT_GuiderImageReference,
     # Image V3 Nodes
     "TT_ImageLoaderResizerNode": TT_ImageLoaderResizerNode,
+    "TT_ImagePreviewSaveNode": TT_ImagePreviewSaveNode,
+    "TT_ImagePreviewUpscaleSaveNode": TT_ImagePreviewUpscaleSaveNode,
+    "TT_GuiderImageReferenceNode": TT_GuiderImageReferenceNode,
     # Latent
     "TT_LatentFactory": TT_LatentFactory,
     # Latent V3 Nodes
@@ -234,6 +237,9 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_GuiderImageReference": "TT Guider Image Reference",
     # Image V3 Nodes
     "TT_ImageLoaderResizerNode": "TT Image Loader / Resizer",
+    "TT_ImagePreviewSaveNode": "TT Image Preview / Save",
+    "TT_ImagePreviewUpscaleSaveNode": "TT Image Preview / Upscale / Save",
+    "TT_GuiderImageReferenceNode": "TT Guider Image Reference",
     # Latent
     "TT_LatentFactory": "TT Latent Factory (Deprecated)",
     # Latent V3 Nodes

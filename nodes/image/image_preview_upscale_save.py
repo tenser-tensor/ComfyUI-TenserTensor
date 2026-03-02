@@ -35,7 +35,7 @@ class TT_ImagePreviewUpscaleSave():
     RETURN_NAMES = ()
     OUTPUT_NODE = True
     FUNCTION = "preview_upscale_save_image"
-    CATEGORY = "TenserTensor/Image"
+    CATEGORY = "TenserTensor/Deprecated/Image"
 
     def preview_upscale_save_image(self, **kwargs):
         image = kwargs.get("image")
