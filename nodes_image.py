@@ -39,19 +39,39 @@ def align_to_step(size, scale_factor, dimension_step):
     return round(size * scale_factor / dimension_step) * dimension_step
 
 
+def get_dims(t):
+    if t.ndim == 2: return t.shape
+    if t.ndim == 3: return t.shape[1:]
+
+    return t.shape[1:3]
+
+
 # crop = "center" / "disabled"
 def resize_image(timage, to_width, to_height, upscale_method, dimension_step=1, crop="disabled") -> torch.Tensor:
+    is_mask = timage.ndim == 3
+    if is_mask:
+        timage = timage.unsqueeze(-1)
+
     samples = timage.movedim(-1, 1)
     orig_height, orig_width = samples.shape[2:]
-    scale_factor = max(to_width / orig_width, to_height / orig_height)
-    to_width = align_to_step(orig_width, scale_factor, dimension_step)
-    to_height = align_to_step(orig_height, scale_factor, dimension_step)
 
-    return utils.common_upscale(samples, int(to_width), int(to_height), upscale_method, crop).movedim(1, -1)
+    if crop == "disabled":
+        scale_factor = max(to_width / orig_width, to_height / orig_height)
+        final_width = align_to_step(orig_width, scale_factor, dimension_step)
+        final_height = align_to_step(orig_height, scale_factor, dimension_step)
+    else:
+        final_width = round(to_width / dimension_step) * dimension_step
+        final_height = round(to_height / dimension_step) * dimension_step
+
+    final_width, final_height = int(max(final_width, dimension_step)), int(max(final_height, dimension_step))
+    resized = utils.common_upscale(samples, final_width, final_height, upscale_method, crop).movedim(1, -1)
+
+    return resized.squeeze(-1) if is_mask else resized
 
 
-def resize_image_to_megapixels(timage, resize_method, megapixels, dimension_step=1) -> torch.Tensor:
-    if len(timage.shape) == 3:
+def resize_image_to_megapixels(timage, resize_method, megapixels, dimension_step=1, crop="disabled") -> torch.Tensor:
+    is_mask = timage.ndim == 3
+    if is_mask:
         timage = timage.unsqueeze(-1)
 
     mp_value = float(megapixels.split()[0])
@@ -59,10 +79,19 @@ def resize_image_to_megapixels(timage, resize_method, megapixels, dimension_step
     samples = timage.movedim(-1, 1)
     orig_height, orig_width = samples.shape[2:]
     scale_factor = math.sqrt(total_pixels / (orig_width * orig_height))
-    to_width = align_to_step(orig_width, scale_factor, dimension_step)
-    to_height = align_to_step(orig_height, scale_factor, dimension_step)
 
-    return utils.common_upscale(samples, int(to_width), int(to_height), resize_method, "disabled").movedim(1, -1)
+    if crop == "disabled":
+        final_width = align_to_step(orig_width, scale_factor, dimension_step)
+        final_height = align_to_step(orig_height, scale_factor, dimension_step)
+    else:
+        to_width, to_height = orig_width * scale_factor, orig_height * scale_factor
+        final_width = round(to_width / dimension_step) * dimension_step
+        final_height = round(to_height / dimension_step) * dimension_step
+
+    final_width, final_height = int(max(final_width, dimension_step)), int(max(final_height, dimension_step))
+    resized = utils.common_upscale(samples, final_width, final_height, resize_method, crop).movedim(1, -1)
+
+    return resized.squeeze(-1) if is_mask else resized
 
 
 def get_torch_device(device=None):
@@ -116,7 +145,7 @@ def load_image(filename, create_mask, device=None) -> tuple[torch.Tensor, torch.
         case 0:
             o_mask = torch.zeros((1, height, width), dtype=torch.float32)
         case 1:
-            o_mask = masks[0]
+            o_mask = masks[0].unsqueeze(0)
         case _:
             o_mask = torch.cat(masks, dim=0)
 
@@ -252,9 +281,9 @@ def save_image(**kwargs) -> None:
         save_path, filename = build_save_path(**kwargs)
         image_format = kwargs.get("image_format")
         params = (
-            {"compress_level": kwargs.get("compress_level")}
+            {"compress_level": kwargs.get("compression_level")}
             if kwargs.get("image_format") == "PNG"
-            else {"quality": kwargs.get("quality")}
+            else {"quality": kwargs.get("image_quality")}
         )
         tframe.save(os.path.join(save_path, filename), format=image_format, **params)
 
@@ -275,8 +304,8 @@ class TT_ImagePreviewSaveNode(IO.ComfyNode):
                 IO.Combo.Input("filename_format", options=FILENAME_FORMATS, default="name-datetime", advanced=True),
                 IO.String.Input("subfolder", default="", advanced=True),
                 IO.Combo.Input("image_format", options=list(FORMAT_EXT.keys()), default="PNG", advanced=True),
-                IO.Int.Input("image_quality", default=75, min=1, max=100),
-                IO.Int.Input("compression_level", default=6, min=0, max=9),
+                IO.Int.Input("image_quality", default=75, min=1, max=100, advanced=True),
+                IO.Int.Input("compression_level", default=6, min=0, max=9, advanced=True),
             ],
             outputs=[]
         )
@@ -334,6 +363,7 @@ def upscale(timage, **kwargs):
     model_management.free_memory(m_total, device)
     model.model.to(device)
 
+    progress_bar = None
     try:
         while True:
             try:
@@ -423,7 +453,8 @@ class TT_GuiderImageReferenceNode(IO.ComfyNode):
                 IO.Vae.Input("vae"),
                 IO.Guider.Input("guider"),
                 IO.Combo.Input("megapixels", options=MEGAPIXELS),
-
+                IO.Combo.Input("resize_method", options=RESIZE_METHODS, advanced=True),
+                IO.Int.Input("dimension_step", default=1, min=1, max=256, advanced=True),
                 IO.Combo.Input("image", options=cls.get_image_files(), upload=UploadType.image)
             ],
             outputs=[
