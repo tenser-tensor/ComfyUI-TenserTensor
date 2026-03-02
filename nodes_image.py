@@ -39,13 +39,6 @@ def align_to_step(size, scale_factor, dimension_step):
     return round(size * scale_factor / dimension_step) * dimension_step
 
 
-def get_dims(t):
-    if t.ndim == 2: return t.shape
-    if t.ndim == 3: return t.shape[1:]
-
-    return t.shape[1:3]
-
-
 # crop = "center" / "disabled"
 def resize_image(timage, to_width, to_height, upscale_method, dimension_step=1, crop="disabled") -> torch.Tensor:
     is_mask = timage.ndim == 3
@@ -95,7 +88,11 @@ def resize_image_to_megapixels(timage, resize_method, megapixels, dimension_step
 
 
 def get_torch_device(device=None):
-    return torch.device(device) if device is not None else model_management.get_torch_device()
+    return (
+        model_management.get_torch_device()
+        if device is None or device == "default"
+        else torch.device(device)
+    )
 
 
 def load_image(filename, create_mask, device=None) -> tuple[torch.Tensor, torch.Tensor]:
@@ -152,14 +149,14 @@ def load_image(filename, create_mask, device=None) -> tuple[torch.Tensor, torch.
     return o_image, o_mask,
 
 
-class TT_ImageLoaderResizerNode(IO.ComfyNode):
-    @classmethod
-    def get_image_files(cls):
-        return sorted([
-            f.name for f in os.scandir(folder_paths.get_input_directory())
-            if f.is_file() and Path(f.name).suffix.lower() in (".png", ".jpg", ".webp", ".bmp")
-        ])
+def get_image_files():
+    return sorted([
+        f.name for f in os.scandir(folder_paths.get_input_directory())
+        if f.is_file() and Path(f.name).suffix.lower() in (".png", ".jpg", ".webp", ".bmp")
+    ])
 
+
+class TT_ImageLoaderResizerNode(IO.ComfyNode):
     @classmethod
     def define_schema(cls) -> IO.Schema:
         return IO.Schema(
@@ -172,8 +169,8 @@ class TT_ImageLoaderResizerNode(IO.ComfyNode):
                 IO.Combo.Input("resize_method", options=RESIZE_METHODS, advanced=True),
                 IO.Int.Input("dimension_step", default=1, min=1, max=256, advanced=True),
                 IO.Combo.Input("megapixels", options=MEGAPIXELS, advanced=True),
-                IO.Boolean.Input("create_mask", default=False, label_on="Mask", label_off="None"),
-                IO.Combo.Input("image", options=cls.get_image_files(), upload=UploadType.image)
+                IO.Boolean.Input("create_mask", default=False, label_on="Mask", label_off="Empty"),
+                IO.Combo.Input("image", options=get_image_files(), upload=UploadType.image)
             ],
             outputs=[
                 IO.Image.Output(display_name="IMAGE"),
@@ -349,7 +346,7 @@ BUFFER_FACTOR = 384.0
 
 def upscale(timage, **kwargs):
     device_name, upscale_tile, upscale_overlap = (
-        kwargs.get("upscaler_device", "default"),
+        kwargs.get("upscaler_device", None),
         kwargs.get("upscale_tile"),
         kwargs.get("upscale_overlap")
     )
@@ -425,7 +422,7 @@ class TT_ImagePreviewUpscaleSaveNode(IO.ComfyNode):
 
     @classmethod
     def execute(cls, **kwargs) -> IO.NodeOutput:
-        timage, _ = load_image(kwargs.get("image"), create_mask=False)
+        timage = kwargs.get("image")
 
         if kwargs.get("upscale_image"):
             timage = upscale(timage, **kwargs)
@@ -455,7 +452,7 @@ class TT_GuiderImageReferenceNode(IO.ComfyNode):
                 IO.Combo.Input("megapixels", options=MEGAPIXELS),
                 IO.Combo.Input("resize_method", options=RESIZE_METHODS, advanced=True),
                 IO.Int.Input("dimension_step", default=1, min=1, max=256, advanced=True),
-                IO.Combo.Input("image", options=cls.get_image_files(), upload=UploadType.image)
+                IO.Combo.Input("image", options=get_image_files(), upload=UploadType.image)
             ],
             outputs=[
                 IO.Vae.Output("VAE"),
