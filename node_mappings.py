@@ -11,10 +11,10 @@ WHITE = "\033[37m"
 BRIGHT_GREEN = "\033[92m"
 BRIGHT_CYAN = "\033[96m"
 
-NODES_COUNT = 0
+import inspect
+import sys
 
 try:
-    before = set(dir())
     from .nodes_context import *
     from .nodes.context.base_context import TT_BaseContext
     from .nodes.context.context import TT_Context
@@ -25,41 +25,30 @@ try:
     from .nodes.context.even_larger_context import TT_EvenLargerContext
     from .nodes.context.large_context_flux import TT_LargeContextFlux
     from .nodes.context.large_context_sdxl import TT_LargeContextSdxl
-
-    NODES_COUNT += len(set(dir()) - before)
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Image nodes unavailable{RESET}")
 
 try:
-    before = set(dir())
     from .nodes.image.image_preview_save import TT_ImagePreviewSave
     from .nodes.image.image_preview_upscale_save import TT_ImagePreviewUpscaleSave
     from .nodes.image.guider_image_reference import TT_GuiderImageReference
     from .nodes_image import *
-
-    NODES_COUNT += len(set(dir()) - before)
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Image nodes unavailable{RESET}")
 
 try:
-    before = set(dir())
     from .nodes.latent.latent_factory import TT_LatentFactory
     from .nodes_latent import *
-
-    NODES_COUNT += len(set(dir()) - before)
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Latent nodes unavailable{RESET}")
 
 try:
-    before = set(dir())
     from .nodes.loaders.flux_models_loader import TT_FluxModelsLoader
     from .nodes.loaders.flux_models_loader_advanced import TT_FluxModelsLoaderAdvanced
     from .nodes.loaders.gguf_models_loader import TT_Flux2GgufModelsLoader
     from .nodes.loaders.gguf_models_loader_advanced import TT_Flux2GgufModelsLoaderAdvanced
     from .nodes.loaders.sdxl_models_loader import TT_SdxlModelsLoader
     from .nodes.loaders.sdxl_models_loader_advanced import TT_SdxlModelsLoaderAdvanced
-
-    NODES_COUNT += len(set(dir()) - before)
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Loader nodes unavailable{RESET}")
 
@@ -71,44 +60,33 @@ try:
     from .nodes.postproduction.postproduction import TT_Postproduction
     from .nodes.postproduction.postproduction_advanced import TT_PostproductionAdvanced
     from .nodes.postproduction.quick_image_upscaler import TT_QuickImageUpscaler
-
-    NODES_COUNT += len(set(dir()) - before)
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Postproduction nodes unavailable{RESET}")
 
 try:
-    before = set(dir())
     from .nodes.sampling.ksampler import TT_KSampler
     from .nodes.sampling.ksampler_advanced import TT_KSamplerAdvanced
     from .nodes.sampling.ksampler_context import TT_KSamplerContext
     from .nodes.sampling.ksampler_two_stage import TT_KSamplerTwoStage
     from .nodes.sampling.ksampler_guided import TT_KSamplerGuided
-
-    NODES_COUNT += len(set(dir()) - before)
 except ImportError:
     print("f{YELLOW}TenserTensor: {RED}ERROR: Sampler nodes unavailable{RESET}")
 
 try:
-    before = set(dir())
     from .nodes.text_encoders.clip_text_encode_flux import TT_ClipTextEncodeFlux
     from .nodes.text_encoders.clip_text_encode_flux_context import TT_ClipTextEncodeFluxContext
     from .nodes.text_encoders.clip_text_encode_sdxl import TT_ClipTextEncodeSdxl
     from .nodes.text_encoders.clip_text_encode_sdxl_context import TT_ClipTextEncodeSdxlContext
     from .nodes.text_encoders.clip_text_encode_flux2 import TT_ClipTextEncodeFlux2
     from .nodes.text_encoders.clip_text_encode_flux2_context import TT_ClipTextEncodeFlux2Context
-
-    NODES_COUNT += len(set(dir()) - before)
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Text Encoder nodes unavailable{RESET}")
 
 try:
-    before = set(dir())
     from .nodes.vae.vae_decode_context import TT_VaeDecodeContext
     from .nodes.vae.vae_decode_tiled import TT_VaeDecodeTiled
     from .nodes.vae.vae_encode_context import TT_VaeEncodeContext
     from .nodes.vae.vae_encode_tiled import TT_VaeEncodeTiled
-
-    NODES_COUNT += len(set(dir()) - before)
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: VAE nodes unavailable{RESET}")
 
@@ -121,10 +99,16 @@ try:
     from .nodes.workflow.flux2_workflow_settings import TT_Flux2WorkflowSettings
     from .nodes.workflow.flux2_workflow_settings_advanced import TT_Flux2WorkflowSettingsAdvanced
     from .nodes_workflow import *
-
-    NODES_COUNT += len(set(dir()) - before)
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Workflow nodes unavailable{RESET}")
+
+ADDED = {
+    name
+    for name, obj
+    in inspect.getmembers(sys.modules[__name__], inspect.isclass)
+    if name.startswith("TT_")
+}
+NODES_COUNT = len(ADDED)
 
 NODE_CLASS_MAPPINGS = {
     # Context Deprecated

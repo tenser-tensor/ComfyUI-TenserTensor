@@ -19,20 +19,15 @@ combining frequently used node chains into single, convenient loaders.
 
 ## Features
 
-- **Workflow settings nodes** - configure entire workflow parameters (basic and advanced variants)
-- **All-in-one model loaders** - load checkpoint, LoRAs, CLIP, and VAE in single nodes
-- **Latent factory** - generate latents with aspect ratio, megapixel count, orientation, and type selection (Flux/SDXL)
-- **Context nodes** - from Basic to Even Larger Context
-    - Basic: combines latent, model, CLIP, VAE, and workflow config into context
-    - Others: pass-through nodes that modify specific context values while preserving the rest
-- **CLIP text encoders** - context-based and prompt-based encoding with model-specific controls
-- **KSamplers** - Different implementations of KSampler for generating images. Accepts all common sampling parameters
-  and returns a denoised latent ready for VAE decoding.
-- **VAE decoders** - basic, context-based, extended, and two-pass (draft + refinement)
-- **Post-production tools** - image adjustments (brightness, contrast, saturation), color correction (apply LUT), film
-  grain, upscaler
-    - All-in-one post-production node combining all tools
-    - Simplified version without adjustments
+- **Workflow settings** — configure global workflow parameters for FLUX and SDXL
+- **Model loaders** — all-in-one loaders for checkpoint, LoRA, CLIP, and VAE
+- **Context nodes** — pass pipeline state between nodes as a single context object
+- **Latent factory** — create latents with aspect ratio, megapixel, and model type selection
+- **CLIP text encoders** — prompt encoding with model-specific controls for FLUX and SDXL
+- **Samplers** — KSampler variants including guided sampling with Guider/Sigmas support
+- **Image tools** — load, resize, upscale, preview, and save images
+- **VAE** — encode and decode with tiled and context-based variants
+- **Post-production** — brightness, contrast, saturation, LUT, film grain, and upscaling
 
 ## Installation
 
