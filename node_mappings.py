@@ -147,6 +147,7 @@ NODE_CLASS_MAPPINGS = {
     "TT_LatentFactory": TT_LatentFactory,
     # Latent V3 Nodes
     "TT_LatentFactoryNode": TT_LatentFactoryNode,
+    "TT_LatentMultiTransformNode": TT_LatentMultiTransformNode,
     # Loaders
     "TT_SdxlModelsLoader": TT_SdxlModelsLoader,
     "TT_SdxlModelsLoaderAdvanced": TT_SdxlModelsLoaderAdvanced,
@@ -228,6 +229,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_LatentFactory": "TT Latent Factory (Deprecated)",
     # Latent V3 Nodes
     "TT_LatentFactoryNode": "TT Latent Factory",
+    "TT_LatentMultiTransformNode": "TT Latent Multi Transform",
     # Loaders
     "TT_SdxlModelsLoader": "TT SDXL Models Loader",
     "TT_SdxlModelsLoaderAdvanced": "TT SDXL Models Loader (Advanced)",

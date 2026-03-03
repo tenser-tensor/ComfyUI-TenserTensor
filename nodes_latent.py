@@ -5,16 +5,19 @@ from typing import Any, override
 
 import torch
 
-from comfy import sample
+from comfy import sample, utils
 from comfy_api.latest import IO, ComfyExtension
 
 CATEGORY = "TenserTensor/Latent"
 
 ASPECT_RATIOS = ["1:1", "4:3", "3:2", "16:9", "21:9"]
-MEGAPIXELS = ["0.25 MP", "0.5 MP", "1 MP", "2 MP", "4 MP", "8 MP"]
-ORIENTATIONS = ["landscape", "portrait"]
-MODEL_TYPES = ["FLUX1.D", "FLUX2.D", "SDXL"]
 CLIP_MULTIPLIERS = ["1x", "2x", "4x"]
+MEGAPIXELS = ["0.25 MP", "0.5 MP", "1 MP", "2 MP", "4 MP", "8 MP"]
+MODEL_TYPES = ["FLUX1.D", "FLUX2.D", "SDXL"]
+ORIENTATIONS = ["landscape", "portrait"]
+ROTATE_ANGLES = ["90°", "180°", "270°"]
+SCALE_METHODS = ["nearest-exact", "bilinear", "area", "bicubic", "bislerp"]
+SCALE_FACTORS = ["0.25x", "0.5x", "1x", "2x", "4x", "8x"]
 
 
 class RandomNoise:
@@ -131,6 +134,86 @@ class TT_LatentFactoryNode(IO.ComfyNode):
         return IO.NodeOutput(*args.values())
 
 
+def set_latent_mask(latent, mask):
+    samples = latent
+    samples["noise_mask"] = mask.unsqueeze(0) if mask.ndim == 2 else mask
+
+    return samples
+
+
+def scale_latent(**kwargs):
+    samples = kwargs.get("latent")["samples"]
+    orig_height, orig_width = samples.shape[2:]
+    scale_factor = float(kwargs.get("scale_factor").replace("x", ""))
+    final_width, final_height = round(orig_width * scale_factor), round(orig_height * scale_factor)
+    scaled = utils.common_upscale(
+        samples,
+        final_width,
+        final_height, kwargs.get("scale_method"),
+        "disabled"
+    )
+
+    return {"samples": scaled}
+
+
+def rotate_latent(latent, turns):
+    samples = latent["samples"]
+
+    return {"samples": torch.rot90(samples, k=turns, dims=[3, 2])}
+
+
+def flip_latent(latent, axis):
+    samples = latent["samples"]
+
+    return {"samples": torch.flip(samples, dims=[2 if axis == "x" else 3])}
+
+
+class TT_LatentMultiTransformNode(IO.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> IO.Schema:
+        return IO.Schema(
+            node_id="TT_LatentMultiTransformNode",
+            display_name="TT Latent MultiTransform",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                IO.Latent.Input("latent"),
+                IO.Mask.Input("mask", optional=True),
+                IO.Boolean.Input("scale_latent", default=True, label_on="Scale", label_off="Skip"),
+                IO.Combo.Input("scale_factor", options=SCALE_FACTORS, default="1x"),
+                IO.Combo.Input("scale_method", options=SCALE_METHODS, default="nearest-exact"),
+                IO.Boolean.Input("rotate_latent", default=True, label_on="Rotate", label_off="Skip"),
+                IO.Combo.Input("rotate_angle", options=ROTATE_ANGLES),
+                IO.Boolean.Input("flip_latent", default=True, label_on="Flip", label_off="Skip"),
+                IO.Combo.Input("flip_direction", options=["horizontal", "vertical"]),
+            ],
+            outputs=[
+                IO.Latent.Output("LATENT"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> IO.NodeOutput:
+        latent = kwargs.get("latent").copy()
+
+        mask = kwargs.get("mask")
+        if mask is not None:
+            latent = set_latent_mask(latent, mask)
+
+        if kwargs.get("scale_latent"):
+            latent = scale_latent(**kwargs)
+
+        if kwargs.get("rotate_latent"):
+            turns = int(kwargs.get("rotate_angle").replace("°", "")) // 90
+            latent = rotate_latent(latent, turns)
+
+        if kwargs.get("flip_latent"):
+            axis = "x" if kwargs.get("flip_direction") == "vertical" else "y"
+            latent = flip_latent(latent, axis)
+
+        return IO.NodeOutput(latent)
+
+
 # ==============================================================================
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
@@ -140,6 +223,7 @@ class LatentNodesExtension(ComfyExtension):
     async def get_node_list(self) -> list[type[IO.ComfyNode]]:
         return [
             TT_LatentFactoryNode,
+            TT_LatentMultiTransformNode,
         ]
 
 
@@ -153,4 +237,5 @@ async def comfy_entrypoint() -> LatentNodesExtension:
 
 __all__ = [
     "TT_LatentFactoryNode",
+    "TT_LatentMultiTransformNode",
 ]

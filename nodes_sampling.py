@@ -5,11 +5,9 @@ from typing import override
 import latent_preview
 from comfy import sample, utils, model_management
 from comfy_api.latest import ComfyExtension, IO
+from .nodes_latent import SCALE_FACTORS, SCALE_METHODS, scale_latent
 
 CATEGORY = "TenserTensor/Sampling"
-SCALE_METHODS = ["nearest-exact", "bilinear", "area", "bicubic", "bislerp"]
-MEMORY_POLICIES = ["default", "balanced", "aggressive"]
-SCALE_FACTORS = ["0.25x", "0.5x", "1x", "2x", "4x", "8x"]
 
 
 def execute_guided_sampling(**kwargs):
@@ -79,21 +77,6 @@ class TT_GuidedKSamplerNode(IO.ComfyNode):
         return IO.NodeOutput(samples)
 
 
-def scale_latent(latent, **kwargs):
-    samples = latent.copy()["samples"]
-    orig_height, orig_width = samples.shape[2:]
-    scale_factor = float(kwargs.get("scale_factor").replace("x", ""))
-    final_width, final_height = round(orig_width * scale_factor), round(orig_height * scale_factor)
-    scaled = utils.common_upscale(
-        samples,
-        final_width,
-        final_height, kwargs.get("scale_method"),
-        "disabled"
-    )
-
-    return {"samples": scaled}
-
-
 class TT_GuidedUpscaleKSamplerNode(IO.ComfyNode):
     @classmethod
     def define_schema(cls) -> IO.Schema:
@@ -108,7 +91,7 @@ class TT_GuidedUpscaleKSamplerNode(IO.ComfyNode):
                 IO.Sigmas.Input("sigmas"),
                 IO.Sampler.Input("sampler"),
                 IO.Noise.Input("random_noise"),
-                IO.Boolean.Input("scale_latent", default=True, label_on="Scale latent", label_off="Keep size"),
+                IO.Boolean.Input("scale_latent", default=False, label_on="Scale", label_off="Skip"),
                 IO.Combo.Input("scale_factor", options=SCALE_FACTORS, default="1x", advanced=True),
                 IO.Combo.Input("scale_method", options=SCALE_METHODS, default="nearest-exact", advanced=True),
             ],
@@ -122,12 +105,10 @@ class TT_GuidedUpscaleKSamplerNode(IO.ComfyNode):
         samples = execute_guided_sampling(**kwargs)
 
         if kwargs.get("scale_latent"):
-            samples = scale_latent(samples, **kwargs)
+            samples = scale_latent(**kwargs)
 
         return IO.NodeOutput(samples)
 
-class TT_LatentMultiTransformNode(IO.ComfyNode):
-    pass
 
 # ==============================================================================
 # V3 entrypoint — registers context nodes with ComfyUI
