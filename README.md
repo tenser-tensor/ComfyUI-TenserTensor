@@ -11,8 +11,7 @@
 
 *— Alfred Bester, The Demolished Man*
 
-A collection of custom nodes for ComfyUI that streamline common workflows. The main goal is to reduce visual clutter by
-combining frequently used node chains into single, convenient loaders.
+A collection of custom nodes for ComfyUI that streamline common workflows. The main goal is to reduce visual clutter by combining frequently used node chains into single, convenient loaders.
 
 > [!IMPORTANT]  
 > ⚠️ **Note:** The pack is currently undergoing refactoring and migration to ComfyUI API V3. Some nodes are marked as deprecated and will be removed in a future major release. Please check node descriptions for migration guidance.
@@ -55,10 +54,6 @@ comfy node install tenser-tensor/ComfyUI-TenserTensor
 ```
 
 Restart ComfyUI after installation.
-
-## Nodes List
-
-[Nodes List](NODES.md)
 
 ## Acknowledgments
 
