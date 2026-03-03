@@ -148,6 +148,7 @@ NODE_CLASS_MAPPINGS = {
     # Latent V3 Nodes
     "TT_LatentFactoryNode": TT_LatentFactoryNode,
     "TT_LatentMultiTransformNode": TT_LatentMultiTransformNode,
+    "TT_LatentMultiTransformOnPixelSpaceNode": TT_LatentMultiTransformOnPixelSpaceNode,
     # Loaders
     "TT_SdxlModelsLoader": TT_SdxlModelsLoader,
     "TT_SdxlModelsLoaderAdvanced": TT_SdxlModelsLoaderAdvanced,
@@ -230,6 +231,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     # Latent V3 Nodes
     "TT_LatentFactoryNode": "TT Latent Factory",
     "TT_LatentMultiTransformNode": "TT Latent Multi Transform",
+    "TT_LatentMultiTransformOnPixelSpaceNode": "TT Latent MultiTransform On Pixel Space",
     # Loaders
     "TT_SdxlModelsLoader": "TT SDXL Models Loader",
     "TT_SdxlModelsLoaderAdvanced": "TT SDXL Models Loader (Advanced)",

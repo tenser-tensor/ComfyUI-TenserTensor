@@ -2,7 +2,36 @@
 
 from typing import override
 
+import torch
+
 from comfy_api.latest import IO, ComfyExtension
+
+TILE_SIZE, OVERLAP = 512, 64
+
+
+def vae_encode(image, vae, tile_width=TILE_SIZE, tile_height=TILE_SIZE, overlap=OVERLAP):
+    samples = vae.encode_tiled(
+        image,
+        tile_x=tile_width,
+        tile_y=tile_height,
+        overlap=overlap
+    )
+
+    return {"samples": samples}
+
+
+def vae_decode(latent, vae, tile_width=TILE_SIZE, tile_height=TILE_SIZE, overlap=OVERLAP):
+    samples = latent["samples"]
+
+    compression = vae.spacial_compression_decode()
+    images = vae.decode_tiled(
+        samples,
+        tile_x=tile_width // compression,
+        tile_y=tile_height // compression,
+        overlap=overlap // compression
+    )
+
+    return images
 
 
 # ==============================================================================

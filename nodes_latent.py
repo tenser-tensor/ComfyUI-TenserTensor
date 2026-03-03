@@ -7,12 +7,13 @@ import torch
 
 from comfy import sample, utils
 from comfy_api.latest import IO, ComfyExtension
+from .nodes_image import MEGAPIXELS, resize_image, rotate_image, flip_image
+from .nodes_vae import vae_decode, vae_encode
 
 CATEGORY = "TenserTensor/Latent"
 
 ASPECT_RATIOS = ["1:1", "4:3", "3:2", "16:9", "21:9"]
 CLIP_MULTIPLIERS = ["1x", "2x", "4x"]
-MEGAPIXELS = ["0.25 MP", "0.5 MP", "1 MP", "2 MP", "4 MP", "8 MP"]
 MODEL_TYPES = ["FLUX1.D", "FLUX2.D", "SDXL"]
 ORIENTATIONS = ["landscape", "portrait"]
 ROTATE_ANGLES = ["90°", "180°", "270°"]
@@ -214,6 +215,64 @@ class TT_LatentMultiTransformNode(IO.ComfyNode):
         return IO.NodeOutput(latent)
 
 
+class TT_LatentMultiTransformOnPixelSpaceNode(IO.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> IO.Schema:
+        return IO.Schema(
+            node_id="TT_LatentMultiTransformOnPixelSpaceNode",
+            display_name="TT Latent MultiTransform On Pixel Space",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                IO.Vae.Input("vae"),
+                IO.Latent.Input("latent"),
+                IO.Mask.Input("mask", optional=True),
+                IO.Boolean.Input("scale_latent", default=True, label_on="Scale", label_off="Skip"),
+                IO.Combo.Input("scale_factor", options=SCALE_FACTORS, default="1x"),
+                IO.Combo.Input("scale_method", options=SCALE_METHODS, default="nearest-exact"),
+                IO.Boolean.Input("rotate_latent", default=True, label_on="Rotate", label_off="Skip"),
+                IO.Combo.Input("rotate_angle", options=ROTATE_ANGLES),
+                IO.Boolean.Input("flip_latent", default=True, label_on="Flip", label_off="Skip"),
+                IO.Combo.Input("flip_direction", options=["horizontal", "vertical"]),
+            ],
+            outputs=[
+                IO.Latent.Output("LATENT"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> IO.NodeOutput:
+        latent = kwargs.get("latent").copy()
+        vae = kwargs.get("vae")
+        pixels = vae_decode(latent, vae)
+        orig_height, orig_width = pixels.shape[1:3]
+
+        if kwargs.get("scale_latent"):
+            scale_factor = float(kwargs.get("scale_factor").replace("x", ""))
+            pixels = resize_image(
+                pixels,
+                int(orig_width * scale_factor),
+                int(orig_height * scale_factor),
+                kwargs.get("scale_method"),
+            )
+
+        if kwargs.get("rotate_latent"):
+            turns = int(kwargs.get("rotate_angle").replace("°", "")) // 90
+            pixels = rotate_image(pixels, turns)
+
+        if kwargs.get("flip_latent"):
+            axis = "x" if kwargs.get("flip_direction") == "vertical" else "y"
+            pixels = flip_image(pixels, axis)
+
+        latent = vae_encode(pixels, vae)
+
+        mask = kwargs.get("mask")
+        if mask is not None:
+            latent = set_latent_mask(latent, mask)
+
+        return IO.NodeOutput(latent)
+
+
 # ==============================================================================
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
@@ -224,6 +283,7 @@ class LatentNodesExtension(ComfyExtension):
         return [
             TT_LatentFactoryNode,
             TT_LatentMultiTransformNode,
+            TT_LatentMultiTransformOnPixelSpaceNode,
         ]
 
 
@@ -238,4 +298,5 @@ async def comfy_entrypoint() -> LatentNodesExtension:
 __all__ = [
     "TT_LatentFactoryNode",
     "TT_LatentMultiTransformNode",
+    "TT_LatentMultiTransformOnPixelSpaceNode",
 ]

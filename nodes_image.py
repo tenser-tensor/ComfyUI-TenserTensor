@@ -14,16 +14,15 @@ from spandrel import ModelLoader, ImageModelDescriptor
 
 import folder_paths
 from comfy import model_management, utils, samplers
-from comfy_api.latest import ComfyExtension, IO, ui
-from comfy_api.latest._io import UploadType
-from node_helpers import conditioning_set_values
-from node_helpers import pillow
-from .nodes_latent import MEGAPIXELS
+from comfy_api.latest import ComfyExtension, io, ui
+from node_helpers import conditioning_set_values, pillow
+from .nodes_vae import vae_encode
 
 CATEGORY = "TenserTensor/Image"
 RESIZE_METHODS = ["nearest-exact", "bilinear", "area", "bicubic", "bislerp"]
 FILENAME_FORMATS = ["name-###", "date-name-###", "name-datetime"]
 FORMAT_EXT = {"PNG": ".png", "JPEG": ".jpg", "WEBP": ".webp", }
+MEGAPIXELS = ["0.25 MP", "0.5 MP", "1 MP", "2 MP", "4 MP", "8 MP"]
 
 
 class SingleCondCFGGuider(samplers.CFGGuider):
@@ -86,6 +85,14 @@ def resize_image_to_megapixels(timage, resize_method, megapixels, dimension_step
     resized = utils.common_upscale(samples, final_width, final_height, resize_method, crop).movedim(1, -1)
 
     return resized.squeeze(-1) if is_mask else resized
+
+
+def rotate_image(pixels, turns):
+    return torch.rot90(pixels, k=turns, dims=[1, 2])
+
+
+def flip_image(pixels, axis):
+    return torch.flip(pixels, dims=[2 if axis == "x" else 1])
 
 
 def get_torch_device(device=None):
@@ -156,40 +163,40 @@ def get_image_files():
     ])
 
 
-class TT_ImageLoaderResizerNode(IO.ComfyNode):
+class TT_ImageLoaderResizerNode(io.ComfyNode):
     @classmethod
-    def define_schema(cls) -> IO.Schema:
-        return IO.Schema(
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
             node_id="TT_ImageLoaderResizerNode",
             display_name="TT Image Loader / Resizer",
             category=CATEGORY,
             description="",
             inputs=[
-                IO.Boolean.Input("resize_image", default=False, label_on="Scale", label_off="Keep"),
-                IO.Combo.Input("resize_method", options=RESIZE_METHODS, advanced=True),
-                IO.Int.Input("dimension_step", default=1, min=1, max=256, advanced=True),
-                IO.Combo.Input("megapixels", options=MEGAPIXELS, advanced=True),
-                IO.Combo.Input("image", options=get_image_files(), upload=UploadType.image)
+                io.Boolean.Input("resize_image", default=False, label_on="Scale", label_off="Skip"),
+                io.Combo.Input("resize_method", options=RESIZE_METHODS, advanced=True),
+                io.Int.Input("dimension_step", default=1, min=1, max=256, advanced=True),
+                io.Combo.Input("megapixels", options=MEGAPIXELS, advanced=True),
+                io.Combo.Input("image", options=get_image_files(), upload=io.UploadType.image)
             ],
             outputs=[
-                IO.Image.Output(display_name="IMAGE"),
-                IO.Mask.Output(display_name="MASK"),
+                io.Image.Output(display_name="IMAGE"),
+                io.Mask.Output(display_name="MASK"),
             ],
         )
 
     @classmethod
     def fingerprint_inputs(cls, **kwargs) -> dict[str, Any]:
         path = folder_paths.get_annotated_filepath(kwargs.get("image"))
-        resize = kwargs.get("resize_image")
+        resize_image = kwargs.get("resize_image")
         result = {
             "image": path + str(os.path.getmtime(path)),
-            "resize_image": resize,
-            "resize_method": kwargs.get("resize_method"),
-            "dimension_step": kwargs.get("dimension_step"),
+            "resize_image": resize_image,
         }
 
-        if resize:
+        if resize_image:
             result["megapixels"] = kwargs.get("megapixels")
+            result["resize_method"] = kwargs.get("resize_method")
+            result["dimension_step"] = kwargs.get("dimension_step")
 
         return result
 
@@ -202,7 +209,7 @@ class TT_ImageLoaderResizerNode(IO.ComfyNode):
         return True
 
     @classmethod
-    def execute(cls, **kwargs) -> IO.NodeOutput:
+    def execute(cls, **kwargs) -> io.NodeOutput:
         timage, tmask = load_image(kwargs.get("image"))
         if kwargs.get("resize_image"):
             resize_method, megapixels, dimension_step = (
@@ -210,20 +217,10 @@ class TT_ImageLoaderResizerNode(IO.ComfyNode):
                 kwargs.get("megapixels"),
                 kwargs.get("dimension_step")
             )
-            timage = resize_image_to_megapixels(
-                timage,
-                resize_method,
-                megapixels,
-                dimension_step
-            )
-            tmask = resize_image_to_megapixels(
-                tmask,
-                resize_method,
-                megapixels,
-                dimension_step
-            )
+            timage = resize_image_to_megapixels(timage, resize_method, megapixels, dimension_step)
+            tmask = resize_image_to_megapixels(tmask, resize_method, megapixels, dimension_step)
 
-        return IO.NodeOutput(timage, tmask, ui=ui.PreviewImage(timage, cls=cls))
+        return io.NodeOutput(timage, tmask, ui=ui.PreviewImage(timage, cls=cls))
 
 
 class InvalidSavePathError(Exception):
@@ -283,36 +280,36 @@ def save_image(**kwargs) -> None:
         tframe.save(os.path.join(save_path, filename), format=image_format, **params)
 
 
-class TT_ImagePreviewSaveNode(IO.ComfyNode):
+class TT_ImagePreviewSaveNode(io.ComfyNode):
     @classmethod
-    def define_schema(cls) -> IO.Schema:
-        return IO.Schema(
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
             node_id="TT_ImagePreviewSaveNode",
             display_name="TT Image Preview / Save",
             category=CATEGORY,
             description="",
             is_output_node=True,
             inputs=[
-                IO.Image.Input("image"),
-                IO.Boolean.Input("save_image", default=True, label_on="Save image", label_off="Only preview"),
-                IO.String.Input("filename_prefix", default="TT"),
-                IO.Combo.Input("filename_format", options=FILENAME_FORMATS, default="name-datetime", advanced=True),
-                IO.String.Input("subfolder", default="", advanced=True),
-                IO.Combo.Input("image_format", options=list(FORMAT_EXT.keys()), default="PNG", advanced=True),
-                IO.Int.Input("image_quality", default=75, min=1, max=100, advanced=True),
-                IO.Int.Input("compression_level", default=6, min=0, max=9, advanced=True),
+                io.Image.Input("image"),
+                io.Boolean.Input("save_image", default=True, label_on="Save image", label_off="Only preview"),
+                io.String.Input("filename_prefix", default="TT"),
+                io.Combo.Input("filename_format", options=FILENAME_FORMATS, default="name-datetime", advanced=True),
+                io.String.Input("subfolder", default="", advanced=True),
+                io.Combo.Input("image_format", options=list(FORMAT_EXT.keys()), default="PNG", advanced=True),
+                io.Int.Input("image_quality", default=75, min=1, max=100, advanced=True),
+                io.Int.Input("compression_level", default=6, min=0, max=9, advanced=True),
             ],
             outputs=[]
         )
 
     @classmethod
-    def execute(cls, **kwargs) -> IO.NodeOutput:
+    def execute(cls, **kwargs) -> io.NodeOutput:
         timage = kwargs.get("image")
 
         if kwargs.get("save_image"):
             save_image(**kwargs)
 
-        return IO.NodeOutput(ui=ui.PreviewImage(timage, cls=cls))
+        return io.NodeOutput(ui=ui.PreviewImage(timage, cls=cls))
 
 
 DEVICES = ["default", "cpu"]
@@ -391,35 +388,35 @@ def upscale(timage, **kwargs):
     return torch.clamp(scaled.movedim(1, -1), min=0.0, max=1.0)
 
 
-class TT_ImagePreviewUpscaleSaveNode(IO.ComfyNode):
+class TT_ImagePreviewUpscaleSaveNode(io.ComfyNode):
     @classmethod
-    def define_schema(cls) -> IO.Schema:
-        return IO.Schema(
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
             node_id="TT_ImagePreviewUpscaleSaveNode",
             display_name="TT Image Preview / Upscale / Save",
             category=CATEGORY,
             description="",
             is_output_node=True,
             inputs=[
-                IO.Image.Input("image"),
-                IO.Boolean.Input("save_image", default=True, label_on="Save image", label_off="Only preview"),
-                IO.Boolean.Input("upscale_image", default=True, label_on="Upscale image", label_off="Keep size"),
-                IO.String.Input("filename_prefix", default="TT"),
-                IO.Combo.Input("filename_format", options=FILENAME_FORMATS, default="name-datetime", advanced=True),
-                IO.String.Input("subfolder", default="", advanced=True),
-                IO.Combo.Input("image_format", options=list(FORMAT_EXT.keys()), default="PNG", advanced=True),
-                IO.Int.Input("image_quality", default=75, min=1, max=100, advanced=True),
-                IO.Int.Input("compression_level", default=6, min=0, max=9, advanced=True),
-                IO.Combo.Input("upscaler_device", options=DEVICES, advanced=True),
-                IO.Combo.Input("upscale_model", options=get_upscale_models(), advanced=True),
-                IO.Int.Input("upscale_tile", default=512, min=128, max=4096, step=64, advanced=True),
-                IO.Int.Input("upscale_overlap", default=64, min=8, max=256, step=8, advanced=True),
+                io.Image.Input("image"),
+                io.Boolean.Input("save_image", default=True, label_on="Save image", label_off="Only preview"),
+                io.Boolean.Input("upscale_image", default=True, label_on="Upscale image", label_off="Keep size"),
+                io.String.Input("filename_prefix", default="TT"),
+                io.Combo.Input("filename_format", options=FILENAME_FORMATS, default="name-datetime", advanced=True),
+                io.String.Input("subfolder", default="", advanced=True),
+                io.Combo.Input("image_format", options=list(FORMAT_EXT.keys()), default="PNG", advanced=True),
+                io.Int.Input("image_quality", default=75, min=1, max=100, advanced=True),
+                io.Int.Input("compression_level", default=6, min=0, max=9, advanced=True),
+                io.Combo.Input("upscaler_device", options=DEVICES, advanced=True),
+                io.Combo.Input("upscale_model", options=get_upscale_models(), advanced=True),
+                io.Int.Input("upscale_tile", default=512, min=128, max=4096, step=64, advanced=True),
+                io.Int.Input("upscale_overlap", default=64, min=8, max=256, step=8, advanced=True),
             ],
             outputs=[]
         )
 
     @classmethod
-    def execute(cls, **kwargs) -> IO.NodeOutput:
+    def execute(cls, **kwargs) -> io.NodeOutput:
         timage = kwargs.get("image")
 
         if kwargs.get("upscale_image"):
@@ -429,36 +426,33 @@ class TT_ImagePreviewUpscaleSaveNode(IO.ComfyNode):
             kwargs["image"] = timage
             save_image(**kwargs)
 
-        return IO.NodeOutput(ui=ui.PreviewImage(timage, cls=cls))
+        return io.NodeOutput(ui=ui.PreviewImage(timage, cls=cls))
 
 
-TILE_SIZE, OVERLAP = 512, 64
-
-
-class TT_GuiderImageReferenceNode(IO.ComfyNode):
+class TT_GuiderImageReferenceNode(io.ComfyNode):
     @classmethod
-    def define_schema(cls) -> IO.Schema:
-        return IO.Schema(
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
             node_id="TT_GuiderImageReferenceNode",
             display_name="TT Guider Image Reference",
             category=CATEGORY,
             description="",
             inputs=[
-                IO.Vae.Input("vae"),
-                IO.Guider.Input("guider"),
-                IO.Combo.Input("megapixels", options=MEGAPIXELS),
-                IO.Combo.Input("resize_method", options=RESIZE_METHODS, advanced=True),
-                IO.Int.Input("dimension_step", default=1, min=1, max=256, advanced=True),
-                IO.Combo.Input("image", options=get_image_files(), upload=UploadType.image)
+                io.Vae.Input("vae"),
+                io.Guider.Input("guider"),
+                io.Combo.Input("megapixels", options=MEGAPIXELS),
+                io.Combo.Input("resize_method", options=RESIZE_METHODS, advanced=True),
+                io.Int.Input("dimension_step", default=1, min=1, max=256, advanced=True),
+                io.Combo.Input("image", options=get_image_files(), upload=io.UploadType.image)
             ],
             outputs=[
-                IO.Vae.Output("VAE"),
-                IO.Guider.Output("GUIDER"),
+                io.Vae.Output("VAE"),
+                io.Guider.Output("GUIDER"),
             ]
         )
 
     @classmethod
-    def execute(cls, **kwargs) -> IO.NodeOutput:
+    def execute(cls, **kwargs) -> io.NodeOutput:
         timage, _ = load_image(kwargs.get("image"))
         vae, guider, resize_method, megapixels, dimension_step = (
             kwargs.get("vae"),
@@ -469,12 +463,7 @@ class TT_GuiderImageReferenceNode(IO.ComfyNode):
         )
 
         resized = resize_image_to_megapixels(timage, resize_method, megapixels, dimension_step)
-        samples = vae.encode_tiled(
-            resized,
-            tile_x=TILE_SIZE,
-            tile_y=TILE_SIZE,
-            overlap=OVERLAP
-        )
+        samples = vae_encode(resized, vae)
 
         conditioning = guider.get_conds()
 
@@ -484,7 +473,7 @@ class TT_GuiderImageReferenceNode(IO.ComfyNode):
         else:
             raise ValueError("ERROR: Guider has no conditioning")
 
-        return IO.NodeOutput(vae, guider, ui=ui.PreviewImage(timage, cls=cls))
+        return io.NodeOutput(vae, guider, ui=ui.PreviewImage(timage, cls=cls))
 
 
 # ==============================================================================
@@ -493,7 +482,7 @@ class TT_GuiderImageReferenceNode(IO.ComfyNode):
 
 class ImageNodesExtension(ComfyExtension):
     @override
-    async def get_node_list(self) -> list[type[IO.ComfyNode]]:
+    async def get_node_list(self) -> list[type[io.ComfyNode]]:
         return [
             TT_ImageLoaderResizerNode,
             TT_ImagePreviewSaveNode,
