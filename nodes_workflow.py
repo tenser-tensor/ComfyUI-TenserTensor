@@ -74,6 +74,7 @@ class WorkflowSettings:
 
     class Output(io.Output):
         def __init__(self, **kwargs):
+            print()
             super().__init__(**kwargs)
 
 

@@ -59,6 +59,7 @@ try:
     from .nodes.loaders.gguf_models_loader_advanced import TT_Flux2GgufModelsLoaderAdvanced
     from .nodes.loaders.sdxl_models_loader import TT_SdxlModelsLoader
     from .nodes.loaders.sdxl_models_loader_advanced import TT_SdxlModelsLoaderAdvanced
+    from .nodes_loaders import *
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Loader nodes unavailable{RESET}")
 
@@ -172,6 +173,11 @@ NODE_CLASS_MAPPINGS = {
     "TT_Flux2GgufModelsLoaderAdvanced": TT_Flux2GgufModelsLoaderAdvanced,
     "TT_FluxModelsLoader": TT_FluxModelsLoader,
     "TT_FluxModelsLoaderAdvanced": TT_FluxModelsLoaderAdvanced,
+    # Loaders V3 Nodes
+    "TT_SdxlModelsLoaderNode": TT_SdxlModelsLoaderNode,
+    "TT_SdxlModelsLoaderAdvancedNode": TT_SdxlModelsLoaderAdvancedNode,
+    "TT_FluxModelsLoaderNode": TT_FluxModelsLoaderNode,
+    "TT_FluxModelsLoaderAdvancedNode": TT_FluxModelsLoaderAdvancedNode,
     # Postproduction
     "TT_ApplyLut": TT_ApplyLut,
     "TT_AddFilmGrain": TT_AddFilmGrain,
@@ -193,6 +199,10 @@ NODE_CLASS_MAPPINGS = {
     "TT_ClipTextEncodeFlux2": TT_ClipTextEncodeFlux2,
     "TT_ClipTextEncodeFlux2Context": TT_ClipTextEncodeFlux2Context,
     # Text Encoder V3 Nodes
+    "TT_SdxlClipTextEncoderNode": TT_SdxlClipTextEncoderNode,
+    "TT_SdxlClipTextEncoderContextNode": TT_SdxlClipTextEncoderContextNode,
+    "TT_Flux1ClipTextEncoderNode": TT_Flux1ClipTextEncoderNode,
+    "TT_Flux1ClipTextEncoderContextNode": TT_Flux1ClipTextEncoderContextNode,
     "TT_Flux2TextEncoderNode": TT_Flux2TextEncoderNode,
     "TT_Flux2TextEncoderContextNode": TT_Flux2TextEncoderContextNode,
     # VAE
@@ -263,6 +273,11 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_Flux2GgufModelsLoaderAdvanced": "TT FLUX2 GGUF Models Loader (Advanced)",
     "TT_FluxModelsLoader": "TT FLUX Models Loader",
     "TT_FluxModelsLoaderAdvanced": "TT FLUX Models Loader (Advanced)",
+    # Loaders V3 Nodes
+    "TT_SdxlModelsLoaderNode": "TT SDXL Models Loader",
+    "TT_SdxlModelsLoaderAdvancedNode": "TT SDXL Models Loader (Advanced)",
+    "TT_FluxModelsLoaderNode": "TT FLUX Models Loader",
+    "TT_FluxModelsLoaderAdvancedNode": "TT FLUX Models Loader (Advanced)",
     # Postproduction
     "TT_ApplyLut": "TT Apply LUT",
     "TT_AddFilmGrain": "TT Add Film Grain",
@@ -284,8 +299,12 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_ClipTextEncodeFlux2": "TT CLIP Text Encode FLUX2",
     "TT_ClipTextEncodeFlux2Context": "TT CLIP Text Encode FLUX2 (Context)",
     # Text Encoder V3 Nodes
-    "TT_Flux2TextEncoderNode":"",
-    "TT_Flux2TextEncoderContextNode":"",
+    "TT_SdxlClipTextEncoderNode": "TT SDXL CLIP Text Encoder",
+    "TT_SdxlClipTextEncoderContextNode": "TT SDXL CLIP Text Encoder (Context)",
+    "TT_Flux1ClipTextEncoderNode": "TT FLUX1 CLIP Text Encoder",
+    "TT_Flux1ClipTextEncoderContextNode": "TT FLUX1 CLIP Text Encoder (Context)",
+    "TT_Flux2TextEncoderNode": "TT FLUX2 Text Encoder",
+    "TT_Flux2TextEncoderContextNode": "TT FLUX2 Text Encoder (Context)",
     # VAE
     "TT_VaeDecodeContext": "TT VAE Decode (Context)",
     "TT_VaeDecodeTiled": "TT VAE Decode (Tiled)",

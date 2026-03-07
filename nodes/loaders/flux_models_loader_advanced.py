@@ -48,7 +48,7 @@ class TT_FluxModelsLoaderAdvanced():
     RETURN_TYPES = ("MODEL", "CLIP", "VAE",)
     RETURN_NAMES = ("MODEL", "CLIP", "VAE",)
     FUNCTION = "load_models"
-    CATEGORY = "TenserTensor/Loaders/FLUX"
+    CATEGORY = "TenserTensor/Deprecated/Loaders/FLUX"
 
     def load_models(self, **kwargs):
         unet_name = kwargs.get("unet_name")

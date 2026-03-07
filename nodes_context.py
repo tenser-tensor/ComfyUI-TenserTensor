@@ -162,9 +162,9 @@ class ContextNode(IO.ComfyNode):
 
         for f_name in cls.RETURNS if len(cls.RETURNS) > 0 else cls.REQUIRED + cls.OPTIONAL:
             output_schema.append(
-                Context.Output(display_name="CONTEXT")
+                Context.Output("CONTEXT")
                 if f_name == "context"
-                else cls.F_TYPES[f_name].Output(display_name=f_name.upper())
+                else cls.F_TYPES[f_name].Output(id=f_name.upper())
             )
 
         return output_schema
