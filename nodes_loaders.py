@@ -1,13 +1,26 @@
 # (c) TenserTensor <tenser.tensor@proton.me> || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
+
+# Contains slightly modified code by City96
+# (c) City96 || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
+# Modified by TenserTensor
+# (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
+
+import collections
+import inspect
+import logging
 import os
 from typing import override
 
+import torch
 from torch import bfloat16, float16, float32, float8_e4m3fn, float8_e5m2, device, tensor
 
 import folder_paths
-from comfy import sd, model_management, utils, model_sampling
+from comfy import sd, model_management, utils, model_sampling, model_patcher, lora, float
 from comfy_api.latest import io, ComfyExtension
 from nodes import VAELoader, MAX_RESOLUTION
+from .gguf.dequant import is_quantized, is_torch_compatible
+from .gguf.loader import gguf_sd_loader, gguf_clip_loader
+from .gguf.ops import GGMLOps, move_patch_to_device
 
 CATEGORY = "TenserTensor/Loaders"
 TORCH_DEVICES = ["default", "cpu"]
@@ -27,8 +40,20 @@ def get_diffusion_models_files():
     return folder_paths.get_filename_list("diffusion_models")
 
 
+def get_gguf_diffusion_models_files():
+    update_folder_names_and_paths("unet_gguf", ["diffusion_models", "unet"])
+
+    return [f for f in folder_paths.get_filename_list("unet_gguf")]
+
+
 def get_text_encoder_files():
     return folder_paths.get_filename_list("text_encoders")
+
+
+def get_gguf_text_encoder_files():
+    update_folder_names_and_paths("clip_gguf", ["text_encoders", "clip"])
+
+    return [x for x in folder_paths.get_filename_list("clip_gguf")]
 
 
 def get_vae_files():
@@ -380,6 +405,258 @@ class TT_FluxModelsLoaderAdvancedNode(io.ComfyNode):
         return io.NodeOutput(model, clip, vae)
 
 
+def update_folder_names_and_paths(key, targets=[]):
+    base = folder_paths.folder_names_and_paths.get(key, ([], {}))
+    base = base[0] if isinstance(base[0], (list, set, tuple)) else []
+
+    target = next((x for x in targets if x in folder_paths.folder_names_and_paths), targets[0])
+    orig, _ = folder_paths.folder_names_and_paths.get(target, ([], {}))
+    folder_paths.folder_names_and_paths[key] = (orig or base, {".gguf"})
+    if base and base != orig:
+        logging.warning(f"Unknown file list already present on key {key}: {base}")
+
+
+WeightBackup = collections.namedtuple('WeightBackup', ['weight', 'inplace_update'])
+
+
+class GGUFModelPatcher(model_patcher.ModelPatcher):
+    patch_on_device = False
+
+    def patch_weight_to_device(self, key, device_to=None, inplace_update=False):
+        if key not in self.patches:
+            return
+
+        weight = utils.get_attr(self.model, key)
+
+        patches = self.patches[key]
+        if is_quantized(weight):
+            out_weight = weight.to(device_to)
+            patches = move_patch_to_device(patches, self.load_device if self.patch_on_device else self.offload_device)
+            # TODO: do we ever have legitimate duplicate patches? (i.e. patch on top of patched weight)
+            out_weight.patches = [(patches, key)]
+        else:
+            inplace_update = self.weight_inplace_update or inplace_update
+            if key not in self.backup:
+                self.backup[key] = WeightBackup(
+                    weight.to(device=self.offload_device, copy=inplace_update), inplace_update
+                )
+
+            if device_to is not None:
+                temp_weight = model_management.cast_to_device(weight, device_to, torch.float32, copy=True)
+            else:
+                temp_weight = weight.to(torch.float32, copy=True)
+
+            out_weight = lora.calculate_weight(patches, temp_weight, key)
+            out_weight = float.stochastic_rounding(out_weight, weight.dtype)
+
+        if inplace_update:
+            utils.copy_to_param(self.model, key, out_weight)
+        else:
+            utils.set_attr_param(self.model, key, out_weight)
+
+    def unpatch_model(self, device_to=None, unpatch_weights=True):
+        if unpatch_weights:
+            for p in self.model.parameters():
+                if is_torch_compatible(p):
+                    continue
+                patches = getattr(p, "patches", [])
+                if len(patches) > 0:
+                    p.patches = []
+        # TODO: Find another way to not unload after patches
+        return super().unpatch_model(device_to=device_to, unpatch_weights=unpatch_weights)
+
+
+def get_dtype(dtype):
+    match dtype:
+        case None | "default":
+            return None
+        case "target":
+            return dtype
+        case _:
+            return getattr(torch, dtype)
+
+
+def load_clip_data(ckpt_paths):
+    clip_data = []
+    for path in ckpt_paths:
+        if path.endswith(".gguf"):
+            state_dict = gguf_clip_loader(path)
+        else:
+            state_dict = utils.load_torch_file(path, safe_load=True)
+            # NOTE: Scaled FP8 would require different custom ops, but only one can be active
+            if "scaled_fp8" in state_dict:
+                raise NotImplementedError(
+                    f"Mixing scaled FP8 with GGUF is not supported! Use regular CLIP loader or switch model(s)\n({path})")
+
+        clip_data.append(state_dict)
+
+    return clip_data
+
+
+def load_clip_patcher(clip_name, type="flux2"):
+    clip_path = folder_paths.get_full_path("clip_gguf", clip_name)
+    clip_type = getattr(sd.CLIPType, type.upper(), sd.CLIPType.FLUX2)
+    clip_data = load_clip_data([clip_path])
+
+    clip = sd.load_text_encoder_state_dicts(
+        clip_type=clip_type,
+        state_dicts=clip_data,
+        model_options={
+            "custom_operations": GGMLOps,
+            "initial_device": model_management.text_encoder_offload_device()
+        },
+        embedding_directory=folder_paths.get_folder_paths("embeddings"),
+    )
+    clip.patcher = GGUFModelPatcher.clone(clip.patcher)
+
+    return clip
+
+
+def apply_bypass_lora_for_models(loaded_lora, model, clip, lora_name, strength):
+    if loaded_lora == None:
+        lora_path = folder_paths.get_full_path_or_raise("loras", lora_name)
+        lora = utils.load_torch_file(lora_path, safe_load=True)
+    else:
+        lora = loaded_lora
+
+    patched_model, patched_clip = sd.load_bypass_lora_for_models(model, clip, lora, strength, strength)
+
+    return (patched_model, patched_clip, lora,)
+
+
+def load_gguf_pipeline(cls, **kwargs):
+    ops = GGMLOps()
+
+    ops.Linear.dequant_dtype = get_dtype(kwargs.get("dequant_dtype", None))
+    ops.Linear.patch_dtype = get_dtype(kwargs.get("patch_dtype", None))
+
+    gguf_full_path = folder_paths.get_full_path("unet_gguf", kwargs.get("diffusion_model"))
+    state_dict, extra = gguf_sd_loader(gguf_full_path)
+
+    args = {}
+    valid_params = inspect.signature(sd.load_diffusion_model_state_dict).parameters
+
+    if "metadata" in valid_params:
+        args["metadata"] = extra.get("metadata", {})
+
+    model = sd.load_diffusion_model_state_dict(state_dict, model_options={"custom_operations": ops}, **args, )
+
+    if model is None:
+        raise RuntimeError("ERROR: Could not detect model type of: {}".format(gguf_full_path))
+
+    model = GGUFModelPatcher.clone(model)
+    model.patch_on_device = kwargs.get("patch_on_device", None)
+
+    apply_sampling = kwargs.get("apply_sampling")
+    if apply_sampling:
+        args = {
+            "model": model,
+            "base_sampling_shift": kwargs.get("base_sampling_shift"),
+            "max_sampling_shift": kwargs.get("max_sampling_shift"),
+            "sampling_width": kwargs.get("sampling_width"),
+            "sampling_height": kwargs.get("sampling_height"),
+        }
+        model = patch_flux_sampling(**args)
+
+    clip = load_clip_patcher(kwargs.get("clip"), kwargs.get("clip_type", "flux2"))
+
+    if kwargs.get("apply_bypass_lora"):
+        loras = [
+            (kwargs.get("lora_name_1"), kwargs.get("strength_1"), 'loaded_lora_1'),
+            (kwargs.get("lora_name_2"), kwargs.get("strength_2"), 'loaded_lora_2'),
+            (kwargs.get("lora_name_3"), kwargs.get("strength_3"), 'loaded_lora_3'),
+            (kwargs.get("lora_name_4"), kwargs.get("strength_4"), 'loaded_lora_4'),
+        ]
+
+        for name, strength, attr in loras:
+            if name != "None" and strength != 0:
+                cached = getattr(cls, attr)
+                model, clip, lora = apply_bypass_lora_for_models(cached, model, clip, name, strength)
+                setattr(cls, attr, lora)
+
+    vae = load_vae(
+        kwargs.get("vae_name"),
+        kwargs.get("vae_device", "default"),
+        kwargs.get("vae_dtype", "bfloat16"),
+    )
+
+    return model, clip, vae
+
+
+class TT_GgufModelsLoaderNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_GgufModelsLoaderNode",
+            display_name="TT GGUF Models Loader",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Combo.Input("diffusion_model", options=get_gguf_diffusion_models_files()),
+                io.Combo.Input("clip", options=get_gguf_text_encoder_files()),
+                io.Combo.Input("vae_name", options=get_vae_files()),
+            ],
+            outputs=[
+                io.Model.Output("MODEL"),
+                io.Clip.Output("CLIP"),
+                io.Vae.Output("VAE"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        kwargs["apply_bypass_lora"] = False
+        model, clip, vae = load_gguf_pipeline(cls, apply_loras=True, **kwargs)
+
+        return io.NodeOutput(model, clip, vae)
+
+
+class TT_GgufModelsLoaderAdvancedNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_GgufModelsLoaderAdvancedNode",
+            display_name="TT GGUF Models Loader (Advanced)",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Combo.Input("diffusion_model", options=get_gguf_diffusion_models_files()),
+                io.Combo.Input("dequant_dtype", options=list(DTYPES.keys()), default="bfloat16", advanced=True),
+                io.Combo.Input("patch_dtype", options=list(DTYPES.keys()), default="bfloat16", advanced=True),
+                io.Boolean.Input("apply_sampling", default=True, label_on="Flux Shift", label_off="No Shift"),
+                io.Float.Input("base_sampling_shift", default=0.5, min=0.0, max=100.0, step=0.01, advanced=True),
+                io.Float.Input("max_sampling_shift", default=1.15, min=0.0, max=100.0, step=0.01, advanced=True),
+                io.Int.Input("sampling_width", default=1024, min=16, max=MAX_RESOLUTION, step=8, advanced=True),
+                io.Int.Input("sampling_height", default=1024, min=16, max=MAX_RESOLUTION, step=8, advanced=True),
+                io.Combo.Input("clip", options=get_gguf_text_encoder_files()),
+                io.Combo.Input("clip_device", options=TORCH_DEVICES, default="default", advanced=True),
+                io.Combo.Input("lora_name_1", options=get_lora_files()),
+                io.Float.Input("strength_1", default=1.0, min=-10.0, max=10.0, step=0.1),
+                io.Combo.Input("lora_name_2", options=get_lora_files()),
+                io.Float.Input("strength_2", default=1.0, min=-10.0, max=10.0, step=0.1),
+                io.Combo.Input("lora_name_3", options=get_lora_files()),
+                io.Float.Input("strength_3", default=1.0, min=-10.0, max=10.0, step=0.1),
+                io.Combo.Input("lora_name_4", options=get_lora_files()),
+                io.Float.Input("strength_4", default=1.0, min=-10.0, max=10.0, step=0.1),
+                io.Combo.Input("vae_name", options=get_vae_files()),
+                io.Combo.Input("vae_device", options=TORCH_DEVICES, default="default", advanced=True),
+                io.Combo.Input("vae_dtype", options=list(DTYPES.keys()), advanced=True),
+            ],
+            outputs=[
+                io.Model.Output("MODEL"),
+                io.Clip.Output("CLIP"),
+                io.Vae.Output("VAE"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        kwargs["apply_bypass_lora"] = False
+        model, clip, vae = load_gguf_pipeline(cls, apply_loras=True, **kwargs)
+
+        return io.NodeOutput(model, clip, vae)
+
+
 # ==============================================================================
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
@@ -392,6 +669,8 @@ class LoaderNodesExtension(ComfyExtension):
             TT_SdxlModelsLoaderAdvancedNode,
             TT_FluxModelsLoaderNode,
             TT_FluxModelsLoaderAdvancedNode,
+            TT_GgufModelsLoaderNode,
+            TT_GgufModelsLoaderAdvancedNode,
         ]
 
 
@@ -408,4 +687,6 @@ __all__ = [
     "TT_SdxlModelsLoaderAdvancedNode",
     "TT_FluxModelsLoaderNode",
     "TT_FluxModelsLoaderAdvancedNode",
+    "TT_GgufModelsLoaderNode",
+    "TT_GgufModelsLoaderAdvancedNode",
 ]

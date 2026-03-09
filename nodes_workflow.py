@@ -11,6 +11,8 @@ from comfy.samplers import KSampler, sampler_object, Sampler
 from comfy_api.latest import io, ComfyExtension
 from nodes import MAX_RESOLUTION
 
+CATEGORY = "TenserTensor/Workflow"
+
 
 @dataclass
 class TTWorkflowSettings():
@@ -128,7 +130,7 @@ class TT_Flux2WorkflowSettingsNode(io.ComfyNode):
         return io.Schema(
             node_id="TT_Flux2WorkflowSettingsNode",
             display_name="TT FLUX2 Workflow Settings",
-            category="TenserTensor/Workflow",
+            category=CATEGORY,
             description="",
             inputs=[
                 io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
@@ -190,7 +192,7 @@ class TT_Flux2WorkflowSettingsAdvancedNode(io.ComfyNode):
         return io.Schema(
             node_id="TT_Flux2WorkflowSettingsAdvancedNode",
             display_name="TT FLUX2 Workflow Settings (Advanced)",
-            category="TenserTensor/Workflow",
+            category=CATEGORY,
             description="",
             inputs=[
                 io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),

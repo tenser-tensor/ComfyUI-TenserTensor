@@ -55,7 +55,7 @@ class TT_Flux2GgufModelsLoaderAdvanced():
     RETURN_TYPES = ("MODEL", "CLIP", "VAE",)
     RETURN_NAMES = ("MODEL", "CLIP", "VAE",)
     FUNCTION = "load_models"
-    CATEGORY = "TenserTensor/Loaders/FLUX2 GGUF"
+    CATEGORY = "TenserTensor/Deprecated/Loaders/FLUX2 GGUF"
 
     def load_models(self, **kwargs):
         model = load_unet(

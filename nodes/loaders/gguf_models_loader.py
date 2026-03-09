@@ -28,7 +28,7 @@ class TT_Flux2GgufModelsLoader():
     RETURN_TYPES = ("MODEL", "CLIP", "VAE",)
     RETURN_NAMES = ("MODEL", "CLIP", "VAE",)
     FUNCTION = "load_models"
-    CATEGORY = "TenserTensor/Loaders/FLUX2 GGUF"
+    CATEGORY = "TenserTensor/Deprecated/Loaders/FLUX2 GGUF"
 
     VAE_DEVICE = "cpu"
     VAE_DTYPE = "bfloat16"

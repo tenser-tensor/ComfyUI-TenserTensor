@@ -178,6 +178,8 @@ NODE_CLASS_MAPPINGS = {
     "TT_SdxlModelsLoaderAdvancedNode": TT_SdxlModelsLoaderAdvancedNode,
     "TT_FluxModelsLoaderNode": TT_FluxModelsLoaderNode,
     "TT_FluxModelsLoaderAdvancedNode": TT_FluxModelsLoaderAdvancedNode,
+    "TT_GgufModelsLoaderNode": TT_GgufModelsLoaderNode,
+    "TT_GgufModelsLoaderAdvancedNode": TT_GgufModelsLoaderAdvancedNode,
     # Postproduction
     "TT_ApplyLut": TT_ApplyLut,
     "TT_AddFilmGrain": TT_AddFilmGrain,
@@ -278,6 +280,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_SdxlModelsLoaderAdvancedNode": "TT SDXL Models Loader (Advanced)",
     "TT_FluxModelsLoaderNode": "TT FLUX Models Loader",
     "TT_FluxModelsLoaderAdvancedNode": "TT FLUX Models Loader (Advanced)",
+    "TT_GgufModelsLoaderNode": "TT GGUF Models Loader",
+    "TT_GgufModelsLoaderAdvancedNode": "TT GGUF Models Loader (Advanced)",
     # Postproduction
     "TT_ApplyLut": "TT Apply LUT",
     "TT_AddFilmGrain": "TT Add Film Grain",
