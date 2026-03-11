@@ -26,7 +26,7 @@ class TT_ImagePreviewSave():
     RETURN_NAMES = ()
     OUTPUT_NODE = True
     FUNCTION = "preview_save_image"
-    CATEGORY = "TenserTensor/Image"
+    CATEGORY = "TenserTensor/Deprecated/Image"
 
     def preview_save_image(
             self,

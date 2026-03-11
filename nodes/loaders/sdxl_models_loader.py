@@ -24,7 +24,7 @@ class TT_SdxlModelsLoader:
     RETURN_TYPES = ("MODEL", "CLIP", "VAE",)
     RETURN_NAMES = ("MODEL", "CLIP", "VAE",)
     FUNCTION = "load_models"
-    CATEGORY = "TenserTensor/Loaders/SDXL"
+    CATEGORY = "TenserTensor/Deprecated/Loaders/SDXL"
 
     def load_models(self, primary_ckpt, secondary_ckpt, primary_weight, clip_l, clip_g, clip_device, vae_name):
         model = load_checkpoint(primary_ckpt)[0]

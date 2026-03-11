@@ -1,4 +1,4 @@
-## TT Base Context Passthrough *TT_BaseContextPassthroughNode*
+## TT Context Passthrough *TT_ContextPassthroughNode*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 

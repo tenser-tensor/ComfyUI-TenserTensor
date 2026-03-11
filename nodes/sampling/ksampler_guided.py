@@ -19,7 +19,7 @@ class TT_KSamplerGuided:
     RETURN_TYPES = ("LATENT",)
     RETURN_NAMES = ("SAMPLES",)
     FUNCTION = "execute_sampling"
-    CATEGORY = "TenserTensor/Sampling"
+    CATEGORY = "TenserTensor/Deprecated/Sampling"
 
     def execute_sampling(self, latent, guider, sigmas, sampler, random_noise):
         return (guided_sample_latents(latent, guider, sigmas, sampler, random_noise),)

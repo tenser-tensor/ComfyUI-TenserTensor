@@ -1,4 +1,4 @@
-# (c) TenserTensor || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
+# (c) TenserTensor <tenser.tensor@proton.me> || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
 import dataclasses
 import re
@@ -112,8 +112,8 @@ class Context:
             super().__init__(id, **kwargs)
 
     class Output(IO.Output):
-        def __init__(self, **kwargs):
-            super().__init__(**kwargs)
+        def __init__(self, id: str, **kwargs):
+            super().__init__(id, **kwargs)
 
 
 class ContextNode(IO.ComfyNode):
@@ -162,9 +162,9 @@ class ContextNode(IO.ComfyNode):
 
         for f_name in cls.RETURNS if len(cls.RETURNS) > 0 else cls.REQUIRED + cls.OPTIONAL:
             output_schema.append(
-                Context.Output(display_name="CONTEXT")
+                Context.Output("CONTEXT")
                 if f_name == "context"
-                else cls.F_TYPES[f_name].Output(display_name=f_name.upper())
+                else cls.F_TYPES[f_name].Output(id=f_name.upper())
             )
 
         return output_schema
@@ -235,7 +235,7 @@ class TT_BaseContextFlux2Node(ContextNode):
     RETURNS = ("context",)
 
 
-class TT_BaseContextPassthroughNode(ContextNode):
+class TT_ContextPassthroughNode(ContextNode):
     """Passes context through without modification."""
     REQUIRED = ("context",)
     OPTIONAL = ()
@@ -315,13 +315,13 @@ class TT_ContextExtractImageNode(ContextNode):
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
 
-class ContextExtension(ComfyExtension):
+class ContextNodesExtension(ComfyExtension):
     @override
     async def get_node_list(self) -> list[type[IO.ComfyNode]]:
         return [
             TT_BaseContextNode,
             TT_BaseContextFlux2Node,
-            TT_BaseContextPassthroughNode,
+            TT_ContextPassthroughNode,
             TT_ContextNode,
             TT_ContextFlux2Node,
             TT_ContextSetGuiderNode,
@@ -334,8 +334,8 @@ class ContextExtension(ComfyExtension):
         ]
 
 
-async def comfy_entrypoint() -> ContextExtension:
-    return ContextExtension()
+async def comfy_entrypoint() -> ContextNodesExtension:
+    return ContextNodesExtension()
 
 
 # ==============================================================================
@@ -345,7 +345,7 @@ async def comfy_entrypoint() -> ContextExtension:
 __all__ = [
     "TT_BaseContextNode",
     "TT_BaseContextFlux2Node",
-    "TT_BaseContextPassthroughNode",
+    "TT_ContextPassthroughNode",
     "TT_ContextNode",
     "TT_ContextFlux2Node",
     "TT_ContextSetGuiderNode",

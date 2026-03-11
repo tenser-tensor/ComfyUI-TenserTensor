@@ -43,7 +43,7 @@ class TT_SdxlModelsLoaderAdvanced:
     RETURN_TYPES = ("MODEL", "CLIP", "VAE",)
     RETURN_NAMES = ("MODEL", "CLIP", "VAE",)
     FUNCTION = "load_models"
-    CATEGORY = "TenserTensor/Loaders/SDXL"
+    CATEGORY = "TenserTensor/Deprecated/Loaders/SDXL"
 
     def load_models(self, primary_ckpt, secondary_ckpt, primary_weight, clip_l, clip_g, clip_device,
                     lora_name_1, strength_1, lora_name_2, strength_2, lora_name_3, strength_3, lora_name_4, strength_4,

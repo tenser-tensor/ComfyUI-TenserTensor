@@ -34,7 +34,7 @@ class TT_GuiderImageReference():
     RETURN_TYPES = ("VAE", "GUIDER",)
     RETURN_NAMES = ("VAE", "GUIDER",)
     FUNCTION = "update_latent"
-    CATEGORY = "TenserTensor/Image"
+    CATEGORY = "TenserTensor/Deprecated/Image"
 
     def update_latent(self, vae, guider, megapixels, upscale_method, dimension_step, image):
         timage, _ = load_image(image)
