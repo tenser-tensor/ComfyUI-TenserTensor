@@ -1,8 +1,19 @@
 # pyproject.toml
 [project]
-name = "ComfyUI-TenserTensor"
-description = "A collection of custom nodes for ComfyUI that streamline common workflows. Includes all-in-one model loaders (checkpoint/unet, LoRA, CLIP, VAE), GGUF quantized model support (FLUX, FLUX2, SDXL), workflow settings nodes, latent factory (aspect ratio, megapixels, FLUX/SDXL), context nodes, CLIP text encoders, KSamplers (context, advanced, two-stage - draft/refine), VAE encoders/decoders (context, tiled), and post-production tools (brightness, contrast, LUT color grading, film grain, upscaler)."
-version = "1.6.16"
+name = """ComfyUI-TenserTensor"
+description = "A collection of custom nodes for ComfyUI that streamline common workflows.
+
+— All-in-one model loaders: checkpoint, LoRA, CLIP, VAE
+— GGUF quantized model support: FLUX, FLUX2, SDXL, SD3.5
+— Workflow settings nodes for FLUX, SDXL, and SD3.5
+— Latent factory with aspect ratio, megapixel, and automatic model format detection
+— Context nodes for passing pipeline state between nodes
+— CLIP text encoders for FLUX, SDXL, and SD3.5
+— KSampler variants with guided sampling and step-by-step latent preview
+— VAE encoders and decoders: tiled and context-based
+— Image tools: load, resize, upscale, preview, save, ControlNet reference
+— Post-production: brightness, contrast, LUT color grading, film grain, upscaler"""
+version = "1.6.20"
 license = { file = "LICENSE" }
 dependencies = ["gguf", "kornia"]
 
