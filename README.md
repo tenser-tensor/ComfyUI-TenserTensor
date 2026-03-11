@@ -65,6 +65,10 @@ Great thanks and appreciation for your excellent work!
 
 ## Additional
 
+> [!NOTE]  
+> ⚠️ **Custom Type Compatibility Notice:** The custom data types `TT_CONTEXT` and `TT_WORKFLOW_CONFIG` are **proprietary to this node pack** and are not compatible with native ComfyUI nodes or third-party nodes.  
+> These types can only be connected to inputs and outputs within the **ComfyUI-TenserTensor** pack. Attempting to pass them to external nodes will result in a type mismatch error.
+
 > [!TIP]  
 > You can download Flux.2-dev along with additional models (CLIP, VAE) via the link below:  
 > [Comfy-Org/flux2-dev](https://huggingface.co/Comfy-Org/flux2-dev/tree/main/split_files)

@@ -244,6 +244,151 @@ class TT_Flux2WorkflowSettingsAdvancedNode(io.ComfyNode):
         return io.NodeOutput(*args.values())
 
 
+def sd3_shift_sigma(sigma, schedule_shift):
+    return schedule_shift * sigma / (1 + (schedule_shift - 1) * sigma)
+
+
+def build_sd3_sampler_sigmas(sampler_name, steps, schedule_shift=3.0):
+    sampler = sampler_object(sampler_name)
+    timesteps = torch.linspace(1, 0, steps + 1)
+    sigmas = sd3_shift_sigma(timesteps, schedule_shift)
+
+    return sampler, sigmas
+
+
+class TT_Sd35WorkflowSettingsNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_Sd35WorkflowSettingsNode",
+            display_name="TT SD3.5 Workflow Settings",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
+                io.Int.Input("steps", default=30, min=1, max=10_000),
+                io.Float.Input("cfg", default=5.0, min=0.0, max=100.0, step=0.1),
+                io.Combo.Input("sampler_name", options=KSampler.SAMPLERS),
+                io.Float.Input("schedule_shift", default=3.0, min=0.0, max=20.0, step=0.1, advanced=True),
+                io.Int.Input("width", default=1024, min=16, max=MAX_RESOLUTION, step=8),
+                io.Int.Input("height", default=1024, min=16, max=MAX_RESOLUTION, step=8),
+                io.Int.Input("target_width", default=1024, min=16, max=MAX_RESOLUTION, step=8, advanced=True),
+                io.Int.Input("target_height", default=1024, min=16, max=MAX_RESOLUTION, step=8, advanced=True),
+            ],
+            outputs=[
+                WorkflowSettings.Output(display_name="WORKFLOW_CONFIG"),
+                io.Sampler.Output(display_name="SAMPLER"),
+                io.Sigmas.Output(display_name="SIGMAS"),
+                io.Int.Output(display_name="SEED"),
+                io.Int.Output(display_name="STEPS"),
+                io.Float.Output(display_name="CFG"),
+                io.Int.Output(display_name="WIDTH"),
+                io.Int.Output(display_name="HEIGHT"),
+                io.Int.Output(display_name="TARGET_WIDTH"),
+                io.Int.Output(display_name="TARGET_HEIGHT"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        kwargs["sampler"], kwargs["sigmas"] = build_sd3_sampler_sigmas(
+            kwargs.get("sampler_name"), kwargs.get("steps"), kwargs.get("schedule_shift"),
+        )
+
+        workflow_config = TTWorkflowSettings.create(**kwargs)
+        args = {
+            "workflow_config": workflow_config,
+            "sampler": kwargs["sampler"],
+            "sigmas": kwargs["sigmas"],
+            "seed": kwargs.get("seed"),
+            "steps": kwargs.get("steps"),
+            "cfg": kwargs.get("cfg"),
+            "width": kwargs.get("width"),
+            "height": kwargs.get("height"),
+            "target_width": kwargs.get("target_width"),
+            "target_height": kwargs.get("target_height"),
+        }
+
+        return io.NodeOutput(*args.values())
+
+
+class TT_Sd35WorkflowSettingsAdvancedNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_Sd35WorkflowSettingsAdvancedNode",
+            display_name="TT SD3.5 Workflow Settings (Advanced)",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
+                io.Int.Input("steps", default=30, min=1, max=10_000),
+                io.Float.Input("cfg", default=5.0, min=0.0, max=100.0, step=0.1),
+                io.Combo.Input("sampler_name", options=KSampler.SAMPLERS),
+                io.Float.Input("schedule_shift", default=3.0, min=0.0, max=20.0, step=0.1, advanced=True),
+                io.String.Input("clip_l_positive", multiline=True, dynamic_prompts=True),
+                io.String.Input("clip_g_positive", multiline=True, dynamic_prompts=True),
+                io.String.Input("t5xxl_positive", multiline=True, dynamic_prompts=True),
+                io.String.Input("clip_l_negative", multiline=True, dynamic_prompts=True),
+                io.String.Input("clip_g_negative", multiline=True, dynamic_prompts=True),
+                io.String.Input("t5xxl_negative", multiline=True, dynamic_prompts=True),
+                io.String.Input("lora_triggers", multiline=True, dynamic_prompts=True, advanced=True),
+                io.Int.Input("width", default=1024, min=16, max=MAX_RESOLUTION, step=8),
+                io.Int.Input("height", default=1024, min=16, max=MAX_RESOLUTION, step=8),
+                io.Int.Input("target_width", default=1024, min=16, max=MAX_RESOLUTION, step=8, advanced=True),
+                io.Int.Input("target_height", default=1024, min=16, max=MAX_RESOLUTION, step=8, advanced=True),
+            ],
+            outputs=[
+                WorkflowSettings.Output(display_name="WORKFLOW_CONFIG"),
+                io.Sampler.Output(display_name="SAMPLER"),
+                io.Sigmas.Output(display_name="SIGMAS"),
+                io.Int.Output(display_name="SEED"),
+                io.Int.Output(display_name="STEPS"),
+                io.Float.Output(display_name="CFG"),
+                io.Int.Output(display_name="WIDTH"),
+                io.Int.Output(display_name="HEIGHT"),
+                io.Int.Output(display_name="TARGET_WIDTH"),
+                io.Int.Output(display_name="TARGET_HEIGHT"),
+                io.String.Output(display_name="CLIP_L_POSITIVE"),
+                io.String.Output(display_name="CLIP_G_POSITIVE"),
+                io.String.Output(display_name="T5XXL_POSITIVE"),
+                io.String.Output(display_name="CLIP_L_NEGATIVE"),
+                io.String.Output(display_name="CLIP_G_NEGATIVE"),
+                io.String.Output(display_name="T5XXL_NEGATIVE"),
+                io.String.Output(display_name="LORA_TRIGGERS"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        kwargs["sampler"], kwargs["sigmas"] = build_sd3_sampler_sigmas(
+            kwargs.get("sampler_name"), kwargs.get("steps"), kwargs.get("schedule_shift"),
+        )
+
+        workflow_config = TTWorkflowSettings.create(**kwargs)
+        args = {
+            "workflow_config": workflow_config,
+            "sampler": kwargs["sampler"],
+            "sigmas": kwargs["sigmas"],
+            "seed": kwargs.get("seed"),
+            "steps": kwargs.get("steps"),
+            "cfg": kwargs.get("cfg"),
+            "width": kwargs.get("width"),
+            "height": kwargs.get("height"),
+            "target_width": kwargs.get("target_width"),
+            "target_height": kwargs.get("target_height"),
+            "clip_l_positive": kwargs.get("clip_l_positive"),
+            "clip_g_positive": kwargs.get("clip_g_positive"),
+            "t5xxl_positive": kwargs.get("t5xxl_positive"),
+            "clip_l_negative": kwargs.get("clip_l_negative"),
+            "clip_g_negative": kwargs.get("clip_g_negative"),
+            "t5xxl_negative": kwargs.get("t5xxl_negative"),
+            "lora_triggers": kwargs.get("lora_triggers"),
+        }
+
+        return io.NodeOutput(*args.values())
+
+
 # ==============================================================================
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
@@ -254,6 +399,8 @@ class WorkflowNodesExtension(ComfyExtension):
         return [
             TT_Flux2WorkflowSettingsNode,
             TT_Flux2WorkflowSettingsAdvancedNode,
+            TT_Sd35WorkflowSettingsNode,
+            TT_Sd35WorkflowSettingsAdvancedNode,
         ]
 
 
@@ -268,4 +415,6 @@ async def comfy_entrypoint() -> WorkflowNodesExtension:
 __all__ = [
     "TT_Flux2WorkflowSettingsNode",
     "TT_Flux2WorkflowSettingsAdvancedNode",
+    "TT_Sd35WorkflowSettingsNode",
+    "TT_Sd35WorkflowSettingsAdvancedNode",
 ]

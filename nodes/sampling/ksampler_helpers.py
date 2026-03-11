@@ -70,6 +70,13 @@ def guided_sample_latents(latent, guider, sigmas, sampler, random_noise):
     callback = LP.prepare_callback(model_patcher, sigmas.shape[-1] - 1, interim_buffer)
     disable_pbar = not U.PROGRESS_BAR_ENABLED
 
+    print(f"latent: {latent}")
+    print(f"sampler: {sampler}")
+    print(f"sigmas: {sigmas}")
+    print(f"random_noise: {random_noise}")
+    print(f"GUIDER: {guider}")
+
+
     samples = guider.sample(
         random_noise.generate_noise(latent),
         latent_tensor,

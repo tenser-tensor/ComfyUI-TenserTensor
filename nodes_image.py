@@ -17,6 +17,7 @@ from comfy import model_management, utils, samplers
 from comfy_api.latest import ComfyExtension, io, ui
 from node_helpers import conditioning_set_values, pillow
 from .nodes_vae import vae_encode
+from .nodes_text_encoder import SingleCondCFGGuider
 
 CATEGORY = "TenserTensor/Image"
 RESIZE_METHODS = ["nearest-exact", "bilinear", "area", "bicubic", "bislerp"]
@@ -25,19 +26,6 @@ FORMAT_EXT = {"PNG": ".png", "JPEG": ".jpg", "WEBP": ".webp", }
 MEGAPIXELS = ["0.25 MP", "0.5 MP", "1 MP", "2 MP", "4 MP", "8 MP"]
 
 
-class SingleCondCFGGuider(samplers.CFGGuider):
-    @classmethod
-    def from_cfg_guider(cls, guider):
-        obj = cls.__new__(cls)
-        obj.__dict__.update(guider.__dict__)
-        return obj
-
-    @override
-    def set_conds(self, conditioning):
-        self.inner_set_conds({"positive": conditioning})
-
-    def get_conds(self, key="positive"):
-        return [[c.get("cross_attn", None), c] for c in self.original_conds[key]]
 
 
 def align_to_step(size, scale_factor, dimension_step):

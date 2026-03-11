@@ -80,6 +80,7 @@ try:
     from .nodes.sampling.ksampler_context import TT_KSamplerContext
     from .nodes.sampling.ksampler_two_stage import TT_KSamplerTwoStage
     from .nodes.sampling.ksampler_guided import TT_KSamplerGuided
+    from .nodes_sampling import *
 except ImportError:
     print("f{YELLOW}TenserTensor: {RED}ERROR: Sampler nodes unavailable{RESET}")
 
@@ -164,6 +165,7 @@ NODE_CLASS_MAPPINGS = {
     "TT_LatentFactory": TT_LatentFactory,
     # Latent V3 Nodes
     "TT_LatentFactoryNode": TT_LatentFactoryNode,
+    "TT_LatentFactoryByModelNode": TT_LatentFactoryByModelNode,
     "TT_LatentMultiTransformNode": TT_LatentMultiTransformNode,
     "TT_LatentMultiTransformOnPixelSpaceNode": TT_LatentMultiTransformOnPixelSpaceNode,
     # Loaders
@@ -178,8 +180,10 @@ NODE_CLASS_MAPPINGS = {
     "TT_SdxlModelsLoaderAdvancedNode": TT_SdxlModelsLoaderAdvancedNode,
     "TT_FluxModelsLoaderNode": TT_FluxModelsLoaderNode,
     "TT_FluxModelsLoaderAdvancedNode": TT_FluxModelsLoaderAdvancedNode,
-    "TT_GgufModelsLoaderNode": TT_GgufModelsLoaderNode,
-    "TT_GgufModelsLoaderAdvancedNode": TT_GgufModelsLoaderAdvancedNode,
+    "TT_GgufModelsLoaderNode": TT_Flux2GgufModelsLoaderNode,
+    "TT_GgufModelsLoaderAdvancedNode": TT_Flux2GgufModelsLoaderAdvancedNode,
+    "TT_Sd35GgufModelsLoaderNode": TT_Sd35GgufModelsLoaderNode,
+    # "TT_Sd35GgufModelsLoaderAdvancedNode": TT_Sd35GgufModelsLoaderAdvancedNode,
     # Postproduction
     "TT_ApplyLut": TT_ApplyLut,
     "TT_AddFilmGrain": TT_AddFilmGrain,
@@ -193,6 +197,10 @@ NODE_CLASS_MAPPINGS = {
     "TT_KSamplerContext": TT_KSamplerContext,
     "TT_KSamplerTwoStage": TT_KSamplerTwoStage,
     "TT_KSamplerGuided": TT_KSamplerGuided,
+    # Samplers V3 Nodes
+    "TT_GuidedKSamplerNode": TT_GuidedKSamplerNode,
+    "TT_GuidedUpscaleKSamplerNode": TT_GuidedUpscaleKSamplerNode,
+    "TT_GuidedKSamplerWithPreviewNode": TT_GuidedKSamplerWithPreviewNode,
     # Text Encoder
     "TT_ClipTextEncodeFlux": TT_ClipTextEncodeFlux,
     "TT_ClipTextEncodeFluxContext": TT_ClipTextEncodeFluxContext,
@@ -207,6 +215,8 @@ NODE_CLASS_MAPPINGS = {
     "TT_Flux1ClipTextEncoderContextNode": TT_Flux1ClipTextEncoderContextNode,
     "TT_Flux2TextEncoderNode": TT_Flux2TextEncoderNode,
     "TT_Flux2TextEncoderContextNode": TT_Flux2TextEncoderContextNode,
+    "TT_Sd35TextEncoderNode": TT_Sd35TextEncoderNode,
+    "TT_Sd35TextEncoderContextNode": TT_Sd35TextEncoderContextNode,
     # VAE
     "TT_VaeDecodeContext": TT_VaeDecodeContext,
     "TT_VaeDecodeTiled": TT_VaeDecodeTiled,
@@ -222,6 +232,8 @@ NODE_CLASS_MAPPINGS = {
     # Workflow V3 Nodes
     "TT_Flux2WorkflowSettingsNode": TT_Flux2WorkflowSettingsNode,
     "TT_Flux2WorkflowSettingsAdvancedNode": TT_Flux2WorkflowSettingsAdvancedNode,
+    "TT_Sd35WorkflowSettingsNode": TT_Sd35WorkflowSettingsNode,
+    "TT_Sd35WorkflowSettingsAdvancedNode": TT_Sd35WorkflowSettingsAdvancedNode,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -266,8 +278,9 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_LatentFactory": "TT Latent Factory (Deprecated)",
     # Latent V3 Nodes
     "TT_LatentFactoryNode": "TT Latent Factory",
+    "TT_LatentFactoryByModelNode": "TT Latent Factory (By Model)",
     "TT_LatentMultiTransformNode": "TT Latent Multi Transform",
-    "TT_LatentMultiTransformOnPixelSpaceNode": "TT Latent MultiTransform On Pixel Space",
+    "TT_LatentMultiTransformOnPixelSpaceNode": "TT Latent MultiTransform (On Pixel Space)",
     # Loaders
     "TT_SdxlModelsLoader": "TT SDXL Models Loader",
     "TT_SdxlModelsLoaderAdvanced": "TT SDXL Models Loader (Advanced)",
@@ -282,6 +295,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_FluxModelsLoaderAdvancedNode": "TT FLUX Models Loader (Advanced)",
     "TT_GgufModelsLoaderNode": "TT GGUF Models Loader",
     "TT_GgufModelsLoaderAdvancedNode": "TT GGUF Models Loader (Advanced)",
+    "TT_Sd35GgufModelsLoaderNode": "TT SD3.5 GGUF Models Loader",
+    # "TT_Sd35ModelsLoaderAdvancedNode": "TT SD3.5 GGUF Models Loader (Advanced)",
     # Postproduction
     "TT_ApplyLut": "TT Apply LUT",
     "TT_AddFilmGrain": "TT Add Film Grain",
@@ -295,6 +310,10 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_KSamplerContext": "TT KSampler (Context)",
     "TT_KSamplerTwoStage": "TT KSampler (Two Stages)",
     "TT_KSamplerGuided": "TT KSampler (Guided)",
+    # Samplers V3 Nodes
+    "TT_GuidedKSamplerNode": "TT Guided KSampler",
+    "TT_GuidedUpscaleKSamplerNode": "TT Guided Upscale KSampler",
+    "TT_GuidedKSamplerWithPreviewNode": "TT Guided KSampler (With Preview)",
     # Text Encoder
     "TT_ClipTextEncodeFlux": "TT CLIP Text Encode FLUX",
     "TT_ClipTextEncodeFluxContext": "TT CLIP Text Encode FLUX (Context)",
@@ -309,6 +328,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_Flux1ClipTextEncoderContextNode": "TT FLUX1 CLIP Text Encoder (Context)",
     "TT_Flux2TextEncoderNode": "TT FLUX2 Text Encoder",
     "TT_Flux2TextEncoderContextNode": "TT FLUX2 Text Encoder (Context)",
+    "TT_Sd35TextEncoderNode": "TT SD3.5 Text Encoder",
+    "TT_Sd35TextEncoderContextNode": "TT SD3.5 Text Encoder (Context)",
     # VAE
     "TT_VaeDecodeContext": "TT VAE Decode (Context)",
     "TT_VaeDecodeTiled": "TT VAE Decode (Tiled)",
@@ -324,4 +345,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     # Workflow V3 Nodes
     "TT_Flux2WorkflowSettingsNode": "TT FLUX2 Workflow Settings",
     "TT_Flux2WorkflowSettingsAdvancedNode": "TT FLUX2 Workflow Settings (Advanced)",
+    "TT_Sd35WorkflowSettingsNode": "TT SD3.5 Workflow Settings",
+    "TT_Sd35WorkflowSettingsAdvancedNode": "TT SD3.5 Workflow Settings (Advanced)",
 }

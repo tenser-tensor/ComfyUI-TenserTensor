@@ -1,4 +1,4 @@
-## TT GGUF Models Loader *TT_GgufModelsLoaderNode*
+## TT FLUX2 GGUF Models Loader *TT_Flux2GgufModelsLoaderNode*
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 

@@ -6,7 +6,8 @@ from typing import Any, override
 import torch
 
 from comfy import sample, utils
-from comfy_api.latest import IO, ComfyExtension
+from comfy.latent_formats import SDXL, Flux, Flux2, SD3
+from comfy_api.latest import io, ComfyExtension
 from .nodes_image import MEGAPIXELS, resize_image, rotate_image, flip_image
 from .nodes_vae import vae_decode, vae_encode
 
@@ -14,7 +15,12 @@ CATEGORY = "TenserTensor/Latent"
 
 ASPECT_RATIOS = ["1:1", "4:3", "3:2", "16:9", "21:9"]
 CLIP_MULTIPLIERS = ["1x", "2x", "4x"]
-MODEL_TYPES = ["FLUX1.D", "FLUX2.D", "SDXL"]
+MODEL_TYPES = {
+    "FLUX1.D": Flux,
+    "FLUX2.D": Flux2,
+    "SDXL": SDXL,
+    "SD3.X": SD3
+}
 ORIENTATIONS = ["landscape", "portrait"]
 ROTATE_ANGLES = ["90°", "180°", "270°"]
 SCALE_METHODS = ["nearest-exact", "bilinear", "area", "bicubic", "bislerp"]
@@ -32,107 +38,147 @@ class RandomNoise:
         return sample.prepare_noise(latent_image, self.seed, batch_idx)
 
 
-class TT_LatentFactoryNode(IO.ComfyNode):
+LATENT_DIMENSION_STEP = 64
+
+
+def calculate_dimensions(total_pixels: int, ratio_w: int, ratio_h: int) -> tuple[int, int]:
+    height = int(math.sqrt(total_pixels * ratio_h / ratio_w))
+    width = int(height * ratio_w / ratio_h)
+    width = round(width / LATENT_DIMENSION_STEP) * LATENT_DIMENSION_STEP
+    height = round(height / LATENT_DIMENSION_STEP) * LATENT_DIMENSION_STEP
+    return width, height
+
+
+def build_latent(seed: int, batch_size: int, channels: int, latent_width: int, latent_height: int) -> torch.Tensor:
+    generator = torch.Generator().manual_seed(seed)
+    return torch.randn(batch_size, channels, latent_height, latent_width, generator=generator)
+
+
+def create_empty_latent(**kwargs) -> tuple[dict[str, Any], int, int]:
+    total_pixels = int(float(kwargs.get("megapixels").split()[0]) * 1_000_000)
+    ratio_parts = kwargs.get("aspect_ratio").split(':')
+    ratio_w, ratio_h = (
+        (int(ratio_parts[0]), int(ratio_parts[1]))
+        if kwargs.get("orientation") == "landscape"
+        else (int(ratio_parts[1]), int(ratio_parts[0]))
+    )
+    width, height = calculate_dimensions(total_pixels, ratio_w, ratio_h)
+
+    downscale_ratio, channels = None, None
+
+    model = kwargs.get("model")
+    if model:
+        fmt = model.model.latent_format
+        downscale_ratio, channels = fmt.spacial_downscale_ratio, fmt.latent_channels
+    else:
+        model_type = kwargs.get("model_type")
+        fmt = MODEL_TYPES[model_type]()
+        downscale_ratio, channels = fmt.spacial_downscale_ratio, fmt.latent_channels
+
+    latent_width, latent_height = width // downscale_ratio, height // downscale_ratio
+    latent = build_latent(kwargs.get("seed"), kwargs.get("batch_size"), channels, latent_width, latent_height)
+
+    return {"samples": latent}, width, height
+
+
+def build(**kwargs):
+    samples, width, height = create_empty_latent(**kwargs)
+    seed, noise_seed = kwargs.get("seed"), kwargs.get("noise_seed")
+    noise = RandomNoise(noise_seed)
+    multiplier = int(kwargs.get("clip_multiplier").replace('x', ''))
+    clip_width, clip_height = (width * multiplier, height * multiplier,)
+
+    return {
+        "latent": samples,
+        "noise": noise,
+        "seed": seed,
+        "noise_seed": noise_seed,
+        "megapixels": kwargs.get("megapixels"),
+        "width": width,
+        "height": height,
+        "target_width": clip_width,
+        "target_height": clip_height,
+    }
+
+
+class TT_LatentFactoryNode(io.ComfyNode):
     @classmethod
-    def define_schema(cls) -> IO.Schema:
-        return IO.Schema(
+    def define_schema(cls) -> io.Schema:
+        model_types = list(MODEL_TYPES.keys())
+
+        return io.Schema(
             node_id="TT_LatentFactoryNode",
             display_name="TT Latent Factory",
             category=CATEGORY,
             description="",
             inputs=[
-                IO.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
-                IO.Int.Input("noise_seed", default=0, min=0, max=0xffffffffffffffff, control_after_generate=True),
-                IO.Combo.Input("aspect_ratio", options=ASPECT_RATIOS),
-                IO.Combo.Input("megapixels", options=MEGAPIXELS),
-                IO.Combo.Input("orientation", options=ORIENTATIONS),
-                IO.Combo.Input("model_type", options=MODEL_TYPES),
-                IO.Int.Input("batch_size", default=1, min=1, max=64, advanced=True),
-                IO.Combo.Input("clip_multiplier", options=CLIP_MULTIPLIERS, advanced=True),
+                io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
+                io.Int.Input("noise_seed", default=0, min=0, max=0xffffffffffffffff, control_after_generate=True),
+                io.Combo.Input("aspect_ratio", options=ASPECT_RATIOS),
+                io.Combo.Input("megapixels", options=MEGAPIXELS),
+                io.Combo.Input("orientation", options=ORIENTATIONS),
+                io.Combo.Input("model_type", options=model_types),
+                io.Int.Input("batch_size", default=1, min=1, max=64, advanced=True),
+                io.Combo.Input("clip_multiplier", options=CLIP_MULTIPLIERS, advanced=True),
             ],
             outputs=[
-                IO.Latent.Output(display_name="LATENT"),
-                IO.Noise.Output(display_name="RND_NOISE"),
-                IO.Int.Output(display_name="SEED"),
-                IO.Int.Output(display_name="NOISE_SEED"),
-                IO.String.Output(display_name="MEGAPIXELS"),
-                IO.Int.Output(display_name="WIDTH"),
-                IO.Int.Output(display_name="HEIGHT"),
-                IO.Int.Output(display_name="TARGET_WIDTH"),
-                IO.Int.Output(display_name="TARGET_HEIGHT"),
+                io.Latent.Output(display_name="LATENT"),
+                io.Noise.Output(display_name="RND_NOISE"),
+                io.Int.Output(display_name="SEED"),
+                io.Int.Output(display_name="NOISE_SEED"),
+                io.String.Output(display_name="MEGAPIXELS"),
+                io.Int.Output(display_name="WIDTH"),
+                io.Int.Output(display_name="HEIGHT"),
+                io.Int.Output(display_name="TARGET_WIDTH"),
+                io.Int.Output(display_name="TARGET_HEIGHT"),
             ]
         )
 
-    LATENT_DIMENSION_STEP = 64
-
     @classmethod
-    def calculate_dimensions(cls, total_pixels, ratio_w, ratio_h) -> tuple[int, int]:
-        height = int(math.sqrt(total_pixels * ratio_h / ratio_w))
-        width = int(height * ratio_w / ratio_h)
-        width = round(width / cls.LATENT_DIMENSION_STEP) * cls.LATENT_DIMENSION_STEP
-        height = round(height / cls.LATENT_DIMENSION_STEP) * cls.LATENT_DIMENSION_STEP
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        args = build(**kwargs)
 
-        return width, height,
+        return io.NodeOutput(*args.values())
 
+
+class TT_LatentFactoryByModelNode(io.ComfyNode):
     @classmethod
-    def build_latent(cls, seed, batch_size, channels, latent_width, latent_height) -> torch.Tensor:
-        generator = torch.Generator().manual_seed(seed)
-        latent = torch.randn(
-            batch_size,
-            channels,
-            latent_height,
-            latent_width,
-            generator=generator
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_LatentFactoryByModelNode",
+            display_name="TT Latent Factory (By Model)",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Model.Input("model"),
+                io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
+                io.Int.Input("noise_seed", default=0, min=0, max=0xffffffffffffffff, control_after_generate=True),
+                io.Combo.Input("aspect_ratio", options=ASPECT_RATIOS),
+                io.Combo.Input("megapixels", options=MEGAPIXELS),
+                io.Combo.Input("orientation", options=ORIENTATIONS),
+                io.Int.Input("batch_size", default=1, min=1, max=64, advanced=True),
+                io.Combo.Input("clip_multiplier", options=CLIP_MULTIPLIERS, advanced=True),
+            ],
+            outputs=[
+                io.Model.Output("MODEL"),
+                io.Latent.Output(display_name="LATENT"),
+                io.Noise.Output(display_name="RND_NOISE"),
+                io.Int.Output(display_name="SEED"),
+                io.Int.Output(display_name="NOISE_SEED"),
+                io.String.Output(display_name="MEGAPIXELS"),
+                io.Int.Output(display_name="WIDTH"),
+                io.Int.Output(display_name="HEIGHT"),
+                io.Int.Output(display_name="TARGET_WIDTH"),
+                io.Int.Output(display_name="TARGET_HEIGHT"),
+            ]
         )
 
-        return latent
-
     @classmethod
-    def create_empty_latent(cls, **kwargs) -> tuple[dict[str, Any], int, int]:
-        total_pixels = int(float(kwargs.get("megapixels").split()[0]) * 1_000_000)
-        ratio_parts = kwargs.get("aspect_ratio").split(':')
-        ratio_w, ratio_h = (
-            (int(ratio_parts[0]), int(ratio_parts[1]))
-            if kwargs.get("orientation") == "landscape"
-            else (int(ratio_parts[1]), int(ratio_parts[0]))
-        )
-        width, height = cls.calculate_dimensions(total_pixels, ratio_w, ratio_h)
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        args = build(**kwargs)
+        args = {"model": kwargs.get("model"), **args}
 
-        scale_factor, channels = None, None
-        match kwargs.get("model_type"):
-            case "FLUX1.D":
-                scale_factor, channels = 8, 16
-            case "FLUX2.D":
-                scale_factor, channels = 16, 128
-            case "SDXL":
-                scale_factor, channels = 8, 4
-
-        latent_width, latent_height = (width // scale_factor, height // scale_factor,)
-        latent = cls.build_latent(kwargs.get("seed"), kwargs.get("batch_size"), channels, latent_width, latent_height)
-
-        return {"samples": latent}, width, height,
-
-    @classmethod
-    def execute(cls, **kwargs) -> IO.NodeOutput:
-        samples, width, height = cls.create_empty_latent(**kwargs)
-        seed, noise_seed = kwargs.get("seed"), kwargs.get("noise_seed")
-        noise = RandomNoise(noise_seed)
-        multiplier = int(kwargs.get("clip_multiplier").replace('x', ''))
-        clip_width, clip_height = (width * multiplier, height * multiplier,)
-
-        args = {
-            "latent": samples,
-            "noise": noise,
-            "seed": seed,
-            "noise_seed": noise_seed,
-            "megapixels": kwargs.get("megapixels"),
-            "width": width,
-            "height": height,
-            "target_width": clip_width,
-            "target_height": clip_height,
-        }
-
-        return IO.NodeOutput(*args.values())
+        return io.NodeOutput(*args.values())
 
 
 def set_latent_mask(latent, mask):
@@ -169,32 +215,32 @@ def flip_latent(latent, axis):
     return {"samples": torch.flip(samples, dims=[2 if axis == "x" else 3])}
 
 
-class TT_LatentMultiTransformNode(IO.ComfyNode):
+class TT_LatentMultiTransformNode(io.ComfyNode):
     @classmethod
-    def define_schema(cls) -> IO.Schema:
-        return IO.Schema(
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
             node_id="TT_LatentMultiTransformNode",
             display_name="TT Latent MultiTransform",
             category=CATEGORY,
             description="",
             inputs=[
-                IO.Latent.Input("latent"),
-                IO.Mask.Input("mask", optional=True),
-                IO.Boolean.Input("scale_latent", default=True, label_on="Scale", label_off="Skip"),
-                IO.Combo.Input("scale_factor", options=SCALE_FACTORS, default="1x"),
-                IO.Combo.Input("scale_method", options=SCALE_METHODS, default="nearest-exact"),
-                IO.Boolean.Input("rotate_latent", default=True, label_on="Rotate", label_off="Skip"),
-                IO.Combo.Input("rotate_angle", options=ROTATE_ANGLES),
-                IO.Boolean.Input("flip_latent", default=True, label_on="Flip", label_off="Skip"),
-                IO.Combo.Input("flip_direction", options=["horizontal", "vertical"]),
+                io.Latent.Input("latent"),
+                io.Mask.Input("mask", optional=True),
+                io.Boolean.Input("scale_latent", default=True, label_on="Scale", label_off="Skip"),
+                io.Combo.Input("scale_factor", options=SCALE_FACTORS, default="1x"),
+                io.Combo.Input("scale_method", options=SCALE_METHODS, default="nearest-exact"),
+                io.Boolean.Input("rotate_latent", default=True, label_on="Rotate", label_off="Skip"),
+                io.Combo.Input("rotate_angle", options=ROTATE_ANGLES),
+                io.Boolean.Input("flip_latent", default=True, label_on="Flip", label_off="Skip"),
+                io.Combo.Input("flip_direction", options=["horizontal", "vertical"]),
             ],
             outputs=[
-                IO.Latent.Output("LATENT"),
+                io.Latent.Output("LATENT"),
             ]
         )
 
     @classmethod
-    def execute(cls, **kwargs) -> IO.NodeOutput:
+    def execute(cls, **kwargs) -> io.NodeOutput:
         latent = kwargs.get("latent").copy()
 
         mask = kwargs.get("mask")
@@ -212,36 +258,36 @@ class TT_LatentMultiTransformNode(IO.ComfyNode):
             axis = "x" if kwargs.get("flip_direction") == "vertical" else "y"
             latent = flip_latent(latent, axis)
 
-        return IO.NodeOutput(latent)
+        return io.NodeOutput(latent)
 
 
-class TT_LatentMultiTransformOnPixelSpaceNode(IO.ComfyNode):
+class TT_LatentMultiTransformOnPixelSpaceNode(io.ComfyNode):
     @classmethod
-    def define_schema(cls) -> IO.Schema:
-        return IO.Schema(
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
             node_id="TT_LatentMultiTransformOnPixelSpaceNode",
-            display_name="TT Latent MultiTransform On Pixel Space",
+            display_name="TT Latent MultiTransform (On Pixel Space)",
             category=CATEGORY,
             description="",
             inputs=[
-                IO.Vae.Input("vae"),
-                IO.Latent.Input("latent"),
-                IO.Mask.Input("mask", optional=True),
-                IO.Boolean.Input("scale_latent", default=True, label_on="Scale", label_off="Skip"),
-                IO.Combo.Input("scale_factor", options=SCALE_FACTORS, default="1x"),
-                IO.Combo.Input("scale_method", options=SCALE_METHODS, default="nearest-exact"),
-                IO.Boolean.Input("rotate_latent", default=True, label_on="Rotate", label_off="Skip"),
-                IO.Combo.Input("rotate_angle", options=ROTATE_ANGLES),
-                IO.Boolean.Input("flip_latent", default=True, label_on="Flip", label_off="Skip"),
-                IO.Combo.Input("flip_direction", options=["horizontal", "vertical"]),
+                io.Vae.Input("vae"),
+                io.Latent.Input("latent"),
+                io.Mask.Input("mask", optional=True),
+                io.Boolean.Input("scale_latent", default=True, label_on="Scale", label_off="Skip"),
+                io.Combo.Input("scale_factor", options=SCALE_FACTORS, default="1x"),
+                io.Combo.Input("scale_method", options=SCALE_METHODS, default="nearest-exact"),
+                io.Boolean.Input("rotate_latent", default=True, label_on="Rotate", label_off="Skip"),
+                io.Combo.Input("rotate_angle", options=ROTATE_ANGLES),
+                io.Boolean.Input("flip_latent", default=True, label_on="Flip", label_off="Skip"),
+                io.Combo.Input("flip_direction", options=["horizontal", "vertical"]),
             ],
             outputs=[
-                IO.Latent.Output("LATENT"),
+                io.Latent.Output("LATENT"),
             ]
         )
 
     @classmethod
-    def execute(cls, **kwargs) -> IO.NodeOutput:
+    def execute(cls, **kwargs) -> io.NodeOutput:
         latent = kwargs.get("latent").copy()
         vae = kwargs.get("vae")
         pixels = vae_decode(latent, vae)
@@ -270,7 +316,7 @@ class TT_LatentMultiTransformOnPixelSpaceNode(IO.ComfyNode):
         if mask is not None:
             latent = set_latent_mask(latent, mask)
 
-        return IO.NodeOutput(latent)
+        return io.NodeOutput(latent)
 
 
 # ==============================================================================
@@ -279,9 +325,10 @@ class TT_LatentMultiTransformOnPixelSpaceNode(IO.ComfyNode):
 
 class LatentNodesExtension(ComfyExtension):
     @override
-    async def get_node_list(self) -> list[type[IO.ComfyNode]]:
+    async def get_node_list(self) -> list[type[io.ComfyNode]]:
         return [
             TT_LatentFactoryNode,
+            TT_LatentFactoryByModelNode,
             TT_LatentMultiTransformNode,
             TT_LatentMultiTransformOnPixelSpaceNode,
         ]
@@ -297,6 +344,7 @@ async def comfy_entrypoint() -> LatentNodesExtension:
 
 __all__ = [
     "TT_LatentFactoryNode",
+    "TT_LatentFactoryByModelNode",
     "TT_LatentMultiTransformNode",
     "TT_LatentMultiTransformOnPixelSpaceNode",
 ]

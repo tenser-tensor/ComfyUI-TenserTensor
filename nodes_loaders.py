@@ -7,7 +7,6 @@
 
 import collections
 import inspect
-import logging
 import os
 from typing import override
 
@@ -41,9 +40,9 @@ def get_diffusion_models_files():
 
 
 def get_gguf_diffusion_models_files():
-    update_folder_names_and_paths("unet_gguf", ["diffusion_models", "unet"])
+    update_folder_names_and_paths("diffusion_models_gguf", "diffusion_models", {".gguf"})
 
-    return [f for f in folder_paths.get_filename_list("unet_gguf")]
+    return [f for f in folder_paths.get_filename_list("diffusion_models_gguf")]
 
 
 def get_text_encoder_files():
@@ -51,9 +50,9 @@ def get_text_encoder_files():
 
 
 def get_gguf_text_encoder_files():
-    update_folder_names_and_paths("clip_gguf", ["text_encoders", "clip"])
+    update_folder_names_and_paths("text_encoders_gguf", "text_encoders", {'.gguf', '.pt', '.pth', '.safetensors'})
 
-    return [x for x in folder_paths.get_filename_list("clip_gguf")]
+    return [x for x in folder_paths.get_filename_list("text_encoders_gguf")]
 
 
 def get_vae_files():
@@ -362,6 +361,11 @@ class TT_FluxModelsLoaderNode(io.ComfyNode):
 
 
 class TT_FluxModelsLoaderAdvancedNode(io.ComfyNode):
+    loaded_lora_1 = None
+    loaded_lora_2 = None
+    loaded_lora_3 = None
+    loaded_lora_4 = None
+
     @classmethod
     def define_schema(cls) -> io.Schema:
         return io.Schema(
@@ -405,15 +409,16 @@ class TT_FluxModelsLoaderAdvancedNode(io.ComfyNode):
         return io.NodeOutput(model, clip, vae)
 
 
-def update_folder_names_and_paths(key, targets=[]):
-    base = folder_paths.folder_names_and_paths.get(key, ([], {}))
-    base = base[0] if isinstance(base[0], (list, set, tuple)) else []
+def update_folder_names_and_paths(folder, base_folder=None, exts=None):
+    if folder in folder_paths.folder_names_and_paths:
+        return
 
-    target = next((x for x in targets if x in folder_paths.folder_names_and_paths), targets[0])
-    orig, _ = folder_paths.folder_names_and_paths.get(target, ([], {}))
-    folder_paths.folder_names_and_paths[key] = (orig or base, {".gguf"})
-    if base and base != orig:
-        logging.warning(f"Unknown file list already present on key {key}: {base}")
+    path = os.path.join(folder_paths.models_dir, folder)
+    os.makedirs(path, exist_ok=True)
+    paths = [path]
+    base_paths, base_exts = folder_paths.folder_names_and_paths.get(base_folder, ([], {})) if base_folder else ([], {})
+    _exts = exts if exts is not None else base_exts
+    folder_paths.folder_names_and_paths[folder] = (paths + base_paths, _exts)
 
 
 WeightBackup = collections.namedtuple('WeightBackup', ['weight', 'inplace_update'])
@@ -493,10 +498,31 @@ def load_clip_data(ckpt_paths):
     return clip_data
 
 
-def load_clip_patcher(clip_name, type="flux2"):
-    clip_path = folder_paths.get_full_path("clip_gguf", clip_name)
+def load_flux_clip_patcher(clip_name, type="flux2"):
+    clip_path = folder_paths.get_full_path("text_encoders_gguf", clip_name)
     clip_type = getattr(sd.CLIPType, type.upper(), sd.CLIPType.FLUX2)
     clip_data = load_clip_data([clip_path])
+
+    clip = sd.load_text_encoder_state_dicts(
+        clip_type=clip_type,
+        state_dicts=clip_data,
+        model_options={
+            "custom_operations": GGMLOps,
+            "initial_device": model_management.text_encoder_offload_device()
+        },
+        embedding_directory=folder_paths.get_folder_paths("embeddings"),
+    )
+    clip.patcher = GGUFModelPatcher.clone(clip.patcher)
+
+    return clip
+
+
+def load_sd3_clip_patcher(clip_l, clip_g, t5xxl, type="sd3"):
+    clip_l_path = folder_paths.get_full_path("text_encoders_gguf", clip_l)
+    clip_g_path = folder_paths.get_full_path("text_encoders_gguf", clip_g)
+    t5xxl_path = folder_paths.get_full_path("text_encoders_gguf", t5xxl)
+    clip_type = getattr(sd.CLIPType, type.upper(), sd.CLIPType.SD3)
+    clip_data = load_clip_data([clip_l_path, clip_g_path, t5xxl_path])
 
     clip = sd.load_text_encoder_state_dicts(
         clip_type=clip_type,
@@ -530,7 +556,7 @@ def load_gguf_pipeline(cls, **kwargs):
     ops.Linear.dequant_dtype = get_dtype(kwargs.get("dequant_dtype", None))
     ops.Linear.patch_dtype = get_dtype(kwargs.get("patch_dtype", None))
 
-    gguf_full_path = folder_paths.get_full_path("unet_gguf", kwargs.get("diffusion_model"))
+    gguf_full_path = folder_paths.get_full_path("diffusion_models_gguf", kwargs.get("diffusion_model"))
     state_dict, extra = gguf_sd_loader(gguf_full_path)
 
     args = {}
@@ -558,7 +584,12 @@ def load_gguf_pipeline(cls, **kwargs):
         }
         model = patch_flux_sampling(**args)
 
-    clip = load_clip_patcher(kwargs.get("clip"), kwargs.get("clip_type", "flux2"))
+    clip_name = kwargs.get("clip")
+    if clip_name:
+        clip = load_flux_clip_patcher(kwargs.get("clip"), kwargs.get("clip_type", "flux2"))
+    else:
+        clip_l, clip_g, t5xxl = kwargs.get("clip_l"), kwargs.get("clip_g"), kwargs.get("t5xxl")
+        clip = load_sd3_clip_patcher(clip_l, clip_g, t5xxl)
 
     if kwargs.get("apply_bypass_lora"):
         loras = [
@@ -583,12 +614,12 @@ def load_gguf_pipeline(cls, **kwargs):
     return model, clip, vae
 
 
-class TT_GgufModelsLoaderNode(io.ComfyNode):
+class TT_Flux2GgufModelsLoaderNode(io.ComfyNode):
     @classmethod
     def define_schema(cls) -> io.Schema:
         return io.Schema(
-            node_id="TT_GgufModelsLoaderNode",
-            display_name="TT GGUF Models Loader",
+            node_id="TT_Flux2GgufModelsLoaderNode",
+            display_name="TT FLUX2 GGUF Models Loader",
             category=CATEGORY,
             description="",
             inputs=[
@@ -611,12 +642,17 @@ class TT_GgufModelsLoaderNode(io.ComfyNode):
         return io.NodeOutput(model, clip, vae)
 
 
-class TT_GgufModelsLoaderAdvancedNode(io.ComfyNode):
+class TT_Flux2GgufModelsLoaderAdvancedNode(io.ComfyNode):
+    loaded_lora_1 = None
+    loaded_lora_2 = None
+    loaded_lora_3 = None
+    loaded_lora_4 = None
+
     @classmethod
     def define_schema(cls) -> io.Schema:
         return io.Schema(
-            node_id="TT_GgufModelsLoaderAdvancedNode",
-            display_name="TT GGUF Models Loader (Advanced)",
+            node_id="TT_Flux2GgufModelsLoaderAdvancedNode",
+            display_name="TT FLUX2 GGUF Models Loader (Advanced)",
             category=CATEGORY,
             description="",
             inputs=[
@@ -657,6 +693,84 @@ class TT_GgufModelsLoaderAdvancedNode(io.ComfyNode):
         return io.NodeOutput(model, clip, vae)
 
 
+class TT_Sd35GgufModelsLoaderNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_Sd35GgufModelsLoaderNode",
+            display_name="TT SD3.5 GGUF Models Loader",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Combo.Input("diffusion_model", options=get_gguf_diffusion_models_files()),
+                io.Combo.Input("clip_l", options=get_gguf_text_encoder_files()),
+                io.Combo.Input("clip_g", options=get_gguf_text_encoder_files()),
+                io.Combo.Input("t5xxl", options=get_gguf_text_encoder_files()),
+                io.Combo.Input("vae_name", options=get_vae_files()),
+            ],
+            outputs=[
+                io.Model.Output("MODEL"),
+                io.Clip.Output("CLIP"),
+                io.Vae.Output("VAE"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        kwargs["apply_bypass_lora"] = False
+        model, clip, vae = load_gguf_pipeline(cls, apply_loras=True, **kwargs)
+
+        return io.NodeOutput(model, clip, vae)
+
+
+class TT_Sd35GgufModelsLoaderAdvancedNode(io.ComfyNode):
+    loaded_lora_1 = None
+    loaded_lora_2 = None
+    loaded_lora_3 = None
+    loaded_lora_4 = None
+
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_Sd35GgufModelsLoaderAdvancedNode",
+            display_name="TT SD3.5 GGUF Models Loader (Advanced)",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Combo.Input("diffusion_model", options=get_gguf_diffusion_models_files()),
+                io.Combo.Input("dequant_dtype", options=list(DTYPES.keys()), default="bfloat16", advanced=True),
+                io.Combo.Input("patch_dtype", options=list(DTYPES.keys()), default="bfloat16", advanced=True),
+                io.Combo.Input("clip_l", options=get_gguf_text_encoder_files()),
+                io.Combo.Input("clip_g", options=get_gguf_text_encoder_files()),
+                io.Combo.Input("t5xxl", options=get_gguf_text_encoder_files()),
+                io.Combo.Input("clip_device", options=TORCH_DEVICES, default="default", advanced=True),
+                io.Combo.Input("lora_name_1", options=get_lora_files()),
+                io.Float.Input("strength_1", default=1.0, min=-10.0, max=10.0, step=0.1),
+                io.Combo.Input("lora_name_2", options=get_lora_files()),
+                io.Float.Input("strength_2", default=1.0, min=-10.0, max=10.0, step=0.1),
+                io.Combo.Input("lora_name_3", options=get_lora_files()),
+                io.Float.Input("strength_3", default=1.0, min=-10.0, max=10.0, step=0.1),
+                io.Combo.Input("lora_name_4", options=get_lora_files()),
+                io.Float.Input("strength_4", default=1.0, min=-10.0, max=10.0, step=0.1),
+                io.Combo.Input("vae_name", options=get_vae_files()),
+                io.Combo.Input("vae_device", options=TORCH_DEVICES, default="default", advanced=True),
+                io.Combo.Input("vae_dtype", options=list(DTYPES.keys()), advanced=True),
+            ],
+            outputs=[
+                io.Model.Output("MODEL"),
+                io.Clip.Output("CLIP"),
+                io.Vae.Output("VAE"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        kwargs["apply_bypass_lora"] = True
+        model, clip, vae = load_gguf_pipeline(cls, apply_loras=True, **kwargs)
+
+        return io.NodeOutput(model, clip, vae)
+
+
 # ==============================================================================
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
@@ -669,8 +783,10 @@ class LoaderNodesExtension(ComfyExtension):
             TT_SdxlModelsLoaderAdvancedNode,
             TT_FluxModelsLoaderNode,
             TT_FluxModelsLoaderAdvancedNode,
-            TT_GgufModelsLoaderNode,
-            TT_GgufModelsLoaderAdvancedNode,
+            TT_Flux2GgufModelsLoaderNode,
+            TT_Flux2GgufModelsLoaderAdvancedNode,
+            TT_Sd35GgufModelsLoaderNode,
+            # TT_Sd35GgufModelsLoaderAdvancedNode,
         ]
 
 
@@ -687,6 +803,8 @@ __all__ = [
     "TT_SdxlModelsLoaderAdvancedNode",
     "TT_FluxModelsLoaderNode",
     "TT_FluxModelsLoaderAdvancedNode",
-    "TT_GgufModelsLoaderNode",
-    "TT_GgufModelsLoaderAdvancedNode",
+    "TT_Flux2GgufModelsLoaderNode",
+    "TT_Flux2GgufModelsLoaderAdvancedNode",
+    "TT_Sd35GgufModelsLoaderNode",
+    # "TT_Sd35GgufModelsLoaderAdvancedNode",
 ]
