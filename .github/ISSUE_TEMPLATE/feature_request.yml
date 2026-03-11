@@ -1,0 +1,20 @@
+# .github/ISSUE_TEMPLATE/feature_request.yml
+name: Feature Request
+description: Suggest a new node or improvement
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What would you like to see added or changed?
+    validations:
+      required: true
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: What workflow or problem does this solve?
+    validations:
+      required: true
