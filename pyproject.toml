@@ -1,7 +1,7 @@
 # pyproject.toml
 [project]
-name = """ComfyUI-TenserTensor"
-description = "A collection of custom nodes for ComfyUI that streamline common workflows.
+name = "ComfyUI-TenserTensor"
+description = """A collection of custom nodes for ComfyUI that streamline common workflows.
 
 — All-in-one model loaders: checkpoint, LoRA, CLIP, VAE
 — GGUF quantized model support: FLUX, FLUX2, SDXL, SD3.5
