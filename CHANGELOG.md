@@ -1,3 +1,21 @@
+## [1.7.8] - 2026-03-13
+
+### Changed
+
+All remaining V1 nodes migrated to ComfyUI API V3 — Sampling, VAE, Postproduction, Workflow categories fully migrated
+All legacy V1 nodes moved to `Deprecated/` category — will be removed in a future major release
+
+## Changes
+
+- Migrated 4 nodes in `TenserTensor/Sampling` to API V3 with docs
+- Migrated 4 nodes in `TenserTensor/VAE` to API V3 with docs
+- Migrated all nodes in `TenserTensor/Postproduction` to API V3 with docs
+- Migrated remaining nodes in `TenserTensor/Workflow` to API V3 with docs
+- All legacy V1 nodes moved to `Deprecated/` category
+- Updated README migration notice
+
+All node categories are now fully on API V3.
+
 ## [1.6.20] - 2026-03-11
 
 ### Added

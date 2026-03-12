@@ -315,8 +315,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_FluxModelsLoaderAdvancedNode": "TT FLUX Models Loader (Advanced)",
     "TT_Flux2GgufModelsLoaderNode": "TT FLUX2 GGUF Models Loader",
     "TT_Flux2GgufModelsLoaderAdvancedNode": "TT FLUX2 GGUF Models Loader (Advanced)",
-    "TT_Sd35GgufWorkflowSettingsNode": "TT SD3.5 GGUF Models Loader",
-    "TT_Sd35GgufWorkflowSettingsAdvancedNode": "TT SD3.5 GGUF Models Loader (Advanced)",
+    "TT_Sd35GgufModelsLoaderNode": "TT SD3.5 GGUF Models Loader",
+    "TT_Sd35GgufModelsLoaderAdvancedNode": "TT SD3.5 GGUF Models Loader (Advanced)",
     # Postproduction
     "TT_ApplyLut": "TT Apply LUT",
     "TT_AddFilmGrain": "TT Add Film Grain",
