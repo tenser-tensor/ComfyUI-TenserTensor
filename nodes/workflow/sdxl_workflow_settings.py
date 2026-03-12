@@ -35,7 +35,7 @@ class TT_SdxlWorkflowSettings:
     )
 
     FUNCTION = "get_settings"
-    CATEGORY = "TenserTensor/Workflow/SDXL"
+    CATEGORY = "TenserTensor/Deprecated/Workflow/SDXL"
 
     def get_settings(self, seed, steps, cfg, sampler_name, scheduler):
         workflow_config = {

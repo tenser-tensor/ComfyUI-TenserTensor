@@ -246,6 +246,10 @@ NODE_CLASS_MAPPINGS = {
     "TT_Flux2WorkflowSettings": TT_Flux2WorkflowSettings,
     "TT_Flux2WorkflowSettingsAdvanced": TT_Flux2WorkflowSettingsAdvanced,
     # Workflow V3 Nodes
+    "TT_SdxlWorkflowSettingsNode": TT_Flux2WorkflowSettingsNode,
+    "TT_SdxlWorkflowSettingsAdvancedNode": TT_Flux2WorkflowSettingsNode,
+    "TT_FluxWorkflowSettingsNode": TT_Flux2WorkflowSettingsNode,
+    "TT_FluxWorkflowSettingsAdvancedNode": TT_Flux2WorkflowSettingsNode,
     "TT_Flux2WorkflowSettingsNode": TT_Flux2WorkflowSettingsNode,
     "TT_Flux2WorkflowSettingsAdvancedNode": TT_Flux2WorkflowSettingsAdvancedNode,
     "TT_Sd35WorkflowSettingsNode": TT_Sd35WorkflowSettingsNode,
@@ -374,6 +378,10 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_Flux2WorkflowSettings": "TT FLUX2 Workflow Settings (Deprecated)",
     "TT_Flux2WorkflowSettingsAdvanced": "TT FLUX2 Workflow Settings (Deprecated/Advanced)",
     # Workflow V3 Nodes
+    "TT_SdxlWorkflowSettingsNode": "TT SDXL Workflow Settings",
+    "TT_SdxlWorkflowSettingsAdvancedNode": "TT SDXL Workflow Settings (Advanced)",
+    "TT_FluxWorkflowSettingsNode": "TT FLUX Workflow Settings",
+    "TT_FluxWorkflowSettingsAdvancedNode": "TT FLUX Workflow Settings (Advanced)",
     "TT_Flux2WorkflowSettingsNode": "TT FLUX2 Workflow Settings",
     "TT_Flux2WorkflowSettingsAdvancedNode": "TT FLUX2 Workflow Settings (Advanced)",
     "TT_Sd35WorkflowSettingsNode": "TT SD3.5 Workflow Settings",

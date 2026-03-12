@@ -80,6 +80,186 @@ class WorkflowSettings:
             super().__init__(**kwargs)
 
 
+class TT_SdxlWorkflowSettingsNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_SdxlWorkflowSettingsNode",
+            display_name="TT SDXL Workflow Settings",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
+                io.Int.Input("steps", default=30, min=1, max=10_000),
+                io.Float.Input("cfg", default=5.0, min=0.0, max=100.0, step=0.1),
+                io.Combo.Input("sampler_name", options=KSampler.SAMPLERS),
+                io.Combo.Input("scheduler", options=KSampler.SCHEDULERS),
+                io.Float.Input("ascore_positive", default=9.0, min=0.0, max=100.0, step=0.1),
+                io.Float.Input("ascore_negative", default=6.0, min=0.0, max=100.0, step=0.1),
+                io.Int.Input("width", default=1024, min=16, max=MAX_RESOLUTION, step=8),
+                io.Int.Input("height", default=1024, min=16, max=MAX_RESOLUTION, step=8),
+                io.Int.Input("target_width", default=1024, min=16, max=MAX_RESOLUTION, step=8, advanced=True),
+                io.Int.Input("target_height", default=1024, min=16, max=MAX_RESOLUTION, step=8, advanced=True),
+            ],
+            outputs=[
+                WorkflowSettings.Output("WORKFLOW_CONFIG"),
+                io.Int.Output("SEED"),
+                io.Int.Output("STEPS"),
+                io.Float.Output("CFG"),
+                io.String.Output("SAMPLER_NAME"),
+                io.String.Output("SCHEDULER"),
+                io.Float.Output("ASCORE_POSITIVE"),
+                io.Float.Output("ASCORE_NEGATIVE"),
+                io.Int.Output("WIDTH"),
+                io.Int.Output("HEIGHT"),
+                io.Int.Output("TARGET_WIDTH"),
+                io.Int.Output("TARGET_HEIGHT"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        workflow_config = TTWorkflowSettings.create(**kwargs)
+        args = {"workflow_config": workflow_config, **kwargs}
+
+        return io.NodeOutput(*args.values())
+
+
+class TT_SdxlWorkflowSettingsAdvancedNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_SdxlWorkflowSettingsAdvancedNode",
+            display_name="TT SDXL Workflow Settings (Advanced)",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
+                io.Int.Input("steps", default=30, min=1, max=10_000),
+                io.Float.Input("cfg", default=5.0, min=0.0, max=100.0, step=0.1),
+                io.Combo.Input("sampler_name", options=KSampler.SAMPLERS),
+                io.Combo.Input("scheduler", options=KSampler.SCHEDULERS),
+                io.Float.Input("ascore_positive", default=9.0, min=0.0, max=100.0, step=0.1),
+                io.Float.Input("ascore_negative", default=6.0, min=0.0, max=100.0, step=0.1),
+                io.String.Input("clip_l_positive", multiline=True, dynamic_prompts=True),
+                io.String.Input("clip_g_positive", multiline=True, dynamic_prompts=True),
+                io.String.Input("clip_l_negative", multiline=True, dynamic_prompts=True),
+                io.String.Input("clip_g_negative", multiline=True, dynamic_prompts=True),
+                io.String.Input("lora_triggers", multiline=True, dynamic_prompts=True, advanced=True),
+                io.Int.Input("width", default=1024, min=16, max=MAX_RESOLUTION, step=8),
+                io.Int.Input("height", default=1024, min=16, max=MAX_RESOLUTION, step=8),
+                io.Int.Input("target_width", default=1024, min=16, max=MAX_RESOLUTION, step=8, advanced=True),
+                io.Int.Input("target_height", default=1024, min=16, max=MAX_RESOLUTION, step=8, advanced=True),
+            ],
+            outputs=[
+                WorkflowSettings.Output("WORKFLOW_CONFIG"),
+                io.Int.Output("SEED"),
+                io.Int.Output("STEPS"),
+                io.Float.Output("CFG"),
+                io.String.Output("SAMPLER_NAME"),
+                io.String.Output("SCHEDULER"),
+                io.Float.Output("ASCORE_POSITIVE"),
+                io.Float.Output("ASCORE_NEGATIVE"),
+                io.String.Output("CLIP_L_POSITIVE"),
+                io.String.Output("CLIP_G_POSITIVE"),
+                io.String.Output("CLIP_L_NEGATIVE"),
+                io.String.Output("CLIP_G_NEGATIVE"),
+                io.String.Output("LORA_TRIGGERS"),
+                io.Int.Output("WIDTH"),
+                io.Int.Output("HEIGHT"),
+                io.Int.Output("TARGET_WIDTH"),
+                io.Int.Output("TARGET_HEIGHT"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        workflow_config = TTWorkflowSettings.create(**kwargs)
+        args = {"workflow_config": workflow_config, **kwargs}
+
+        return io.NodeOutput(*args.values())
+
+
+class TT_FluxWorkflowSettingsNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_FluxWorkflowSettingsNode",
+            display_name="TT FLUX Workflow Settings",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
+                io.Int.Input("steps", default=30, min=1, max=10_000),
+                io.Float.Input("cfg", default=5.0, min=0.0, max=100.0, step=0.1),
+                io.Combo.Input("sampler_name", options=KSampler.SAMPLERS),
+                io.Combo.Input("scheduler", options=KSampler.SCHEDULERS),
+                io.Float.Input("guidance", default=3.0, min=1.0, max=10.0, step=0.1),
+            ],
+            outputs=[
+                WorkflowSettings.Output("WORKFLOW_CONFIG"),
+                io.Int.Output("SEED"),
+                io.Int.Output("STEPS"),
+                io.Float.Output("CFG"),
+                io.String.Output("SAMPLER_NAME"),
+                io.String.Output("SCHEDULER"),
+                io.Float.Output("GUIDANCE"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        workflow_config = TTWorkflowSettings.create(**kwargs)
+        args = {"workflow_config": workflow_config, **kwargs}
+
+        return io.NodeOutput(*args.values())
+
+
+class TT_FluxWorkflowSettingsAdvancedNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_FluxWorkflowSettingsAdvancedNode",
+            display_name="TT FLUX Workflow Settings (Advanced)",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
+                io.Int.Input("steps", default=30, min=1, max=10_000),
+                io.Float.Input("cfg", default=5.0, min=0.0, max=100.0, step=0.1),
+                io.Combo.Input("sampler_name", options=KSampler.SAMPLERS),
+                io.Combo.Input("scheduler", options=KSampler.SCHEDULERS),
+                io.String.Input("clip_l_positive", multiline=True, dynamic_prompts=True),
+                io.String.Input("t5xxl_positive", multiline=True, dynamic_prompts=True),
+                io.String.Input("clip_l_negative", multiline=True, dynamic_prompts=True),
+                io.String.Input("t5xxl_negative", multiline=True, dynamic_prompts=True),
+                io.String.Input("lora_triggers", multiline=True, dynamic_prompts=True, advanced=True),
+                io.Float.Input("guidance", default=3.0, min=1.0, max=10.0, step=0.1),
+            ],
+            outputs=[
+                WorkflowSettings.Output("WORKFLOW_CONFIG"),
+                io.Int.Output("SEED"),
+                io.Int.Output("STEPS"),
+                io.Float.Output("CFG"),
+                io.String.Output("SAMPLER_NAME"),
+                io.String.Output("SCHEDULER"),
+                io.String.Output("CLIP_L_POSITIVE"),
+                io.String.Output("T5XXL_POSITIVE"),
+                io.String.Output("CLIP_L_NEGATIVE"),
+                io.String.Output("T5XXL_NEGATIVE"),
+                io.String.Output("LORA_TRIGGERS"),
+                io.Float.Output("GUIDANCE"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        workflow_config = TTWorkflowSettings.create(**kwargs)
+        args = {"workflow_config": workflow_config, **kwargs}
+
+        return io.NodeOutput(*args.values())
+
+
 def compute_empirical_mu(image_seq_len, num_steps):
     slope_high_res, intercept_high_res = 8.73809524e-05, 1.89833333
     slope_low_res, intercept_low_res = 0.00016927, 0.45666666
@@ -119,12 +299,6 @@ def build_sampler_sigmas(sampler_name, steps, width, height):
 
 
 class TT_Flux2WorkflowSettingsNode(io.ComfyNode):
-    """
-    Use this node as the single source of truth for FLUX2 workflow parameters. The sampler and sigma schedule
-    are computed automatically from the selected sampler, step count, and resolution. Connect `WORKFLOW_CONFIG`
-    to context nodes, or use individual outputs to connect to standard ComfyUI nodes.
-    """
-
     @classmethod
     def define_schema(cls) -> io.Schema:
         return io.Schema(
@@ -142,15 +316,15 @@ class TT_Flux2WorkflowSettingsNode(io.ComfyNode):
                 io.Combo.Input("sampler_name", options=KSampler.SAMPLERS)
             ],
             outputs=[
-                WorkflowSettings.Output(display_name="WORKFLOW_CONFIG"),
-                io.Sampler.Output(display_name="SAMPLER"),
-                io.Sigmas.Output(display_name="SIGMAS"),
-                io.Int.Output(display_name="SEED"),
-                io.Int.Output(display_name="STEPS"),
-                io.Float.Output(display_name="CFG"),
-                io.Float.Output(display_name="GUIDANCE"),
-                io.Int.Output(display_name="WIDTH"),
-                io.Int.Output(display_name="HEIGHT"),
+                WorkflowSettings.Output("WORKFLOW_CONFIG"),
+                io.Sampler.Output("SAMPLER"),
+                io.Sigmas.Output("SIGMAS"),
+                io.Int.Output("SEED"),
+                io.Int.Output("STEPS"),
+                io.Float.Output("CFG"),
+                io.Float.Output("GUIDANCE"),
+                io.Int.Output("WIDTH"),
+                io.Int.Output("HEIGHT"),
             ]
         )
 
@@ -180,13 +354,6 @@ class TT_Flux2WorkflowSettingsNode(io.ComfyNode):
 
 
 class TT_Flux2WorkflowSettingsAdvancedNode(io.ComfyNode):
-    """
-    Advanced version of TT FLUX2 Workflow Settings with `prompt` and `lora_triggers` fields included directly in the
-    node. Both are stored in the `WORKFLOW_CONFIG` output alongside all other sampling parameters, making this node
-    sufficient as the sole configuration source for full context-driven FLUX2 pipelines. Individual outputs remain
-    available for connecting to standard ComfyUI nodes.
-    """
-
     @classmethod
     def define_schema(cls) -> io.Schema:
         return io.Schema(
@@ -206,17 +373,17 @@ class TT_Flux2WorkflowSettingsAdvancedNode(io.ComfyNode):
                 io.Float.Input("guidance", default=3.0, min=1.0, max=10.0, step=0.1),
             ],
             outputs=[
-                WorkflowSettings.Output(display_name="WORKFLOW_CONFIG"),
-                io.Sampler.Output(display_name="SAMPLER"),
-                io.Sigmas.Output(display_name="SIGMAS"),
-                io.Int.Output(display_name="SEED"),
-                io.Int.Output(display_name="STEPS"),
-                io.Float.Output(display_name="CFG"),
-                io.Int.Output(display_name="WIDTH"),
-                io.Int.Output(display_name="HEIGHT"),
-                io.String.Output(display_name="PROMPT"),
-                io.String.Output(display_name="LORA_TRIGGERS"),
-                io.Float.Output(display_name="GUIDANCE"),
+                WorkflowSettings.Output("WORKFLOW_CONFIG"),
+                io.Sampler.Output("SAMPLER"),
+                io.Sigmas.Output("SIGMAS"),
+                io.Int.Output("SEED"),
+                io.Int.Output("STEPS"),
+                io.Float.Output("CFG"),
+                io.Int.Output("WIDTH"),
+                io.Int.Output("HEIGHT"),
+                io.String.Output("PROMPT"),
+                io.String.Output("LORA_TRIGGERS"),
+                io.Float.Output("GUIDANCE"),
             ]
         )
 
@@ -276,16 +443,16 @@ class TT_Sd35WorkflowSettingsNode(io.ComfyNode):
                 io.Int.Input("target_height", default=1024, min=16, max=MAX_RESOLUTION, step=8, advanced=True),
             ],
             outputs=[
-                WorkflowSettings.Output(display_name="WORKFLOW_CONFIG"),
-                io.Sampler.Output(display_name="SAMPLER"),
-                io.Sigmas.Output(display_name="SIGMAS"),
-                io.Int.Output(display_name="SEED"),
-                io.Int.Output(display_name="STEPS"),
-                io.Float.Output(display_name="CFG"),
-                io.Int.Output(display_name="WIDTH"),
-                io.Int.Output(display_name="HEIGHT"),
-                io.Int.Output(display_name="TARGET_WIDTH"),
-                io.Int.Output(display_name="TARGET_HEIGHT"),
+                WorkflowSettings.Output("WORKFLOW_CONFIG"),
+                io.Sampler.Output("SAMPLER"),
+                io.Sigmas.Output("SIGMAS"),
+                io.Int.Output("SEED"),
+                io.Int.Output("STEPS"),
+                io.Float.Output("CFG"),
+                io.Int.Output("WIDTH"),
+                io.Int.Output("HEIGHT"),
+                io.Int.Output("TARGET_WIDTH"),
+                io.Int.Output("TARGET_HEIGHT"),
             ]
         )
 
@@ -339,23 +506,23 @@ class TT_Sd35WorkflowSettingsAdvancedNode(io.ComfyNode):
                 io.Int.Input("target_height", default=1024, min=16, max=MAX_RESOLUTION, step=8, advanced=True),
             ],
             outputs=[
-                WorkflowSettings.Output(display_name="WORKFLOW_CONFIG"),
-                io.Sampler.Output(display_name="SAMPLER"),
-                io.Sigmas.Output(display_name="SIGMAS"),
-                io.Int.Output(display_name="SEED"),
-                io.Int.Output(display_name="STEPS"),
-                io.Float.Output(display_name="CFG"),
-                io.Int.Output(display_name="WIDTH"),
-                io.Int.Output(display_name="HEIGHT"),
-                io.Int.Output(display_name="TARGET_WIDTH"),
-                io.Int.Output(display_name="TARGET_HEIGHT"),
-                io.String.Output(display_name="CLIP_L_POSITIVE"),
-                io.String.Output(display_name="CLIP_G_POSITIVE"),
-                io.String.Output(display_name="T5XXL_POSITIVE"),
-                io.String.Output(display_name="CLIP_L_NEGATIVE"),
-                io.String.Output(display_name="CLIP_G_NEGATIVE"),
-                io.String.Output(display_name="T5XXL_NEGATIVE"),
-                io.String.Output(display_name="LORA_TRIGGERS"),
+                WorkflowSettings.Output("WORKFLOW_CONFIG"),
+                io.Sampler.Output("SAMPLER"),
+                io.Sigmas.Output("SIGMAS"),
+                io.Int.Output("SEED"),
+                io.Int.Output("STEPS"),
+                io.Float.Output("CFG"),
+                io.Int.Output("WIDTH"),
+                io.Int.Output("HEIGHT"),
+                io.Int.Output("TARGET_WIDTH"),
+                io.Int.Output("TARGET_HEIGHT"),
+                io.String.Output("CLIP_L_POSITIVE"),
+                io.String.Output("CLIP_G_POSITIVE"),
+                io.String.Output("T5XXL_POSITIVE"),
+                io.String.Output("CLIP_L_NEGATIVE"),
+                io.String.Output("CLIP_G_NEGATIVE"),
+                io.String.Output("T5XXL_NEGATIVE"),
+                io.String.Output("LORA_TRIGGERS"),
             ]
         )
 
@@ -397,6 +564,10 @@ class WorkflowNodesExtension(ComfyExtension):
     @override
     async def get_node_list(self) -> list[type[io.ComfyNode]]:
         return [
+            TT_SdxlWorkflowSettingsNode,
+            TT_SdxlWorkflowSettingsAdvancedNode,
+            TT_FluxWorkflowSettingsNode,
+            TT_FluxWorkflowSettingsAdvancedNode,
             TT_Flux2WorkflowSettingsNode,
             TT_Flux2WorkflowSettingsAdvancedNode,
             TT_Sd35WorkflowSettingsNode,
@@ -413,6 +584,10 @@ async def comfy_entrypoint() -> WorkflowNodesExtension:
 # ==============================================================================
 
 __all__ = [
+    "TT_SdxlWorkflowSettingsNode",
+    "TT_SdxlWorkflowSettingsAdvancedNode",
+    "TT_FluxWorkflowSettingsNode",
+    "TT_FluxWorkflowSettingsAdvancedNode",
     "TT_Flux2WorkflowSettingsNode",
     "TT_Flux2WorkflowSettingsAdvancedNode",
     "TT_Sd35WorkflowSettingsNode",
