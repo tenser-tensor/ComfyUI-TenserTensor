@@ -25,7 +25,7 @@ class TT_KSampler():
     RETURN_TYPES = ("LATENT",)
     RETURN_NAMES = ("SAMPLES",)
     FUNCTION = "execute_sampling"
-    CATEGORY = "TenserTensor/Sampling"
+    CATEGORY = "TenserTensor/Deprecated/Sampling"
 
     def execute_sampling(self, **kwargs):
         return (sample_latents(**kwargs),)

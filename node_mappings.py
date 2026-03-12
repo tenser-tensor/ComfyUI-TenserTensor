@@ -183,7 +183,7 @@ NODE_CLASS_MAPPINGS = {
     "TT_GgufModelsLoaderNode": TT_Flux2GgufModelsLoaderNode,
     "TT_GgufModelsLoaderAdvancedNode": TT_Flux2GgufModelsLoaderAdvancedNode,
     "TT_Sd35GgufModelsLoaderNode": TT_Sd35GgufModelsLoaderNode,
-    # "TT_Sd35GgufModelsLoaderAdvancedNode": TT_Sd35GgufModelsLoaderAdvancedNode,
+    "TT_Sd35GgufModelsLoaderAdvancedNode": TT_Sd35GgufModelsLoaderAdvancedNode,
     # Postproduction
     "TT_ApplyLut": TT_ApplyLut,
     "TT_AddFilmGrain": TT_AddFilmGrain,
@@ -198,9 +198,12 @@ NODE_CLASS_MAPPINGS = {
     "TT_KSamplerTwoStage": TT_KSamplerTwoStage,
     "TT_KSamplerGuided": TT_KSamplerGuided,
     # Samplers V3 Nodes
+    "TT_KSamplerNode": TT_KSamplerNode,
+    "TT_KSamplerAdvancedNode": TT_KSamplerAdvancedNode,
+    "TT_KSamplerContextNode": TT_KSamplerContextNode,
+    "TT_KSamplerTwoStageNode": TT_KSamplerTwoStageNode,
     "TT_GuidedKSamplerNode": TT_GuidedKSamplerNode,
     "TT_GuidedUpscaleKSamplerNode": TT_GuidedUpscaleKSamplerNode,
-    "TT_GuidedKSamplerWithPreviewNode": TT_GuidedKSamplerWithPreviewNode,
     # Text Encoder
     "TT_ClipTextEncodeFlux": TT_ClipTextEncodeFlux,
     "TT_ClipTextEncodeFluxContext": TT_ClipTextEncodeFluxContext,
@@ -296,7 +299,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_GgufModelsLoaderNode": "TT GGUF Models Loader",
     "TT_GgufModelsLoaderAdvancedNode": "TT GGUF Models Loader (Advanced)",
     "TT_Sd35GgufModelsLoaderNode": "TT SD3.5 GGUF Models Loader",
-    # "TT_Sd35ModelsLoaderAdvancedNode": "TT SD3.5 GGUF Models Loader (Advanced)",
+    "TT_Sd35ModelsLoaderAdvancedNode": "TT SD3.5 GGUF Models Loader (Advanced)",
     # Postproduction
     "TT_ApplyLut": "TT Apply LUT",
     "TT_AddFilmGrain": "TT Add Film Grain",
@@ -311,9 +314,12 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_KSamplerTwoStage": "TT KSampler (Two Stages)",
     "TT_KSamplerGuided": "TT KSampler (Guided)",
     # Samplers V3 Nodes
+    "TT_KSamplerNode": "TT KSampler",
+    "TT_KSamplerAdvancedNode": "TT KSampler (Advanced)",
+    "TT_KSamplerContextNode": "TT KSampler (Context)",
+    "TT_KSamplerTwoStageNode": "TT KSampler (Two Stage)",
     "TT_GuidedKSamplerNode": "TT Guided KSampler",
     "TT_GuidedUpscaleKSamplerNode": "TT Guided Upscale KSampler",
-    "TT_GuidedKSamplerWithPreviewNode": "TT Guided KSampler (With Preview)",
     # Text Encoder
     "TT_ClipTextEncodeFlux": "TT CLIP Text Encode FLUX",
     "TT_ClipTextEncodeFluxContext": "TT CLIP Text Encode FLUX (Context)",

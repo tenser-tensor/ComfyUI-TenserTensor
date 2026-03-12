@@ -2,13 +2,256 @@
 
 from typing import override
 
+import torch
+
 import latent_preview
-from comfy import sample, model_management
+from comfy import sample, model_management, samplers
 from comfy_api.latest import ComfyExtension, io
+from .nodes_context import Context
 from .nodes_latent import SCALE_FACTORS, SCALE_METHODS, scale_latent
 from .nodes_text_encoder import SingleCondCFGGuider
 
 CATEGORY = "TenserTensor/Sampling"
+
+
+def do_sample(**kwargs):
+    model = kwargs.get("model", None)
+    if model is None:
+        raise ValueError("Model is required for sampling")
+
+    latent = kwargs.get("latent", None)
+    if latent is None:
+        raise ValueError("Latent image is required for sampling")
+
+    latent_dict = latent.copy()
+    samples, add_noise, seed, steps, device = (
+        latent_dict["samples"],
+        kwargs.get("add_noise", True),
+        kwargs.get("seed", 0),
+        kwargs.get("steps", 0),
+        kwargs.get("device", "cpu")
+    )
+    latent_tensor = sample.fix_empty_latent_channels(model, samples, latent.get("downscale_ratio_spacial", None))
+
+    if add_noise:
+        batch_idx = latent.get("batch_index", None)
+        noise = sample.prepare_noise(samples, seed, batch_idx)
+    else:
+        noise = torch.zeros(samples.size(), dtype=samples.dtype, layout=samples.layout, device="cpu")
+
+    interim_buffer = {}
+    if kwargs.get("preview_latent"):
+        latent_preview.set_preview_method("latent2rgb")
+        callback = latent_preview.prepare_callback(model, steps - 1, interim_buffer)
+    else:
+        callback = None
+
+    args = {
+        "model": model,
+        "noise": noise,
+        "steps": steps,
+        "cfg": kwargs.get("cfg"),
+        "sampler_name": kwargs.get("sampler_name"),
+        "scheduler": kwargs.get("scheduler"),
+        "positive": kwargs.get("positive"),
+        "negative": kwargs.get("negative"),
+        "latent_image": latent_tensor,
+        "denoise": kwargs.get("denoise", 1.0),
+        "disable_noise": not add_noise,
+        "start_step": kwargs.get("start_step"),
+        "last_step": kwargs.get("last_step"),
+        "force_full_denoise": kwargs.get("full_denoise", True),
+        "noise_mask": latent.get("noise_mask"),
+        "callback": callback,
+        "seed": seed,
+    }
+
+    samples = sample.sample(**args)
+    sampled_latent = latent_dict.copy()
+    sampled_latent.pop("downscale_ratio_spacial", None)
+    sampled_latent["samples"] = samples
+
+    return sampled_latent
+
+
+class TT_KSamplerNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_KSamplerNode",
+            display_name="TT KSampler",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Model.Input("model"),
+                io.Conditioning.Input("positive"),
+                io.Conditioning.Input("negative"),
+                io.Latent.Input("latent"),
+                io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
+                io.Int.Input("steps", default=30, min=1, max=10_000),
+                io.Float.Input("cfg", default=3.0, min=0.0, max=100.0, step=0.1),
+                io.Combo.Input("sampler_name", options=samplers.KSampler.SAMPLERS),
+                io.Combo.Input("scheduler", options=samplers.KSampler.SCHEDULERS),
+                io.Boolean.Input("preview_latent", default=False, label_on="Show Preview", label_off="Only Sample"),
+            ],
+            outputs=[
+                io.Latent.Output("LATENT"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        latent = do_sample(**kwargs)
+
+        return io.NodeOutput(latent)
+
+
+class TT_KSamplerAdvancedNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_KSamplerAdvancedNode",
+            display_name="TT KSampler (Advanced)",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Model.Input("model"),
+                io.Conditioning.Input("positive"),
+                io.Conditioning.Input("negative"),
+                io.Latent.Input("latent"),
+                io.Boolean.Input("add_noise", default=False, label_on="Random Noise", label_off="Zero Noise"),
+                io.Boolean.Input("full_denoise", default=False, label_on="Complete", label_off="Partial"),
+                io.Float.Input("denoise", default=1.0, min=0.0, max=1.0, step=0.01),
+                io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
+                io.Int.Input("steps", default=30, min=1, max=10_000),
+                io.Float.Input("cfg", default=3.0, min=0.0, max=100.0, step=0.1),
+                io.Int.Input("start_step", default=0, min=0, max=10_000),
+                io.Int.Input("last_step", default=10_000, min=0, max=10_000),
+                io.Combo.Input("sampler_name", options=samplers.KSampler.SAMPLERS),
+                io.Combo.Input("scheduler", options=samplers.KSampler.SCHEDULERS),
+                io.Boolean.Input("preview_latent", default=False, label_on="Show Preview", label_off="Only Sample"),
+            ],
+            outputs=[
+                io.Latent.Output("LATENT"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        latent = do_sample(**kwargs)
+
+        return io.NodeOutput(latent)
+
+
+class TT_KSamplerContextNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_KSamplerContextNode",
+            display_name="TT KSampler (Context)",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                Context.Input("context"),
+                io.Boolean.Input("preview_latent", default=False, label_on="Show Preview", label_off="Only Sample"),
+            ],
+            outputs=[
+                Context.Output("CONTEXT"),
+                io.Latent.Output("LATENT"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, context) -> io.NodeOutput:
+        model = context.get("model")
+        if model is None:
+            raise ValueError("Model is required for sampling")
+
+        latent = context.get("latent")
+        if latent is None:
+            raise ValueError("Latent image is required for sampling")
+
+        config = context.get("workflow_config")
+        if config is None:
+            raise ValueError("Workflow Config is required for sampling")
+
+        args = {
+            "model": model,
+            "positive": context.get_attr("positive"),
+            "negative": context.get_attr("negative"),
+            "latent": latent,
+            "seed": config.get_attr("seed"),
+            "steps": config.get_attr("steps"),
+            "cfg": config.get_attr("cfg"),
+            "sampler_name": config.get_attr("sampler_name"),
+            "scheduler": config.get_attr("scheduler"),
+        }
+        latent = do_sample(**args)
+        context.set_attr("latent", latent)
+
+        return io.NodeOutput(context, latent)
+
+
+class TT_KSamplerTwoStageNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_KSamplerTwoStageNode",
+            display_name="TT KSampler (Two Stage)",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Model.Input("model"),
+                io.Conditioning.Input("positive"),
+                io.Conditioning.Input("negative"),
+                io.Latent.Input("latent"),
+                io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
+                io.Float.Input("cfg", default=3.0, min=0.0, max=100.0, step=0.1),
+                io.Int.Input("draft_steps", default=25, min=1, max=10_000),
+                io.Int.Input("refiner_steps", default=25, min=1, max=10_000),
+                io.Combo.Input("draft_sampler_name", options=samplers.KSampler.SAMPLERS),
+                io.Combo.Input("draft_scheduler", options=samplers.KSampler.SCHEDULERS),
+                io.Combo.Input("refiner_sampler_name", options=samplers.KSampler.SAMPLERS),
+                io.Combo.Input("refiner_scheduler", options=samplers.KSampler.SCHEDULERS),
+                io.Float.Input("draft_denoise", default=1.0, min=0.0, max=1.0, step=0.01),
+                io.Float.Input("refiner_denoise", default=1.0, min=0.0, max=1.0, step=0.01),
+                io.Boolean.Input("preview_latent", default=False, label_on="Show Preview", label_off="Only Sample"),
+            ],
+            outputs=[
+                io.Latent.Output("LATENT"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        draft_steps = kwargs["draft_steps"]
+        refiner_steps = kwargs["refiner_steps"]
+
+        args = kwargs.copy()
+        args.update({
+            "steps": draft_steps,
+            "start_step": 0,
+            "add_noise": True,
+            "sampler_name": kwargs["draft_sampler_name"],
+            "scheduler": kwargs["draft_scheduler"],
+            "full_denoise": False,
+            "denoise": kwargs["draft_denoise"],
+        })
+        latent = do_sample(**args)
+
+        args.update({
+            "latent": latent,
+            "steps": draft_steps + refiner_steps,
+            "start_step": draft_steps,
+            "add_noise": True,
+            "sampler_name": kwargs["refiner_sampler_name"],
+            "scheduler": kwargs["refiner_scheduler"],
+            "full_denoise": True,
+            "denoise": kwargs["refiner_denoise"],
+        })
+        latent = do_sample(**args)
+
+        return io.NodeOutput(latent)
 
 
 def execute_guided_sampling(**kwargs):
@@ -73,6 +316,7 @@ class TT_GuidedKSamplerNode(io.ComfyNode):
                 io.Sigmas.Input("sigmas"),
                 io.Sampler.Input("sampler"),
                 io.Noise.Input("random_noise"),
+                io.Boolean.Input("preview_latent", default=False, label_on="Show Preview", label_off="Only Sample"),
             ],
             outputs=[
                 io.Latent.Output("SAMPLES")
@@ -103,6 +347,7 @@ class TT_GuidedUpscaleKSamplerNode(io.ComfyNode):
                 io.Boolean.Input("scale_latent", default=False, label_on="Scale", label_off="Skip"),
                 io.Combo.Input("scale_factor", options=SCALE_FACTORS, default="1x", advanced=True),
                 io.Combo.Input("scale_method", options=SCALE_METHODS, default="bicubic", advanced=True),
+                io.Boolean.Input("preview_latent", default=False, label_on="Show Preview", label_off="Only Sample"),
             ],
             outputs=[
                 io.Latent.Output("SAMPLES")
@@ -119,34 +364,6 @@ class TT_GuidedUpscaleKSamplerNode(io.ComfyNode):
         return io.NodeOutput(samples)
 
 
-class TT_GuidedKSamplerWithPreviewNode(io.ComfyNode):
-    @classmethod
-    def define_schema(cls) -> io.Schema:
-        return io.Schema(
-            node_id="TT_GuidedKSamplerWithPreviewNode",
-            display_name="TT Guided KSampler (With Preview)",
-            category=CATEGORY,
-            description="",
-            inputs=[
-                io.Latent.Input("latent"),
-                io.Guider.Input("guider"),
-                io.Sigmas.Input("sigmas"),
-                io.Sampler.Input("sampler"),
-                io.Noise.Input("random_noise"),
-                io.Boolean.Input("preview_latent", default=True, label_on="Show Peview", label_off="Only Sample"),
-            ],
-            outputs=[
-                io.Latent.Output("SAMPLES")
-            ]
-        )
-
-    @classmethod
-    def execute(cls, **kwargs) -> io.NodeOutput:
-        samples = execute_guided_sampling(**kwargs)
-
-        return io.NodeOutput(samples)
-
-
 # ==============================================================================
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
@@ -155,9 +372,12 @@ class SamplingNodesExtension(ComfyExtension):
     @override
     async def get_node_list(self) -> list[type[io.ComfyNode]]:
         return [
+            TT_KSamplerNode,
+            TT_KSamplerAdvancedNode,
+            TT_KSamplerContextNode,
+            TT_KSamplerTwoStageNode,
             TT_GuidedKSamplerNode,
             TT_GuidedUpscaleKSamplerNode,
-            TT_GuidedKSamplerWithPreviewNode,
         ]
 
 
@@ -170,7 +390,10 @@ async def comfy_entrypoint() -> SamplingNodesExtension:
 # ==============================================================================
 
 __all__ = [
+    "TT_KSamplerNode",
+    "TT_KSamplerAdvancedNode",
+    "TT_KSamplerContextNode",
+    "TT_KSamplerTwoStageNode",
     "TT_GuidedKSamplerNode",
     "TT_GuidedUpscaleKSamplerNode",
-    "TT_GuidedKSamplerWithPreviewNode",
 ]

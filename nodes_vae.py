@@ -4,7 +4,9 @@ from typing import override
 
 import torch
 
-from comfy_api.latest import IO, ComfyExtension
+from comfy_api.latest import io, ComfyExtension
+
+CATEGORY="TenserTensor/VAE"
 
 TILE_SIZE, OVERLAP = 512, 64
 
@@ -32,6 +34,90 @@ def vae_decode(latent, vae, tile_width=TILE_SIZE, tile_height=TILE_SIZE, overlap
     )
 
     return images
+
+
+class TT_KSamplerNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_KSamplerNode",
+            display_name="TT_KSampler",
+            category=CATEGORY,
+            description="",
+            inputs=[
+
+            ],
+            outputs=[
+
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        raise NotImplementedError
+
+
+class TT_KSamplerAdvancedNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_KSamplerAdvancedNode",
+            display_name="TT_KSampler (Advanced)",
+            category=CATEGORY,
+            description="",
+            inputs=[
+
+            ],
+            outputs=[
+
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        raise NotImplementedError
+
+
+class TT_KSamplerContextNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_KSamplerContextNode",
+            display_name="TT_KSampler (Context)",
+            category=CATEGORY,
+            description="",
+            inputs=[
+
+            ],
+            outputs=[
+
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        raise NotImplementedError
+
+
+class TT_KSamplerTwoStageNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_KSamplerTwoStageNode",
+            display_name="TT_KSampler (Two Stage)",
+            category=CATEGORY,
+            description="",
+            inputs=[
+
+            ],
+            outputs=[
+
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        raise NotImplementedError
 
 
 # ==============================================================================

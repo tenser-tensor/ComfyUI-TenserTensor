@@ -15,7 +15,7 @@ class TT_KSamplerContext():
     RETURN_TYPES = ("TT_CONTEXT", "LATENT",)
     RETURN_NAMES = ("CONTEXT", "SAMPLES",)
     FUNCTION = "execute_sampling"
-    CATEGORY = "TenserTensor/Sampling"
+    CATEGORY = "TenserTensor/Deprecated/Sampling"
 
     def execute_sampling(self, context):
         model = context.get("model", None)
