@@ -170,8 +170,8 @@ class TT_ImageLoaderResizerNode(io.ComfyNode):
                 io.Combo.Input("image", options=get_image_files(), upload=io.UploadType.image)
             ],
             outputs=[
-                io.Image.Output(display_name="IMAGE"),
-                io.Mask.Output(display_name="MASK"),
+                io.Image.Output("IMAGE"),
+                io.Mask.Output("MASK"),
             ],
         )
 

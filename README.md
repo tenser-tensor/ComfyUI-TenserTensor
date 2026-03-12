@@ -29,7 +29,6 @@ chains into single, convenient loaders.
 - **Image tools** — load, resize, upscale, preview, save, and reference images for ControlNet
 - **VAE** — encode and decode with tiled and context-based variants
 - **Post-production** — brightness, contrast, saturation, LUT, film grain, and upscaling
--
 
 ## Installation
 
@@ -76,7 +75,7 @@ Great thanks and appreciation for your excellent work!
  
 > [!NOTE]  
 > **For GGUF users:** ComfyUI does not scan for GGUF files by default.  
-> Place your files according to the structure below — the node pack registers these folders automatically.   
+> Place your files according to the structure below — the node pack registers `.gguf` extension and  new folders automatically.   
 
 ```
 📂 ComfyUI/  

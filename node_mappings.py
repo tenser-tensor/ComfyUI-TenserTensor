@@ -100,6 +100,7 @@ try:
     from .nodes.vae.vae_decode_tiled import TT_VaeDecodeTiled
     from .nodes.vae.vae_encode_context import TT_VaeEncodeContext
     from .nodes.vae.vae_encode_tiled import TT_VaeEncodeTiled
+    from .nodes_vae import *
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: VAE nodes unavailable{RESET}")
 
@@ -225,6 +226,11 @@ NODE_CLASS_MAPPINGS = {
     "TT_VaeDecodeTiled": TT_VaeDecodeTiled,
     "TT_VaeEncodeContext": TT_VaeEncodeContext,
     "TT_VaeEncodeTiled": TT_VaeEncodeTiled,
+    # VAE V3 Nodes
+    "TT_VaeDecodeTiledNode": TT_VaeDecodeTiledNode,
+    "TT_VaeDecodeContextNode": TT_VaeDecodeContextNode,
+    "TT_VaeEncodeTiledNode": TT_VaeEncodeTiledNode,
+    "TT_VaeEncodeContextNode": TT_VaeEncodeContextNode,
     # Workflow
     "TT_FluxWorkflowSettings": TT_FluxWorkflowSettings,
     "TT_FluxWorkflowSettingsAdvanced": TT_FluxWorkflowSettingsAdvanced,
@@ -341,6 +347,11 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_VaeDecodeTiled": "TT VAE Decode (Tiled)",
     "TT_VaeEncodeContext": "TT Vae Encode (Context)",
     "TT_VaeEncodeTiled": "TT Vae Encode (Tiled)",
+    # VAE V3 Nodes
+    "TT_VaeDecodeTiledNode": "TT Vae Decode (Tiled)",
+    "TT_VaeDecodeContextNode": "TT Vae Decode (Context)",
+    "TT_VaeEncodeTiledNode": "TT Vae Encode (Tiled)",
+    "TT_VaeEncodeContextNode": "TT Vae Encode (Context)",
     # Workflow
     "TT_FluxWorkflowSettings": "TT FLUX Workflow Settings",
     "TT_FluxWorkflowSettingsAdvanced": "TT FLUX Workflow Settings (Advanced)",

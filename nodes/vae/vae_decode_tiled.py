@@ -21,7 +21,7 @@ class TT_VaeDecodeTiled:
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("IMAGE",)
     FUNCTION = "vae_decode"
-    CATEGORY = "TenserTensor/VAE"
+    CATEGORY = "TenserTensor/Deprecated/VAE"
 
     def vae_decode(self, latent, vae, tile_width, tile_height, overlap, circular):
         return (vae_decode(latent, vae, tile_width, tile_height, overlap, circular),)

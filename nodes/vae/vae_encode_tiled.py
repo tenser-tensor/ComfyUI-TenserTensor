@@ -19,7 +19,7 @@ class TT_VaeEncodeTiled:
     RETURN_TYPES = ("LATENT",)
     RETURN_NAMES = ("LATENT",)
     FUNCTION = "vae_encode"
-    CATEGORY = "TenserTensor/VAE"
+    CATEGORY = "TenserTensor/Deprecated/VAE"
 
     def vae_encode(self, image, vae, tile_width, tile_height, overlap):
         return (vae_encode(image, vae, tile_width, tile_height, overlap),)
