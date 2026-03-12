@@ -101,7 +101,16 @@ Great thanks and appreciation for your excellent work!
 
 > [!TIP]  
 > You can download Flux.2-dev along with additional models (CLIP, VAE) via the link below:  
-> [Comfy-Org/flux2-dev](https://huggingface.co/Comfy-Org/flux2-dev/tree/main/split_files)
+> [Comfy-Org/flux2-dev](https://huggingface.co/Comfy-Org/flux2-dev/tree/main/split_files)  
+
+> [!TIP]  
+> **Pre-quantized models by City96:**  
+>  
+> [FLUX1.D GGUF](https://huggingface.co/city96/FLUX.1-dev-gguf)  
+> [FLUX1 Schnell GGUF](https://huggingface.co/city96/FLUX.1-schnell-gguf)  
+> [Stable Diffusion-3.5 Large GGUF](https://huggingface.co/city96/FLUX.1-dev-gguf)  
+> [Stable Diffusion-3.5 Large Turbo GGUF](https://huggingface.co/city96/stable-diffusion-3.5-large-turbo-gguf)  
+> [T5_XXL v1.1 GGUF](https://huggingface.co/city96/t5-v1_1-xxl-encoder-gguf)  
 
 ---
 

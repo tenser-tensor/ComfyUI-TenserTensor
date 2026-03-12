@@ -13,19 +13,17 @@ from PIL import Image, ImageOps, ImageSequence
 from spandrel import ModelLoader, ImageModelDescriptor
 
 import folder_paths
-from comfy import model_management, utils, samplers
+from comfy import model_management, utils
 from comfy_api.latest import ComfyExtension, io, ui
 from node_helpers import conditioning_set_values, pillow
-from .nodes_vae import vae_encode
 from .nodes_text_encoder import SingleCondCFGGuider
+from .nodes_vae import vae_encode
 
 CATEGORY = "TenserTensor/Image"
 RESIZE_METHODS = ["nearest-exact", "bilinear", "area", "bicubic", "bislerp"]
 FILENAME_FORMATS = ["name-###", "date-name-###", "name-datetime"]
 FORMAT_EXT = {"PNG": ".png", "JPEG": ".jpg", "WEBP": ".webp", }
 MEGAPIXELS = ["0.25 MP", "0.5 MP", "1 MP", "2 MP", "4 MP", "8 MP"]
-
-
 
 
 def align_to_step(size, scale_factor, dimension_step):
