@@ -330,12 +330,15 @@ def load_upscale_model(upscale_model) -> ImageModelDescriptor:
 BUFFER_FACTOR = 384.0
 
 
-def upscale(timage, **kwargs):
-    device_name, upscale_tile, upscale_overlap = (
-        kwargs.get("upscaler_device", None),
+def upscale(**kwargs):
+    image, device_name, upscale_tile, upscale_overlap = (
+        kwargs.get("image"),
+        kwargs.get("upscaler_device"),
         kwargs.get("upscale_tile"),
         kwargs.get("upscale_overlap")
     )
+
+    timage = image.clone()
     device = get_torch_device(device_name)
     model = load_upscale_model(kwargs.get("upscale_model"))
     i_image = timage.movedim(-1, 1).to(device)
@@ -408,10 +411,11 @@ class TT_ImagePreviewUpscaleSaveNode(io.ComfyNode):
 
     @classmethod
     def execute(cls, **kwargs) -> io.NodeOutput:
-        timage = kwargs.get("image")
+        image = kwargs.get("image")
+        timage = image.clone()
 
         if kwargs.get("upscale_image"):
-            timage = upscale(timage, **kwargs)
+            timage = upscale(**kwargs)
 
         if kwargs.get("save_image"):
             kwargs["image"] = timage

@@ -50,7 +50,7 @@ class TT_VaeDecodeTiledNode(io.ComfyNode):
                 io.Latent.Input("latent"),
                 io.Int.Input("tile_width", default=512, min=64, max=4096, step=64),
                 io.Int.Input("tile_height", default=512, min=64, max=4096, step=64),
-                io.Int.Input("overlap", default=512, min=64, max=4096, step=64),
+                io.Int.Input("overlap", default=64, min=8, max=256, step=8),
             ],
             outputs=[
                 io.Image.Output("IMAGE"),
@@ -109,7 +109,7 @@ class TT_VaeEncodeTiledNode(io.ComfyNode):
                 io.Vae.Input("vae"),
                 io.Int.Input("tile_width", default=512, min=64, max=4096, step=64),
                 io.Int.Input("tile_height", default=512, min=64, max=4096, step=64),
-                io.Int.Input("overlap", default=512, min=64, max=4096, step=64),
+                io.Int.Input("overlap", default=64, min=8, max=256, step=8),
             ],
             outputs=[
                 io.Latent.Output("LATENT"),

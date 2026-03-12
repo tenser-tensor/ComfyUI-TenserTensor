@@ -64,13 +64,13 @@ except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Loader nodes unavailable{RESET}")
 
 try:
-    before = set(dir())
     from .nodes.postproduction.add_film_grain import TT_AddFilmGrain
     from .nodes.postproduction.apply_lut import TT_ApplyLut
     from .nodes.postproduction.image_enhancer import TT_ImageEnhancer
     from .nodes.postproduction.postproduction import TT_Postproduction
     from .nodes.postproduction.postproduction_advanced import TT_PostproductionAdvanced
     from .nodes.postproduction.quick_image_upscaler import TT_QuickImageUpscaler
+    from .nodes_postproduction import *
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Postproduction nodes unavailable{RESET}")
 
@@ -192,6 +192,13 @@ NODE_CLASS_MAPPINGS = {
     "TT_ImageEnhancer": TT_ImageEnhancer,
     "TT_Postproduction": TT_Postproduction,
     "TT_PostproductionAdvanced": TT_PostproductionAdvanced,
+    # Postproduction V3 Nodes
+    "TT_AddFilmGrainNode": TT_AddFilmGrainNode,
+    "TT_ApplyLutNode": TT_ApplyLutNode,
+    "TT_ImageEnhancerNode": TT_ImageEnhancerNode,
+    "TT_QuickImageUpscalerNode": TT_QuickImageUpscalerNode,
+    "TT_PostproductionNode": TT_PostproductionNode,
+    "TT_PostproductionAdvancedNode": TT_PostproductionAdvancedNode,
     # Samplers
     "TT_KSampler": TT_KSampler,
     "TT_KSamplerAdvanced": TT_KSamplerAdvanced,
@@ -313,6 +320,13 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_ImageEnhancer": "TT Image Enhancer",
     "TT_Postproduction": "TT Postproduction",
     "TT_PostproductionAdvanced": "TT Postproduction (Advanced)",
+    # Postproduction V3 Nodes
+    "TT_AddFilmGrainNode": "TT Add Film Grain",
+    "TT_ApplyLutNode": "TT Apply LUT",
+    "TT_ImageEnhancerNode": "TT Image Enhancer",
+    "TT_QuickImageUpscalerNode": "TT Quick Image Upscaler",
+    "TT_PostproductionNode": "TT Postproduction",
+    "TT_PostproductionAdvancedNode": "TT Postproduction (Advanced)",
     # Samplers
     "TT_KSampler": "TT KSampler",
     "TT_KSamplerAdvanced": "TT KSampler (Advanced)",
