@@ -64,13 +64,13 @@ except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Loader nodes unavailable{RESET}")
 
 try:
-    before = set(dir())
     from .nodes.postproduction.add_film_grain import TT_AddFilmGrain
     from .nodes.postproduction.apply_lut import TT_ApplyLut
     from .nodes.postproduction.image_enhancer import TT_ImageEnhancer
     from .nodes.postproduction.postproduction import TT_Postproduction
     from .nodes.postproduction.postproduction_advanced import TT_PostproductionAdvanced
     from .nodes.postproduction.quick_image_upscaler import TT_QuickImageUpscaler
+    from .nodes_postproduction import *
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: Postproduction nodes unavailable{RESET}")
 
@@ -100,6 +100,7 @@ try:
     from .nodes.vae.vae_decode_tiled import TT_VaeDecodeTiled
     from .nodes.vae.vae_encode_context import TT_VaeEncodeContext
     from .nodes.vae.vae_encode_tiled import TT_VaeEncodeTiled
+    from .nodes_vae import *
 except ImportError:
     print(f"{YELLOW}TenserTensor: {RED}ERROR: VAE nodes unavailable{RESET}")
 
@@ -180,10 +181,10 @@ NODE_CLASS_MAPPINGS = {
     "TT_SdxlModelsLoaderAdvancedNode": TT_SdxlModelsLoaderAdvancedNode,
     "TT_FluxModelsLoaderNode": TT_FluxModelsLoaderNode,
     "TT_FluxModelsLoaderAdvancedNode": TT_FluxModelsLoaderAdvancedNode,
-    "TT_GgufModelsLoaderNode": TT_Flux2GgufModelsLoaderNode,
-    "TT_GgufModelsLoaderAdvancedNode": TT_Flux2GgufModelsLoaderAdvancedNode,
+    "TT_Flux2GgufModelsLoaderNode": TT_Flux2GgufModelsLoaderNode,
+    "TT_Flux2GgufModelsLoaderAdvancedNode": TT_Flux2GgufModelsLoaderAdvancedNode,
     "TT_Sd35GgufModelsLoaderNode": TT_Sd35GgufModelsLoaderNode,
-    # "TT_Sd35GgufModelsLoaderAdvancedNode": TT_Sd35GgufModelsLoaderAdvancedNode,
+    "TT_Sd35GgufModelsLoaderAdvancedNode": TT_Sd35GgufModelsLoaderAdvancedNode,
     # Postproduction
     "TT_ApplyLut": TT_ApplyLut,
     "TT_AddFilmGrain": TT_AddFilmGrain,
@@ -191,6 +192,13 @@ NODE_CLASS_MAPPINGS = {
     "TT_ImageEnhancer": TT_ImageEnhancer,
     "TT_Postproduction": TT_Postproduction,
     "TT_PostproductionAdvanced": TT_PostproductionAdvanced,
+    # Postproduction V3 Nodes
+    "TT_AddFilmGrainNode": TT_AddFilmGrainNode,
+    "TT_ApplyLutNode": TT_ApplyLutNode,
+    "TT_ImageEnhancerNode": TT_ImageEnhancerNode,
+    "TT_QuickImageUpscalerNode": TT_QuickImageUpscalerNode,
+    "TT_PostproductionNode": TT_PostproductionNode,
+    "TT_PostproductionAdvancedNode": TT_PostproductionAdvancedNode,
     # Samplers
     "TT_KSampler": TT_KSampler,
     "TT_KSamplerAdvanced": TT_KSamplerAdvanced,
@@ -198,9 +206,12 @@ NODE_CLASS_MAPPINGS = {
     "TT_KSamplerTwoStage": TT_KSamplerTwoStage,
     "TT_KSamplerGuided": TT_KSamplerGuided,
     # Samplers V3 Nodes
+    "TT_KSamplerNode": TT_KSamplerNode,
+    "TT_KSamplerAdvancedNode": TT_KSamplerAdvancedNode,
+    "TT_KSamplerContextNode": TT_KSamplerContextNode,
+    "TT_KSamplerTwoStageNode": TT_KSamplerTwoStageNode,
     "TT_GuidedKSamplerNode": TT_GuidedKSamplerNode,
     "TT_GuidedUpscaleKSamplerNode": TT_GuidedUpscaleKSamplerNode,
-    "TT_GuidedKSamplerWithPreviewNode": TT_GuidedKSamplerWithPreviewNode,
     # Text Encoder
     "TT_ClipTextEncodeFlux": TT_ClipTextEncodeFlux,
     "TT_ClipTextEncodeFluxContext": TT_ClipTextEncodeFluxContext,
@@ -222,6 +233,11 @@ NODE_CLASS_MAPPINGS = {
     "TT_VaeDecodeTiled": TT_VaeDecodeTiled,
     "TT_VaeEncodeContext": TT_VaeEncodeContext,
     "TT_VaeEncodeTiled": TT_VaeEncodeTiled,
+    # VAE V3 Nodes
+    "TT_VaeDecodeTiledNode": TT_VaeDecodeTiledNode,
+    "TT_VaeDecodeContextNode": TT_VaeDecodeContextNode,
+    "TT_VaeEncodeTiledNode": TT_VaeEncodeTiledNode,
+    "TT_VaeEncodeContextNode": TT_VaeEncodeContextNode,
     # Workflow
     "TT_FluxWorkflowSettings": TT_FluxWorkflowSettings,
     "TT_FluxWorkflowSettingsAdvanced": TT_FluxWorkflowSettingsAdvanced,
@@ -230,10 +246,14 @@ NODE_CLASS_MAPPINGS = {
     "TT_Flux2WorkflowSettings": TT_Flux2WorkflowSettings,
     "TT_Flux2WorkflowSettingsAdvanced": TT_Flux2WorkflowSettingsAdvanced,
     # Workflow V3 Nodes
+    "TT_SdxlWorkflowSettingsNode": TT_SdxlWorkflowSettingsNode,
+    "TT_SdxlWorkflowSettingsAdvancedNode": TT_SdxlWorkflowSettingsAdvancedNode,
+    "TT_FluxWorkflowSettingsNode": TT_FluxWorkflowSettingsNode,
+    "TT_FluxWorkflowSettingsAdvancedNode": TT_FluxWorkflowSettingsAdvancedNode,
     "TT_Flux2WorkflowSettingsNode": TT_Flux2WorkflowSettingsNode,
     "TT_Flux2WorkflowSettingsAdvancedNode": TT_Flux2WorkflowSettingsAdvancedNode,
-    "TT_Sd35WorkflowSettingsNode": TT_Sd35WorkflowSettingsNode,
-    "TT_Sd35WorkflowSettingsAdvancedNode": TT_Sd35WorkflowSettingsAdvancedNode,
+    "TT_Sd35GgufWorkflowSettingsNode": TT_Sd35GgufWorkflowSettingsNode,
+    "TT_Sd35GgufWorkflowSettingsAdvancedNode": TT_Sd35GgufWorkflowSettingsAdvancedNode,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -293,10 +313,10 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_SdxlModelsLoaderAdvancedNode": "TT SDXL Models Loader (Advanced)",
     "TT_FluxModelsLoaderNode": "TT FLUX Models Loader",
     "TT_FluxModelsLoaderAdvancedNode": "TT FLUX Models Loader (Advanced)",
-    "TT_GgufModelsLoaderNode": "TT GGUF Models Loader",
-    "TT_GgufModelsLoaderAdvancedNode": "TT GGUF Models Loader (Advanced)",
+    "TT_Flux2GgufModelsLoaderNode": "TT FLUX2 GGUF Models Loader",
+    "TT_Flux2GgufModelsLoaderAdvancedNode": "TT FLUX2 GGUF Models Loader (Advanced)",
     "TT_Sd35GgufModelsLoaderNode": "TT SD3.5 GGUF Models Loader",
-    # "TT_Sd35ModelsLoaderAdvancedNode": "TT SD3.5 GGUF Models Loader (Advanced)",
+    "TT_Sd35GgufModelsLoaderAdvancedNode": "TT SD3.5 GGUF Models Loader (Advanced)",
     # Postproduction
     "TT_ApplyLut": "TT Apply LUT",
     "TT_AddFilmGrain": "TT Add Film Grain",
@@ -304,6 +324,13 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_ImageEnhancer": "TT Image Enhancer",
     "TT_Postproduction": "TT Postproduction",
     "TT_PostproductionAdvanced": "TT Postproduction (Advanced)",
+    # Postproduction V3 Nodes
+    "TT_AddFilmGrainNode": "TT Add Film Grain",
+    "TT_ApplyLutNode": "TT Apply LUT",
+    "TT_ImageEnhancerNode": "TT Image Enhancer",
+    "TT_QuickImageUpscalerNode": "TT Quick Image Upscaler",
+    "TT_PostproductionNode": "TT Postproduction",
+    "TT_PostproductionAdvancedNode": "TT Postproduction (Advanced)",
     # Samplers
     "TT_KSampler": "TT KSampler",
     "TT_KSamplerAdvanced": "TT KSampler (Advanced)",
@@ -311,9 +338,12 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_KSamplerTwoStage": "TT KSampler (Two Stages)",
     "TT_KSamplerGuided": "TT KSampler (Guided)",
     # Samplers V3 Nodes
+    "TT_KSamplerNode": "TT KSampler",
+    "TT_KSamplerAdvancedNode": "TT KSampler (Advanced)",
+    "TT_KSamplerContextNode": "TT KSampler (Context)",
+    "TT_KSamplerTwoStageNode": "TT KSampler (Two Stage)",
     "TT_GuidedKSamplerNode": "TT Guided KSampler",
     "TT_GuidedUpscaleKSamplerNode": "TT Guided Upscale KSampler",
-    "TT_GuidedKSamplerWithPreviewNode": "TT Guided KSampler (With Preview)",
     # Text Encoder
     "TT_ClipTextEncodeFlux": "TT CLIP Text Encode FLUX",
     "TT_ClipTextEncodeFluxContext": "TT CLIP Text Encode FLUX (Context)",
@@ -335,6 +365,11 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_VaeDecodeTiled": "TT VAE Decode (Tiled)",
     "TT_VaeEncodeContext": "TT Vae Encode (Context)",
     "TT_VaeEncodeTiled": "TT Vae Encode (Tiled)",
+    # VAE V3 Nodes
+    "TT_VaeDecodeTiledNode": "TT Vae Decode (Tiled)",
+    "TT_VaeDecodeContextNode": "TT Vae Decode (Context)",
+    "TT_VaeEncodeTiledNode": "TT Vae Encode (Tiled)",
+    "TT_VaeEncodeContextNode": "TT Vae Encode (Context)",
     # Workflow
     "TT_FluxWorkflowSettings": "TT FLUX Workflow Settings",
     "TT_FluxWorkflowSettingsAdvanced": "TT FLUX Workflow Settings (Advanced)",
@@ -343,6 +378,10 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_Flux2WorkflowSettings": "TT FLUX2 Workflow Settings (Deprecated)",
     "TT_Flux2WorkflowSettingsAdvanced": "TT FLUX2 Workflow Settings (Deprecated/Advanced)",
     # Workflow V3 Nodes
+    "TT_SdxlWorkflowSettingsNode": "TT SDXL Workflow Settings",
+    "TT_SdxlWorkflowSettingsAdvancedNode": "TT SDXL Workflow Settings (Advanced)",
+    "TT_FluxWorkflowSettingsNode": "TT FLUX Workflow Settings",
+    "TT_FluxWorkflowSettingsAdvancedNode": "TT FLUX Workflow Settings (Advanced)",
     "TT_Flux2WorkflowSettingsNode": "TT FLUX2 Workflow Settings",
     "TT_Flux2WorkflowSettingsAdvancedNode": "TT FLUX2 Workflow Settings (Advanced)",
     "TT_Sd35WorkflowSettingsNode": "TT SD3.5 Workflow Settings",

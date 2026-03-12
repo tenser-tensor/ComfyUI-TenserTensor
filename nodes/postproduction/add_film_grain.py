@@ -24,7 +24,7 @@ class TT_AddFilmGrain():
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("IMAGE",)
     FUNCTION = "apply_film_grain"
-    CATEGORY = "TenserTensor/Postproduction"
+    CATEGORY = "TenserTensor/Deprecated/Postproduction"
 
     def apply_film_grain(self, **kwargs):
         return (apply_film_grain(

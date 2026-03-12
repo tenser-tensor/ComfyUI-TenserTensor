@@ -24,7 +24,7 @@ class TT_ImageEnhancer():
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("IMAGE",)
     FUNCTION = "enhance_image"
-    CATEGORY = "TenserTensor/Postproduction"
+    CATEGORY = "TenserTensor/Deprecated/Postproduction"
 
     def enhance_image(
             self,

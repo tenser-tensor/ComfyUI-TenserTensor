@@ -786,7 +786,7 @@ class LoaderNodesExtension(ComfyExtension):
             TT_Flux2GgufModelsLoaderNode,
             TT_Flux2GgufModelsLoaderAdvancedNode,
             TT_Sd35GgufModelsLoaderNode,
-            # TT_Sd35GgufModelsLoaderAdvancedNode,
+            TT_Sd35GgufModelsLoaderAdvancedNode,
         ]
 
 
@@ -806,5 +806,5 @@ __all__ = [
     "TT_Flux2GgufModelsLoaderNode",
     "TT_Flux2GgufModelsLoaderAdvancedNode",
     "TT_Sd35GgufModelsLoaderNode",
-    # "TT_Sd35GgufModelsLoaderAdvancedNode",
+    "TT_Sd35GgufModelsLoaderAdvancedNode",
 ]

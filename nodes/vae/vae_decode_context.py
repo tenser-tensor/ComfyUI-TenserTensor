@@ -14,7 +14,7 @@ class TT_VaeDecodeContext:
     RETURN_TYPES = ("TT_CONTEXT", "IMAGE",)
     RETURN_NAMES = ("CONTEXT", "IMAGE",)
     FUNCTION = "vae_decode"
-    CATEGORY = "TenserTensor/VAE"
+    CATEGORY = "TenserTensor/Deprecated/VAE"
 
     def vae_decode(self, context):
         vae = context["vae"]

@@ -1,5 +1,24 @@
-[1.6.20] - 2026-03-11
-Added
+## [1.7.8] - 2026-03-13
+
+### Changed
+
+All remaining V1 nodes migrated to ComfyUI API V3 — Sampling, VAE, Postproduction, Workflow categories fully migrated
+All legacy V1 nodes moved to `Deprecated/` category — will be removed in a future major release
+
+## Changes
+
+- Migrated 4 nodes in `TenserTensor/Sampling` to API V3 with docs
+- Migrated 4 nodes in `TenserTensor/VAE` to API V3 with docs
+- Migrated all nodes in `TenserTensor/Postproduction` to API V3 with docs
+- Migrated remaining nodes in `TenserTensor/Workflow` to API V3 with docs
+- All legacy V1 nodes moved to `Deprecated/` category
+- Updated README migration notice
+
+All node categories are now fully on API V3.
+
+## [1.6.20] - 2026-03-11
+
+### Added
 
 **TT_Sd35GgufModelsLoaderNode, TT_Sd35GgufModelsLoaderAdvancedNode** — SD3.5 GGUF model loaders with LoRA support
 **TT_Sd35WorkflowSettingsNode** — workflow settings for SD3.5 with schedule shift control
@@ -18,35 +37,37 @@ Added
 **TT_LatentMultiTransformNode, TT_LatentMultiTransformOnPixelSpaceNode** — latent transform nodes
 **TT_Flux2ApplyControlNetNode** — ControlNet support for FLUX2
 
-Changed
+### Changed
 
 Latent factory refactored — channel count and spatial downscale ratio derived from model automatically
 GGUF folder registration extended — unet_gguf, diffusion_models_gguf, text_encoders_gguf folders registered automatically
 
-Deprecated
+### Deprecated
 
 All migrated to API V3 nodes moved to Deprecated/ category. Will be removed in a future major release.
 
 
-[1.5.11] - 2026-03-01
-Added
+## [1.5.11] - 2026-03-01
 
-New context nodes (API V3): Base Context, Context, FLUX2 Context, Passthrough, Set Guider / Image / Latent, Extract Encoder / Guided Sampler / VAE / Image for FLUX2
+### Added
+
+**New context nodes (API V3):** Base Context, Context, FLUX2 Context, Passthrough, Set Guider / Image / Latent, Extract Encoder / Guided Sampler / VAE / Image for FLUX2
 **TT_LatentFactoryNode** — V3 replacement for TT_LatentFactory
 **TT_Flux2WorkflowSettingsNode** and TT_Flux2WorkflowSettingsAdvancedNode — V3 replacements for FLUX2 workflow settings nodes
 
-Changed
+### Changed
 
 Migrated node registration to explicit imports, replaced wildcard from .module import *
 Per-group NODES_COUNT tracking and isolated error handling on import failures
 
-Deprecated
+### Deprecated
 
 All pre-V3 context, latent, and FLUX2 workflow nodes moved to Deprecated/ category. Will be removed in a future major release.
 
 ## v1.4.7 (2026-02-25)
 
 ### New Nodes
+
 - **TT KSampler (Guided)** — guided diffusion sampling with external guider, sigmas, and sampler
 - **TT Guider Image Reference** — encodes reference image into latent space and injects it into Guider conditioning
 - **TT Image Preview / Upscale / Save** — all-in-one preview, upscale, and save node
@@ -56,11 +77,13 @@ All pre-V3 context, latent, and FLUX2 workflow nodes moved to Deprecated/ catego
 - **TT Context Set Guider** — injects guider into TT_CONTEXT object
 
 ### Improvements
+
 - Added `BasicGuider` and `CommonTypes` to shared lib (`lib/common.py`)
 - Fixed missing f-strings in all error print statements across node imports
 - Fixed workflow settings module filenames (typo: `workfow` → `workflow`)
 
 ### Docs
+
 - Added docs for all new nodes
 - Updated NODES.md with descriptions for all new nodes
 - Updated Latent Factory description

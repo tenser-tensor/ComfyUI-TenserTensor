@@ -15,7 +15,7 @@ class TT_VaeEncodeContext:
     RETURN_TYPES = ("TT_CONTEXT", "LATENT",)
     RETURN_NAMES = ("CONTEXT", "LATENT",)
     FUNCTION = "vae_encode"
-    CATEGORY = "TenserTensor/VAE"
+    CATEGORY = "TenserTensor/Deprecated/VAE"
 
     def vae_encode(self, context):
         vae = context["vae"]

@@ -45,7 +45,7 @@ class TT_Postproduction():
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("IMAGE",)
     FUNCTION = "apply_postprocessing"
-    CATEGORY = "TenserTensor/Postproduction"
+    CATEGORY = "TenserTensor/Deprecated/Postproduction"
 
     def apply_postprocessing(self, **kwargs):
         image = kwargs.get("image").clone()

@@ -23,7 +23,7 @@ class TT_ApplyLut:
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("IMAGE",)
     FUNCTION = "apply_lut"
-    CATEGORY = "TenserTensor/Postproduction"
+    CATEGORY = "TenserTensor/Deprecated/Postproduction"
 
     def apply_lut(self, image, lut_file, strength, colorspace):
         return (

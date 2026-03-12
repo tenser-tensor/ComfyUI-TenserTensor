@@ -13,7 +13,7 @@ description = """A collection of custom nodes for ComfyUI that streamline common
 — VAE encoders and decoders: tiled and context-based
 — Image tools: load, resize, upscale, preview, save, ControlNet reference
 — Post-production: brightness, contrast, LUT color grading, film grain, upscaler"""
-version = "1.6.20"
+version = "1.7.8"
 license = { file = "LICENSE" }
 dependencies = ["gguf", "kornia"]
 

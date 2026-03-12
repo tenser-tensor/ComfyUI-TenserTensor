@@ -48,7 +48,7 @@ class TT_FluxWorkflowSettingsAdvanced:
         "GUIDANCE",
     )
     FUNCTION = "get_settings"
-    CATEGORY = "TenserTensor/Workflow/FLUX"
+    CATEGORY = "TenserTensor/Deprecated/Workflow/FLUX"
 
     def get_settings(self, seed, steps, cfg, sampler_name, scheduler, guidance, clip_l_positive, t5xxl_positive, clip_l_negative, t5xxl_negative):
         workflow_config = {

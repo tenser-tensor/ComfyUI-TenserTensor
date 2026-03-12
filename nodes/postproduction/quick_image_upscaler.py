@@ -24,7 +24,7 @@ class TT_QuickImageUpscaler():
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("IMAGE",)
     FUNCTION = "upscale_image"
-    CATEGORY = "TenserTensor/Postproduction"
+    CATEGORY = "TenserTensor/Deprecated/Postproduction"
 
     def upscale_image(self, image, device, upscale_model_name, tile, overlap):
         timage = image.clone()

@@ -30,7 +30,7 @@ class TT_KSamplerTwoStage():
     RETURN_TYPES = ("LATENT",)
     RETURN_NAMES = ("SAMPLES",)
     FUNCTION = "execute_sampling"
-    CATEGORY = "TenserTensor/Sampling"
+    CATEGORY = "TenserTensor/Deprecated/Sampling"
 
     def execute_sampling(self, **kwargs):
         draft_steps = kwargs["draft_steps"]

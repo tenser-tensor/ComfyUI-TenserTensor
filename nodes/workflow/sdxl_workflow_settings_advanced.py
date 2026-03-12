@@ -65,7 +65,7 @@ class TT_SdxlWorkflowSettingsAdvanced:
         "TARGET_HEIGHT",
     )
     FUNCTION = "get_settings"
-    CATEGORY = "TenserTensor/Workflow/SDXL"
+    CATEGORY = "TenserTensor/Deprecated/Workflow/SDXL"
 
     def get_settings(self, seed, steps, cfg, sampler_name, scheduler, clip_l_positive, clip_g_positive, clip_l_negative,
                      clip_g_negative, ascore_positive, ascore_negative, width, height, target_width, target_height):
