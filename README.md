@@ -15,8 +15,8 @@ A collection of custom nodes for ComfyUI that streamline common workflows. The m
 chains into single, convenient loaders.
 
 > [!IMPORTANT]  
-> ⚠️ **Note:** The pack is currently undergoing refactoring and migration to ComfyUI API V3. Some nodes are marked as deprecated and will be removed
-> in a future major release. Please check node descriptions for migration guidance.
+> ⚠️ **Note:** All legacy nodes have been migrated to ComfyUI API V3.  
+> V1 nodes are marked as deprecated and will be removed in a future major release.  
 
 ## Features
 
@@ -107,7 +107,7 @@ Great thanks and appreciation for your excellent work!
 >  
 > [FLUX1.D GGUF](https://huggingface.co/city96/FLUX.1-dev-gguf)  
 > [FLUX1 Schnell GGUF](https://huggingface.co/city96/FLUX.1-schnell-gguf)  
-> [Stable Diffusion-3.5 Large GGUF](https://huggingface.co/city96/FLUX.1-dev-gguf)  
+> [Stable Diffusion-3.5 Large GGUF](https://huggingface.co/city96/stable-diffusion-3.5-large-gguf)  
 > [Stable Diffusion-3.5 Large Turbo GGUF](https://huggingface.co/city96/stable-diffusion-3.5-large-turbo-gguf)  
 > [T5_XXL v1.1 GGUF](https://huggingface.co/city96/t5-v1_1-xxl-encoder-gguf)  
 

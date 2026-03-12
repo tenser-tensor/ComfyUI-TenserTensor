@@ -181,8 +181,8 @@ NODE_CLASS_MAPPINGS = {
     "TT_SdxlModelsLoaderAdvancedNode": TT_SdxlModelsLoaderAdvancedNode,
     "TT_FluxModelsLoaderNode": TT_FluxModelsLoaderNode,
     "TT_FluxModelsLoaderAdvancedNode": TT_FluxModelsLoaderAdvancedNode,
-    "TT_GgufModelsLoaderNode": TT_Flux2GgufModelsLoaderNode,
-    "TT_GgufModelsLoaderAdvancedNode": TT_Flux2GgufModelsLoaderAdvancedNode,
+    "TT_Flux2GgufModelsLoaderNode": TT_Flux2GgufModelsLoaderNode,
+    "TT_Flux2GgufModelsLoaderAdvancedNode": TT_Flux2GgufModelsLoaderAdvancedNode,
     "TT_Sd35GgufModelsLoaderNode": TT_Sd35GgufModelsLoaderNode,
     "TT_Sd35GgufModelsLoaderAdvancedNode": TT_Sd35GgufModelsLoaderAdvancedNode,
     # Postproduction
@@ -246,14 +246,14 @@ NODE_CLASS_MAPPINGS = {
     "TT_Flux2WorkflowSettings": TT_Flux2WorkflowSettings,
     "TT_Flux2WorkflowSettingsAdvanced": TT_Flux2WorkflowSettingsAdvanced,
     # Workflow V3 Nodes
-    "TT_SdxlWorkflowSettingsNode": TT_Flux2WorkflowSettingsNode,
-    "TT_SdxlWorkflowSettingsAdvancedNode": TT_Flux2WorkflowSettingsNode,
-    "TT_FluxWorkflowSettingsNode": TT_Flux2WorkflowSettingsNode,
-    "TT_FluxWorkflowSettingsAdvancedNode": TT_Flux2WorkflowSettingsNode,
+    "TT_SdxlWorkflowSettingsNode": TT_SdxlWorkflowSettingsNode,
+    "TT_SdxlWorkflowSettingsAdvancedNode": TT_SdxlWorkflowSettingsAdvancedNode,
+    "TT_FluxWorkflowSettingsNode": TT_FluxWorkflowSettingsNode,
+    "TT_FluxWorkflowSettingsAdvancedNode": TT_FluxWorkflowSettingsAdvancedNode,
     "TT_Flux2WorkflowSettingsNode": TT_Flux2WorkflowSettingsNode,
     "TT_Flux2WorkflowSettingsAdvancedNode": TT_Flux2WorkflowSettingsAdvancedNode,
-    "TT_Sd35WorkflowSettingsNode": TT_Sd35WorkflowSettingsNode,
-    "TT_Sd35WorkflowSettingsAdvancedNode": TT_Sd35WorkflowSettingsAdvancedNode,
+    "TT_Sd35GgufWorkflowSettingsNode": TT_Sd35GgufWorkflowSettingsNode,
+    "TT_Sd35GgufWorkflowSettingsAdvancedNode": TT_Sd35GgufWorkflowSettingsAdvancedNode,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -313,10 +313,10 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "TT_SdxlModelsLoaderAdvancedNode": "TT SDXL Models Loader (Advanced)",
     "TT_FluxModelsLoaderNode": "TT FLUX Models Loader",
     "TT_FluxModelsLoaderAdvancedNode": "TT FLUX Models Loader (Advanced)",
-    "TT_GgufModelsLoaderNode": "TT GGUF Models Loader",
-    "TT_GgufModelsLoaderAdvancedNode": "TT GGUF Models Loader (Advanced)",
-    "TT_Sd35GgufModelsLoaderNode": "TT SD3.5 GGUF Models Loader",
-    "TT_Sd35ModelsLoaderAdvancedNode": "TT SD3.5 GGUF Models Loader (Advanced)",
+    "TT_Flux2GgufModelsLoaderNode": "TT FLUX2 GGUF Models Loader",
+    "TT_Flux2GgufModelsLoaderAdvancedNode": "TT FLUX2 GGUF Models Loader (Advanced)",
+    "TT_Sd35GgufWorkflowSettingsNode": "TT SD3.5 GGUF Models Loader",
+    "TT_Sd35GgufWorkflowSettingsAdvancedNode": "TT SD3.5 GGUF Models Loader (Advanced)",
     # Postproduction
     "TT_ApplyLut": "TT Apply LUT",
     "TT_AddFilmGrain": "TT Add Film Grain",

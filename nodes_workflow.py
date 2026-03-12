@@ -423,12 +423,12 @@ def build_sd3_sampler_sigmas(sampler_name, steps, schedule_shift=3.0):
     return sampler, sigmas
 
 
-class TT_Sd35WorkflowSettingsNode(io.ComfyNode):
+class TT_Sd35GgufWorkflowSettingsNode(io.ComfyNode):
     @classmethod
     def define_schema(cls) -> io.Schema:
         return io.Schema(
-            node_id="TT_Sd35WorkflowSettingsNode",
-            display_name="TT SD3.5 Workflow Settings",
+            node_id="TT_Sd35GgufWorkflowSettingsNode",
+            display_name="TT SD3.5 GGUF Workflow Settings",
             category=CATEGORY,
             description="",
             inputs=[
@@ -479,12 +479,12 @@ class TT_Sd35WorkflowSettingsNode(io.ComfyNode):
         return io.NodeOutput(*args.values())
 
 
-class TT_Sd35WorkflowSettingsAdvancedNode(io.ComfyNode):
+class TT_Sd35GgufWorkflowSettingsAdvancedNode(io.ComfyNode):
     @classmethod
     def define_schema(cls) -> io.Schema:
         return io.Schema(
-            node_id="TT_Sd35WorkflowSettingsAdvancedNode",
-            display_name="TT SD3.5 Workflow Settings (Advanced)",
+            node_id="TT_Sd35GgufWorkflowSettingsAdvancedNode",
+            display_name="TT SD3.5 GGUF Workflow Settings (Advanced)",
             category=CATEGORY,
             description="",
             inputs=[
@@ -570,8 +570,8 @@ class WorkflowNodesExtension(ComfyExtension):
             TT_FluxWorkflowSettingsAdvancedNode,
             TT_Flux2WorkflowSettingsNode,
             TT_Flux2WorkflowSettingsAdvancedNode,
-            TT_Sd35WorkflowSettingsNode,
-            TT_Sd35WorkflowSettingsAdvancedNode,
+            TT_Sd35GgufWorkflowSettingsNode,
+            TT_Sd35GgufWorkflowSettingsAdvancedNode,
         ]
 
 
@@ -590,6 +590,6 @@ __all__ = [
     "TT_FluxWorkflowSettingsAdvancedNode",
     "TT_Flux2WorkflowSettingsNode",
     "TT_Flux2WorkflowSettingsAdvancedNode",
-    "TT_Sd35WorkflowSettingsNode",
-    "TT_Sd35WorkflowSettingsAdvancedNode",
+    "TT_Sd35GgufWorkflowSettingsNode",
+    "TT_Sd35GgufWorkflowSettingsAdvancedNode",
 ]
