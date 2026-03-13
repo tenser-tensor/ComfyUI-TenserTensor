@@ -103,13 +103,18 @@ Great thanks and appreciation for your excellent work!
 > [Comfy-Org/flux2-dev](https://huggingface.co/Comfy-Org/flux2-dev/tree/main/split_files)  
 
 > [!TIP]  
-> **Pre-quantized models by City96:**  
+> **Pre-quantized models by City96 and others:**  
 >  
-> [FLUX1.D GGUF](https://huggingface.co/city96/FLUX.1-dev-gguf)  
-> [FLUX1 Schnell GGUF](https://huggingface.co/city96/FLUX.1-schnell-gguf)  
-> [Stable Diffusion-3.5 Large GGUF](https://huggingface.co/city96/stable-diffusion-3.5-large-gguf)  
-> [Stable Diffusion-3.5 Large Turbo GGUF](https://huggingface.co/city96/stable-diffusion-3.5-large-turbo-gguf)  
-> [T5_XXL v1.1 GGUF](https://huggingface.co/city96/t5-v1_1-xxl-encoder-gguf)  
+> [city96/FLUX.1-dev-gguf](https://huggingface.co/city96/FLUX.1-dev-gguf)  
+> [city96/FLUX.1-schnell-gguf](https://huggingface.co/city96/FLUX.1-schnell-gguf)  
+> [city96/stable-diffusion-3.5-large-gguf](https://huggingface.co/city96/stable-diffusion-3.5-large-gguf)  
+> [city96/stable-diffusion-3.5-large-turbo-gguf](https://huggingface.co/city96/stable-diffusion-3.5-large-turbo-gguf)  
+> [city96/t5-v1_1-xxl-encoder-gguf](https://huggingface.co/city96/t5-v1_1-xxl-encoder-gguf)  
+> [unsloth/LTX-2.3-GGUF](https://huggingface.co/unsloth/LTX-2.3-GGUF)  
+> [unsloth/gemma-3-12b-it-qat-GGUF](https://huggingface.co/unsloth/gemma-3-12b-it-qat-GGUF)  
+> [QuantStack/LTX-2.3-GGUF](https://huggingface.co/QuantStack/LTX-2.3-GGUF)  
+> [google-t5/t5-base](https://huggingface.co/google-t5/t5-base)  
+> [unsloth/gemma-3-12b-it-qat-GGUF](https://huggingface.co/unsloth/gemma-3-12b-it-qat-GGUF)  
 
 ---
 

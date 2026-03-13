@@ -8,14 +8,13 @@
 import collections
 import inspect
 import os
-from typing import override
 
 import torch
 from torch import bfloat16, float16, float32, float8_e4m3fn, float8_e5m2, device, tensor
 
 import folder_paths
 from comfy import sd, model_management, utils, model_sampling, model_patcher, lora, float
-from comfy_api.latest import io, ComfyExtension
+from comfy_api.latest import io
 from nodes import VAELoader, MAX_RESOLUTION
 from .gguf.dequant import is_quantized, is_torch_compatible
 from .gguf.loader import gguf_sd_loader, gguf_clip_loader
@@ -770,33 +769,6 @@ class TT_Sd35GgufModelsLoaderAdvancedNode(io.ComfyNode):
 
         return io.NodeOutput(model, clip, vae)
 
-
-# ==============================================================================
-# V3 entrypoint — registers context nodes with ComfyUI
-# ==============================================================================
-
-class LoaderNodesExtension(ComfyExtension):
-    @override
-    async def get_node_list(self) -> list[type[io.ComfyNode]]:
-        return [
-            TT_SdxlModelsLoaderNode,
-            TT_SdxlModelsLoaderAdvancedNode,
-            TT_FluxModelsLoaderNode,
-            TT_FluxModelsLoaderAdvancedNode,
-            TT_Flux2GgufModelsLoaderNode,
-            TT_Flux2GgufModelsLoaderAdvancedNode,
-            TT_Sd35GgufModelsLoaderNode,
-            TT_Sd35GgufModelsLoaderAdvancedNode,
-        ]
-
-
-async def comfy_entrypoint() -> LoaderNodesExtension:
-    return LoaderNodesExtension()
-
-
-# ==============================================================================
-# Re-exports for backward compatibility
-# ==============================================================================
 
 __all__ = [
     "TT_SdxlModelsLoaderNode",

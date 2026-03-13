@@ -1,13 +1,13 @@
 # (c) TenserTensor <tenser.tensor@proton.me> || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
 import math
-from typing import Any, override
+from typing import Any
 
 import torch
 
 from comfy import sample, utils
 from comfy.latent_formats import SDXL, Flux, Flux2, SD3
-from comfy_api.latest import io, ComfyExtension
+from comfy_api.latest import io
 from .nodes_image import MEGAPIXELS, resize_image, rotate_image, flip_image
 from .nodes_vae import vae_decode, vae_encode
 
@@ -318,29 +318,6 @@ class TT_LatentMultiTransformOnPixelSpaceNode(io.ComfyNode):
 
         return io.NodeOutput(latent)
 
-
-# ==============================================================================
-# V3 entrypoint — registers context nodes with ComfyUI
-# ==============================================================================
-
-class LatentNodesExtension(ComfyExtension):
-    @override
-    async def get_node_list(self) -> list[type[io.ComfyNode]]:
-        return [
-            TT_LatentFactoryNode,
-            TT_LatentFactoryByModelNode,
-            TT_LatentMultiTransformNode,
-            TT_LatentMultiTransformOnPixelSpaceNode,
-        ]
-
-
-async def comfy_entrypoint() -> LatentNodesExtension:
-    return LatentNodesExtension()
-
-
-# ==============================================================================
-# Re-exports for backward compatibility
-# ==============================================================================
 
 __all__ = [
     "TT_LatentFactoryNode",

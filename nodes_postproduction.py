@@ -1,7 +1,6 @@
 # (c) TenserTensor <tenser.tensor@proton.me> || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
 from pathlib import Path
-from typing import override
 
 import colour
 import kornia
@@ -9,7 +8,7 @@ import torch
 from torch.nn import functional
 
 import folder_paths
-from comfy_api.latest import ComfyExtension, io
+from comfy_api.latest import io
 from .nodes_image import DEVICES, RESIZE_METHODS, get_upscale_models, upscale
 
 CATEGORY = "TenserTensor/Postproduction"
@@ -455,31 +454,6 @@ class TT_PostproductionAdvancedNode(io.ComfyNode):
 
         return io.NodeOutput(kwargs.get("image"))
 
-
-# ==============================================================================
-# V3 entrypoint — registers context nodes with ComfyUI
-# ==============================================================================
-
-class PostproductionNodesExtension(ComfyExtension):
-    @override
-    async def get_node_list(self) -> list[type[io.ComfyNode]]:
-        return [
-            TT_AddFilmGrainNode,
-            TT_ApplyLutNode,
-            TT_ImageEnhancerNode,
-            TT_QuickImageUpscalerNode,
-            TT_PostproductionNode,
-            TT_PostproductionAdvancedNode,
-        ]
-
-
-async def comfy_entrypoint() -> PostproductionNodesExtension:
-    return PostproductionNodesExtension()
-
-
-# ==============================================================================
-# Re-exports for backward compatibility
-# ==============================================================================
 
 __all__ = [
     "TT_AddFilmGrainNode",

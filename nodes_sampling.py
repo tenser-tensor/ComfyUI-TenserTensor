@@ -1,12 +1,10 @@
 # (c) TenserTensor <tenser.tensor@proton.me> || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
-from typing import override
-
 import torch
 
 import latent_preview
 from comfy import sample, model_management, samplers
-from comfy_api.latest import ComfyExtension, io
+from comfy_api.latest import io
 from .nodes_context import Context
 from .nodes_latent import SCALE_FACTORS, SCALE_METHODS, scale_latent
 from .nodes_text_encoder import SingleCondCFGGuider
@@ -363,31 +361,6 @@ class TT_GuidedUpscaleKSamplerNode(io.ComfyNode):
 
         return io.NodeOutput(samples)
 
-
-# ==============================================================================
-# V3 entrypoint — registers context nodes with ComfyUI
-# ==============================================================================
-
-class SamplingNodesExtension(ComfyExtension):
-    @override
-    async def get_node_list(self) -> list[type[io.ComfyNode]]:
-        return [
-            TT_KSamplerNode,
-            TT_KSamplerAdvancedNode,
-            TT_KSamplerContextNode,
-            TT_KSamplerTwoStageNode,
-            TT_GuidedKSamplerNode,
-            TT_GuidedUpscaleKSamplerNode,
-        ]
-
-
-async def comfy_entrypoint() -> SamplingNodesExtension:
-    return SamplingNodesExtension()
-
-
-# ==============================================================================
-# Re-exports for backward compatibility
-# ==============================================================================
 
 __all__ = [
     "TT_KSamplerNode",

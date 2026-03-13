@@ -3,12 +3,11 @@
 import dataclasses
 import re
 from dataclasses import dataclass
-from typing import override
 
 import torch
 
 from comfy.clip_vision import Output
-from comfy_api.latest import IO, ComfyExtension, Input
+from comfy_api.latest import IO, Input
 from .nodes_workflow import TTWorkflowSettings, WorkflowSettings
 
 CATEGORY = "TenserTensor/Context"
@@ -310,37 +309,6 @@ class TT_ContextExtractImageNode(ContextNode):
     OPTIONAL = ()
     RETURNS = ("context", "image",)
 
-
-# ==============================================================================
-# V3 entrypoint — registers context nodes with ComfyUI
-# ==============================================================================
-
-class ContextNodesExtension(ComfyExtension):
-    @override
-    async def get_node_list(self) -> list[type[IO.ComfyNode]]:
-        return [
-            TT_BaseContextNode,
-            TT_BaseContextFlux2Node,
-            TT_ContextPassthroughNode,
-            TT_ContextNode,
-            TT_ContextFlux2Node,
-            TT_ContextSetGuiderNode,
-            TT_ContextSetImageNode,
-            TT_ContextSetLatentNode,
-            TT_ContextExtractEncoderFlux2Node,
-            TT_ContextExtractGuidedSamplerFlux2Node,
-            TT_ContextExtractVaeNode,
-            TT_ContextExtractImageNode,
-        ]
-
-
-async def comfy_entrypoint() -> ContextNodesExtension:
-    return ContextNodesExtension()
-
-
-# ==============================================================================
-# Re-exports for backward compatibility
-# ==============================================================================
 
 __all__ = [
     "TT_BaseContextNode",

@@ -3,12 +3,11 @@
 import dataclasses
 import math
 from dataclasses import dataclass
-from typing import override
 
 import torch
 
 from comfy.samplers import KSampler, sampler_object, Sampler
-from comfy_api.latest import io, ComfyExtension
+from comfy_api.latest import io
 from nodes import MAX_RESOLUTION
 
 CATEGORY = "TenserTensor/Workflow"
@@ -75,10 +74,8 @@ class WorkflowSettings:
             super().__init__(id, **kwargs)
 
     class Output(io.Output):
-        def __init__(self, **kwargs):
-            print()
-            super().__init__(**kwargs)
-
+        def __init__(self, id: str, **kwargs):
+            super().__init__(id, **kwargs)
 
 class TT_SdxlWorkflowSettingsNode(io.ComfyNode):
     @classmethod
@@ -555,33 +552,6 @@ class TT_Sd35GgufWorkflowSettingsAdvancedNode(io.ComfyNode):
 
         return io.NodeOutput(*args.values())
 
-
-# ==============================================================================
-# V3 entrypoint — registers context nodes with ComfyUI
-# ==============================================================================
-
-class WorkflowNodesExtension(ComfyExtension):
-    @override
-    async def get_node_list(self) -> list[type[io.ComfyNode]]:
-        return [
-            TT_SdxlWorkflowSettingsNode,
-            TT_SdxlWorkflowSettingsAdvancedNode,
-            TT_FluxWorkflowSettingsNode,
-            TT_FluxWorkflowSettingsAdvancedNode,
-            TT_Flux2WorkflowSettingsNode,
-            TT_Flux2WorkflowSettingsAdvancedNode,
-            TT_Sd35GgufWorkflowSettingsNode,
-            TT_Sd35GgufWorkflowSettingsAdvancedNode,
-        ]
-
-
-async def comfy_entrypoint() -> WorkflowNodesExtension:
-    return WorkflowNodesExtension()
-
-
-# ==============================================================================
-# Re-exports for backward compatibility
-# ==============================================================================
 
 __all__ = [
     "TT_SdxlWorkflowSettingsNode",

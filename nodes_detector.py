@@ -1,12 +1,10 @@
 # (c) TenserTensor <tenser.tensor@proton.me> || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
 
-from typing import override
-
 from kornia.filters import canny
 
 from comfy import model_management
-from comfy_api.latest import io, ui, ComfyExtension
+from comfy_api.latest import io, ui
 from .nodes_image import get_image_files, load_image
 
 CATEGORY = "TenserTensor/Detector"
@@ -46,26 +44,6 @@ class TT_CannyEdgeDetectorNode(io.ComfyNode):
 
         return io.NodeOutput(cn_image, ui=ui.PreviewImage(timage, cls=cls))
 
-
-# ==============================================================================
-# V3 entrypoint — registers context nodes with ComfyUI
-# ==============================================================================
-
-class DetectorNodesExtension(ComfyExtension):
-    @override
-    async def get_node_list(self) -> list[type[io.ComfyNode]]:
-        return [
-            TT_CannyEdgeDetectorNode,
-        ]
-
-
-async def comfy_entrypoint() -> DetectorNodesExtension:
-    return DetectorNodesExtension()
-
-
-# ==============================================================================
-# Re-exports for backward compatibility
-# ==============================================================================
 
 __all__ = [
     "TT_CannyEdgeDetectorNode",
