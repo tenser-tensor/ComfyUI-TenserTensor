@@ -9,11 +9,10 @@ from torch.nn import functional
 
 import folder_paths
 from comfy_api.latest import io
-from .nodes_image import DEVICES, RESIZE_METHODS, get_upscale_models, upscale
+from .nodes_image import get_upscale_models, upscale
+from .utils import CommonTypes, raise_if
 
 CATEGORY = "TenserTensor/Postproduction"
-
-COLORSPACES = ["linear", "logarithmic"]
 
 
 def apply_film_grain(**kwargs):
@@ -105,9 +104,11 @@ class TT_AddFilmGrainNode(io.ComfyNode):
 def get_lut_files_list():
     base = folder_paths.get_folder_paths("custom_nodes")[0]
     lut_dir = Path(base) / "ComfyUI-TenserTensor" / "lut"
-
-    if not lut_dir.is_dir():
-        raise FileNotFoundError(f"lut dir not found: {lut_dir}")
+    raise_if(
+        not lut_dir.is_dir(),
+        FileNotFoundError,
+        f"lut dir not found: {lut_dir}"
+    )
 
     files = [file.name for file in lut_dir.glob("*.cube")]
 
@@ -158,7 +159,7 @@ class TT_ApplyLutNode(io.ComfyNode):
                 io.Image.Input("image"),
                 io.Combo.Input("lut_file", options=LUT_FILES),
                 io.Float.Input("strength", default=1.0, min=0.0, max=1.0, step=0.01),
-                io.Combo.Input("colorspace", options=COLORSPACES)
+                io.Combo.Input("colorspace", options=CommonTypes.COLORSPACES)
             ],
             outputs=[
                 io.Image.Output("IMAGE"),
@@ -336,7 +337,7 @@ class TT_PostproductionNode(io.ComfyNode):
                 io.Boolean.Input("apply_lut", default=True, label_on="Apply LUT", label_off="Skip LUT"),
                 io.Combo.Input("lut_file", options=LUT_FILES),
                 io.Float.Input("lut_strength", default=1.0, min=0.0, max=1.0, step=0.01),
-                io.Combo.Input("colorspace", options=COLORSPACES),
+                io.Combo.Input("colorspace", options=CommonTypes.COLORSPACES),
                 io.Boolean.Input("add_film_grain", default=True, label_on="With Grain", label_off="Clean"),
                 io.Int.Input("seed", display_name="grain_seed", default=0, min=0, max=0xffffffffffffffff),
                 io.Float.Input("scale", display_name="grain_scale", default=0.25, min=0.05, max=2.0, step=0.05),
@@ -407,7 +408,7 @@ class TT_PostproductionAdvancedNode(io.ComfyNode):
                 io.Boolean.Input("apply_lut", default=True, label_on="Apply LUT", label_off="Bypass"),
                 io.Combo.Input("lut_file", options=LUT_FILES),
                 io.Float.Input("lut_strength", default=1.0, min=0.0, max=1.0, step=0.01),
-                io.Combo.Input("colorspace", options=COLORSPACES),
+                io.Combo.Input("colorspace", options=CommonTypes.COLORSPACES),
                 io.Boolean.Input("add_film_grain", default=True, label_on="Add Grain", label_off="Bypass"),
                 io.Int.Input("seed", display_name="grain_seed", default=0, min=0, max=0xffffffffffffffff),
                 io.Float.Input("scale", display_name="grain_scale", default=0.25, min=0.05, max=2.0, step=0.05),

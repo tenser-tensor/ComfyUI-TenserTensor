@@ -10,7 +10,7 @@ import inspect
 import os
 
 import torch
-from torch import bfloat16, float16, float32, float8_e4m3fn, float8_e5m2, device, tensor
+from torch import device, tensor
 
 import folder_paths
 from comfy import sd, model_management, utils, model_sampling, model_patcher, lora, float
@@ -19,15 +19,9 @@ from nodes import VAELoader, MAX_RESOLUTION
 from .gguf.dequant import is_quantized, is_torch_compatible
 from .gguf.loader import gguf_sd_loader, gguf_clip_loader
 from .gguf.ops import GGMLOps, move_patch_to_device
+from .utils import CommonTypes, raise_if
 
 CATEGORY = "TenserTensor/Loaders"
-TORCH_DEVICES = ["default", "cpu"]
-TORCH_DEVICE_CPU = "cpu"
-DTYPES = {"bfloat16": bfloat16, "float16": float16, "float32": float32}
-VIDEO_TAES = ["taehv", "lighttaew2_2", "lighttaew2_1", "lighttaehy1_5"]
-IMAGE_TAES = ["taesd", "taesdxl", "taesd3", "taef1"]
-MIN_SAMPLING_RES = 256
-MAX_SAMPLING_RES = 4096
 
 
 def get_checkpoint_files():
@@ -77,8 +71,8 @@ def load_sdxl_clip(clip_l, clip_g, clip_device):
     clip_g_path = folder_paths.get_full_path_or_raise("text_encoders", clip_g)
 
     model_options = {}
-    if clip_device == TORCH_DEVICE_CPU:
-        model_options["load_device"] = model_options["offload_device"] = device(TORCH_DEVICE_CPU)
+    if clip_device == CommonTypes.TORCH_DEVICE_CPU:
+        model_options["load_device"] = model_options["offload_device"] = device(CommonTypes.TORCH_DEVICE_CPU)
 
     return sd.load_clip(
         ckpt_paths=[clip_l_path, clip_g_path],
@@ -89,18 +83,18 @@ def load_sdxl_clip(clip_l, clip_g, clip_device):
 
 
 def load_vae(vae_name, vae_device="default", vae_dtype="bfloat16"):
-    dtype = DTYPES[vae_dtype]
+    dtype = CommonTypes.TORCH_DTYPES[vae_dtype]
     torch_device = model_management.get_torch_device() if vae_device == "default" else device(vae_device)
 
     metadata = None
     if vae_name == "pixel_space":
         state_dict = {"pixel_space_vae": tensor(1.0)}
-    elif vae_name in IMAGE_TAES:
+    elif vae_name in CommonTypes.IMAGE_TAES:
         state_dict = VAELoader.load_taesd(vae_name)
     else:
         vae_path = (
             folder_paths.get_full_path_or_raise("vae_approx", vae_name)
-            if os.path.splitext(vae_name)[0] in VIDEO_TAES
+            if os.path.splitext(vae_name)[0] in CommonTypes.VIDEO_TAES
             else folder_paths.get_full_path_or_raise("vae", vae_name)
         )
         state_dict, metadata = utils.load_torch_file(vae_path, return_metadata=True)
@@ -163,7 +157,7 @@ class TT_SdxlModelsLoaderNode(io.ComfyNode):
                 io.Float.Input("primary_weight", default=1.0, min=0.0, max=1.0, step=0.01),
                 io.Combo.Input("clip_l", options=get_text_encoder_files()),
                 io.Combo.Input("clip_g", options=get_text_encoder_files()),
-                io.Combo.Input("clip_device", options=TORCH_DEVICES, default="default"),
+                io.Combo.Input("clip_device", options=CommonTypes.TORCH_DEVICES, default="default"),
                 io.Combo.Input("vae_name", options=get_vae_files()),
             ],
             outputs=[
@@ -211,7 +205,7 @@ class TT_SdxlModelsLoaderAdvancedNode(io.ComfyNode):
                 io.Float.Input("primary_weight", default=1.0, min=0.0, max=1.0, step=0.01),
                 io.Combo.Input("clip_l", options=get_text_encoder_files()),
                 io.Combo.Input("clip_g", options=get_text_encoder_files()),
-                io.Combo.Input("clip_device", options=TORCH_DEVICES, default="default"),
+                io.Combo.Input("clip_device", options=CommonTypes.TORCH_DEVICES, default="default"),
                 io.Combo.Input("lora_name_1", options=get_lora_files()),
                 io.Float.Input("strength_1", default=1.0, min=-10.0, max=10.0, step=0.1),
                 io.Combo.Input("lora_name_2", options=get_lora_files()),
@@ -221,8 +215,8 @@ class TT_SdxlModelsLoaderAdvancedNode(io.ComfyNode):
                 io.Combo.Input("lora_name_4", options=get_lora_files()),
                 io.Float.Input("strength_4", default=1.0, min=-10.0, max=10.0, step=0.1),
                 io.Combo.Input("vae_name", options=get_vae_files()),
-                io.Combo.Input("vae_device", options=TORCH_DEVICES, default="default"),
-                io.Combo.Input("vae_dtype", options=list(DTYPES.keys())),
+                io.Combo.Input("vae_device", options=CommonTypes.TORCH_DEVICES, default="default"),
+                io.Combo.Input("vae_dtype", options=list(CommonTypes.TORCH_DTYPES.keys())),
             ],
             outputs=[
                 io.Model.Output("MODEL"),
@@ -238,20 +232,14 @@ class TT_SdxlModelsLoaderAdvancedNode(io.ComfyNode):
         return io.NodeOutput(model, clip, vae)
 
 
-def load_diffusion_model(diffusion_model, dtype="default"):
+def load_diffusion_model(diffusion_model, model_dtype="default"):
     unet_path = folder_paths.get_full_path_or_raise("diffusion_models", diffusion_model)
 
     model_options = {}
-    match dtype:
-        case "fp8_e4m3fn":
-            model_options["dtype"] = float8_e4m3fn
-        case "fp8_e4m3fn_fast":
-            model_options["dtype"] = float8_e4m3fn
+    if model_dtype != "default":
+        model_options["dtype"] = CommonTypes.MODEL_DTYPES.get(model_dtype)
+        if "fast" in model_dtype:
             model_options["fp8_optimizations"] = True
-        case "fp8_e5m2":
-            model_options["dtype"] = float8_e5m2
-        case _:
-            pass
 
     return sd.load_diffusion_model(unet_path, model_options=model_options)
 
@@ -262,8 +250,8 @@ def load_flux_clip(clip_l, t5xxl, device):
     t5xxl_path = folder_paths.get_full_path_or_raise("text_encoders", t5xxl)
 
     model_options = {}
-    if device == TORCH_DEVICE_CPU:
-        model_options["load_device"] = model_options["offload_device"] = device(TORCH_DEVICE_CPU)
+    if device == CommonTypes.TORCH_DEVICE_CPU:
+        model_options["load_device"] = model_options["offload_device"] = device(CommonTypes.TORCH_DEVICE_CPU)
 
     return sd.load_clip(
         ckpt_paths=[clip_l_path, t5xxl_path],
@@ -280,8 +268,8 @@ class ModelSamplingFluxAdvanced(model_sampling.ModelSamplingFlux, model_sampling
 def patch_flux_sampling(model, base_sampling_shift, max_sampling_shift, sampling_width, sampling_height):
     tmodel = model.clone()
 
-    slope = (max_sampling_shift - base_sampling_shift) / (MAX_SAMPLING_RES - MIN_SAMPLING_RES)
-    intercept = base_sampling_shift - slope * MIN_SAMPLING_RES
+    slope = (max_sampling_shift - base_sampling_shift) / (CommonTypes.MAX_SAMPLING_RES - CommonTypes.MIN_SAMPLING_RES)
+    intercept = base_sampling_shift - slope * CommonTypes.MIN_SAMPLING_RES
     current_res = (sampling_width * sampling_height / (8 * 8 * 2 * 2))
     shift = current_res * slope + intercept
 
@@ -293,7 +281,7 @@ def patch_flux_sampling(model, base_sampling_shift, max_sampling_shift, sampling
 
 
 def load_flux_pipeline(cls, apply_loras=False, **kwargs):
-    model = load_diffusion_model(kwargs.get("diffusion_model"))
+    model = load_diffusion_model(kwargs.get("diffusion_model"), kwargs.get("model_dtype", "default"))
 
     if kwargs.get("apply_sampling"):
         args = {
@@ -342,7 +330,7 @@ class TT_FluxModelsLoaderNode(io.ComfyNode):
                 io.Combo.Input("diffusion_model", options=get_diffusion_models_files()),
                 io.Combo.Input("clip_l", options=get_text_encoder_files()),
                 io.Combo.Input("t5xxl", options=get_text_encoder_files()),
-                io.Combo.Input("clip_device", options=TORCH_DEVICES, default="default"),
+                io.Combo.Input("clip_device", options=CommonTypes.TORCH_DEVICES, default="default"),
                 io.Combo.Input("vae_name", options=get_vae_files()),
             ],
             outputs=[
@@ -374,6 +362,7 @@ class TT_FluxModelsLoaderAdvancedNode(io.ComfyNode):
             description="",
             inputs=[
                 io.Combo.Input("diffusion_model", options=get_diffusion_models_files()),
+                io.Combo.Input("model_dtype", options=["default"] + list(CommonTypes.MODEL_DTYPES.keys())),
                 io.Boolean.Input("apply_sampling", default=True, label_on="Flux Shift", label_off="No Shift"),
                 io.Float.Input("base_sampling_shift", default=0.5, min=0.0, max=100.0, step=0.01, advanced=True),
                 io.Float.Input("max_sampling_shift", default=1.15, min=0.0, max=100.0, step=0.01, advanced=True),
@@ -381,7 +370,7 @@ class TT_FluxModelsLoaderAdvancedNode(io.ComfyNode):
                 io.Int.Input("sampling_height", default=1024, min=16, max=MAX_RESOLUTION, step=8, advanced=True),
                 io.Combo.Input("clip_l", options=get_text_encoder_files()),
                 io.Combo.Input("t5xxl", options=get_text_encoder_files()),
-                io.Combo.Input("clip_device", options=TORCH_DEVICES, default="default", advanced=True),
+                io.Combo.Input("clip_device", options=CommonTypes.TORCH_DEVICES, default="default", advanced=True),
                 io.Combo.Input("lora_name_1", options=get_lora_files()),
                 io.Float.Input("strength_1", default=1.0, min=-10.0, max=10.0, step=0.1),
                 io.Combo.Input("lora_name_2", options=get_lora_files()),
@@ -391,8 +380,8 @@ class TT_FluxModelsLoaderAdvancedNode(io.ComfyNode):
                 io.Combo.Input("lora_name_4", options=get_lora_files()),
                 io.Float.Input("strength_4", default=1.0, min=-10.0, max=10.0, step=0.1),
                 io.Combo.Input("vae_name", options=get_vae_files()),
-                io.Combo.Input("vae_device", options=TORCH_DEVICES, default="default", advanced=True),
-                io.Combo.Input("vae_dtype", options=list(DTYPES.keys()), advanced=True),
+                io.Combo.Input("vae_device", options=CommonTypes.TORCH_DEVICES, default="default", advanced=True),
+                io.Combo.Input("vae_dtype", options=list(CommonTypes.TORCH_DTYPES.keys()), advanced=True),
             ],
             outputs=[
                 io.Model.Output("MODEL"),
@@ -488,9 +477,11 @@ def load_clip_data(ckpt_paths):
         else:
             state_dict = utils.load_torch_file(path, safe_load=True)
             # NOTE: Scaled FP8 would require different custom ops, but only one can be active
-            if "scaled_fp8" in state_dict:
-                raise NotImplementedError(
-                    f"Mixing scaled FP8 with GGUF is not supported! Use regular CLIP loader or switch model(s)\n({path})")
+            raise_if(
+                "scaled_fp8" in state_dict,
+                NotImplementedError,
+                f"Mixing scaled FP8 with GGUF is not supported! Use regular CLIP loader or switch model(s)\n({path})"
+            )
 
         clip_data.append(state_dict)
 
@@ -565,9 +556,7 @@ def load_gguf_pipeline(cls, **kwargs):
         args["metadata"] = extra.get("metadata", {})
 
     model = sd.load_diffusion_model_state_dict(state_dict, model_options={"custom_operations": ops}, **args, )
-
-    if model is None:
-        raise RuntimeError("ERROR: Could not detect model type of: {}".format(gguf_full_path))
+    raise_if(model is None, RuntimeError, "Could not detect model type of: {}".format(gguf_full_path))
 
     model = GGUFModelPatcher.clone(model)
     model.patch_on_device = kwargs.get("patch_on_device", None)
@@ -656,15 +645,15 @@ class TT_Flux2GgufModelsLoaderAdvancedNode(io.ComfyNode):
             description="",
             inputs=[
                 io.Combo.Input("diffusion_model", options=get_gguf_diffusion_models_files()),
-                io.Combo.Input("dequant_dtype", options=list(DTYPES.keys()), default="bfloat16", advanced=True),
-                io.Combo.Input("patch_dtype", options=list(DTYPES.keys()), default="bfloat16", advanced=True),
+                io.Combo.Input("dequant_dtype", options=list(CommonTypes.TORCH_DTYPES.keys()), default="bfloat16", advanced=True),
+                io.Combo.Input("patch_dtype", options=list(CommonTypes.TORCH_DTYPES.keys()), default="bfloat16", advanced=True),
                 io.Boolean.Input("apply_sampling", default=True, label_on="Flux Shift", label_off="No Shift"),
                 io.Float.Input("base_sampling_shift", default=0.5, min=0.0, max=100.0, step=0.01, advanced=True),
                 io.Float.Input("max_sampling_shift", default=1.15, min=0.0, max=100.0, step=0.01, advanced=True),
                 io.Int.Input("sampling_width", default=1024, min=16, max=MAX_RESOLUTION, step=8, advanced=True),
                 io.Int.Input("sampling_height", default=1024, min=16, max=MAX_RESOLUTION, step=8, advanced=True),
                 io.Combo.Input("clip", options=get_gguf_text_encoder_files()),
-                io.Combo.Input("clip_device", options=TORCH_DEVICES, default="default", advanced=True),
+                io.Combo.Input("clip_device", options=CommonTypes.TORCH_DEVICES, default="default", advanced=True),
                 io.Combo.Input("lora_name_1", options=get_lora_files()),
                 io.Float.Input("strength_1", default=1.0, min=-10.0, max=10.0, step=0.1),
                 io.Combo.Input("lora_name_2", options=get_lora_files()),
@@ -674,8 +663,8 @@ class TT_Flux2GgufModelsLoaderAdvancedNode(io.ComfyNode):
                 io.Combo.Input("lora_name_4", options=get_lora_files()),
                 io.Float.Input("strength_4", default=1.0, min=-10.0, max=10.0, step=0.1),
                 io.Combo.Input("vae_name", options=get_vae_files()),
-                io.Combo.Input("vae_device", options=TORCH_DEVICES, default="default", advanced=True),
-                io.Combo.Input("vae_dtype", options=list(DTYPES.keys()), advanced=True),
+                io.Combo.Input("vae_device", options=CommonTypes.TORCH_DEVICES, default="default", advanced=True),
+                io.Combo.Input("vae_dtype", options=list(CommonTypes.TORCH_DTYPES.keys()), advanced=True),
             ],
             outputs=[
                 io.Model.Output("MODEL"),
@@ -737,12 +726,12 @@ class TT_Sd35GgufModelsLoaderAdvancedNode(io.ComfyNode):
             description="",
             inputs=[
                 io.Combo.Input("diffusion_model", options=get_gguf_diffusion_models_files()),
-                io.Combo.Input("dequant_dtype", options=list(DTYPES.keys()), default="bfloat16", advanced=True),
-                io.Combo.Input("patch_dtype", options=list(DTYPES.keys()), default="bfloat16", advanced=True),
+                io.Combo.Input("dequant_dtype", options=list(CommonTypes.TORCH_DTYPES.keys()), default="bfloat16", advanced=True),
+                io.Combo.Input("patch_dtype", options=list(CommonTypes.TORCH_DTYPES.keys()), default="bfloat16", advanced=True),
                 io.Combo.Input("clip_l", options=get_gguf_text_encoder_files()),
                 io.Combo.Input("clip_g", options=get_gguf_text_encoder_files()),
                 io.Combo.Input("t5xxl", options=get_gguf_text_encoder_files()),
-                io.Combo.Input("clip_device", options=TORCH_DEVICES, default="default", advanced=True),
+                io.Combo.Input("clip_device", options=CommonTypes.TORCH_DEVICES, default="default", advanced=True),
                 io.Combo.Input("lora_name_1", options=get_lora_files()),
                 io.Float.Input("strength_1", default=1.0, min=-10.0, max=10.0, step=0.1),
                 io.Combo.Input("lora_name_2", options=get_lora_files()),
@@ -752,8 +741,8 @@ class TT_Sd35GgufModelsLoaderAdvancedNode(io.ComfyNode):
                 io.Combo.Input("lora_name_4", options=get_lora_files()),
                 io.Float.Input("strength_4", default=1.0, min=-10.0, max=10.0, step=0.1),
                 io.Combo.Input("vae_name", options=get_vae_files()),
-                io.Combo.Input("vae_device", options=TORCH_DEVICES, default="default", advanced=True),
-                io.Combo.Input("vae_dtype", options=list(DTYPES.keys()), advanced=True),
+                io.Combo.Input("vae_device", options=CommonTypes.TORCH_DEVICES, default="default", advanced=True),
+                io.Combo.Input("vae_dtype", options=list(CommonTypes.TORCH_DTYPES.keys()), advanced=True),
             ],
             outputs=[
                 io.Model.Output("MODEL"),
@@ -768,6 +757,10 @@ class TT_Sd35GgufModelsLoaderAdvancedNode(io.ComfyNode):
         model, clip, vae = load_gguf_pipeline(cls, apply_loras=True, **kwargs)
 
         return io.NodeOutput(model, clip, vae)
+
+
+class TT_Ltx23GgufModelsLoaderAdvancedNode(io.ComfyNode):
+    pass
 
 
 __all__ = [

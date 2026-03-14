@@ -18,12 +18,9 @@ from comfy_api.latest import io, ui
 from node_helpers import conditioning_set_values, pillow
 from .nodes_text_encoder import SingleCondCFGGuider
 from .nodes_vae import vae_encode
+from .utils import CommonTypes, raise_if
 
 CATEGORY = "TenserTensor/Image"
-RESIZE_METHODS = ["nearest-exact", "bilinear", "area", "bicubic", "bislerp"]
-FILENAME_FORMATS = ["name-###", "date-name-###", "name-datetime"]
-FORMAT_EXT = {"PNG": ".png", "JPEG": ".jpg", "WEBP": ".webp", }
-MEGAPIXELS = ["0.25 MP", "0.5 MP", "1 MP", "2 MP", "4 MP", "8 MP"]
 
 
 def align_to_step(size, scale_factor, dimension_step):
@@ -131,8 +128,11 @@ def load_image(filename, device=None) -> tuple[torch.Tensor, torch.Tensor]:
         if pil_image.format == "MPO":
             break
 
-    if len(images) == 0:
-        raise ValueError(f"ERROR: No frames found in {path}")
+    raise_if(
+        len(images) == 0,
+        ValueError,
+        f"No frames found in {path}"
+    )
 
     o_image = torch.cat(images, dim=0) if len(images) > 1 else images[0]
 
@@ -164,9 +164,9 @@ class TT_ImageLoaderResizerNode(io.ComfyNode):
             description="",
             inputs=[
                 io.Boolean.Input("resize_image", default=False, label_on="Scale", label_off="Skip"),
-                io.Combo.Input("resize_method", options=RESIZE_METHODS, advanced=True),
+                io.Combo.Input("resize_method", options=CommonTypes.SCALE_METHODS, advanced=True),
                 io.Int.Input("dimension_step", default=1, min=1, max=256, advanced=True),
-                io.Combo.Input("megapixels", options=MEGAPIXELS, advanced=True),
+                io.Combo.Input("megapixels", options=CommonTypes.MEGAPIXELS, advanced=True),
                 io.Combo.Input("image", options=get_image_files(), upload=io.UploadType.image)
             ],
             outputs=[
@@ -233,12 +233,15 @@ def build_save_path(**kwargs) -> tuple[str, str]:
     )
     save_path = os.path.join(output_path, subfolder)
 
-    if os.path.commonpath((output_path, os.path.abspath(save_path))) != output_path:
-        raise InvalidSavePathError("Saving image outside the output folder is not allowed.")
+    raise_if(
+        os.path.commonpath((output_path, os.path.abspath(save_path))) != output_path,
+        InvalidSavePathError,
+        "Saving image outside the output folder is not allowed."
+    )
 
     os.makedirs(save_path, exist_ok=True)
 
-    ext = FORMAT_EXT[image_format]
+    ext = CommonTypes.FORMAT_EXT[image_format]
     filename = ""
     match kwargs.get("filename_format"):
         case "name-###":
@@ -284,9 +287,9 @@ class TT_ImagePreviewSaveNode(io.ComfyNode):
                 io.Image.Input("image"),
                 io.Boolean.Input("save_image", default=True, label_on="Save image", label_off="Only preview"),
                 io.String.Input("filename_prefix", default="TT"),
-                io.Combo.Input("filename_format", options=FILENAME_FORMATS, default="name-datetime", advanced=True),
+                io.Combo.Input("filename_format", options=CommonTypes.FILENAME_FORMATS, default="name-datetime", advanced=True),
                 io.String.Input("subfolder", default="", advanced=True),
-                io.Combo.Input("image_format", options=list(FORMAT_EXT.keys()), default="PNG", advanced=True),
+                io.Combo.Input("image_format", options=list(CommonTypes.FORMAT_EXT.keys()), default="PNG", advanced=True),
                 io.Int.Input("image_quality", default=75, min=1, max=100, advanced=True),
                 io.Int.Input("compression_level", default=6, min=0, max=9, advanced=True),
             ],
@@ -303,9 +306,6 @@ class TT_ImagePreviewSaveNode(io.ComfyNode):
         return io.NodeOutput(ui=ui.PreviewImage(timage, cls=cls))
 
 
-DEVICES = ["default", "cpu"]
-
-
 def get_upscale_models() -> list[str]:
     return folder_paths.get_filename_list("upscale_models")
 
@@ -320,9 +320,11 @@ def load_upscale_model(upscale_model) -> ImageModelDescriptor:
 
     sd = utils.state_dict_prefix_replace(sd, {"module.": ""})
     upscale_model = ModelLoader().load_from_state_dict(sd).eval()
-
-    if not isinstance(upscale_model, ImageModelDescriptor):
-        raise TypeError(f"Expected ImageModelDescriptor, got {type(upscale_model).__name__}")
+    raise_if(
+        not isinstance(upscale_model, ImageModelDescriptor),
+        TypeError,
+        f"Expected ImageModelDescriptor, got {type(upscale_model).__name__}"
+    )
 
     return upscale_model
 
@@ -396,12 +398,12 @@ class TT_ImagePreviewUpscaleSaveNode(io.ComfyNode):
                 io.Boolean.Input("save_image", default=True, label_on="Save image", label_off="Only preview"),
                 io.Boolean.Input("upscale_image", default=True, label_on="Upscale image", label_off="Keep size"),
                 io.String.Input("filename_prefix", default="TT"),
-                io.Combo.Input("filename_format", options=FILENAME_FORMATS, default="name-datetime", advanced=True),
+                io.Combo.Input("filename_format", options=CommonTypes.FILENAME_FORMATS, default="name-datetime", advanced=True),
                 io.String.Input("subfolder", default="", advanced=True),
-                io.Combo.Input("image_format", options=list(FORMAT_EXT.keys()), default="PNG", advanced=True),
+                io.Combo.Input("image_format", options=list(CommonTypes.FORMAT_EXT.keys()), default="PNG", advanced=True),
                 io.Int.Input("image_quality", default=75, min=1, max=100, advanced=True),
                 io.Int.Input("compression_level", default=6, min=0, max=9, advanced=True),
-                io.Combo.Input("upscaler_device", options=DEVICES, advanced=True),
+                io.Combo.Input("upscaler_device", options=CommonTypes.TORCH_DEVICES, advanced=True),
                 io.Combo.Input("upscale_model", options=get_upscale_models(), advanced=True),
                 io.Int.Input("upscale_tile", default=512, min=128, max=4096, step=64, advanced=True),
                 io.Int.Input("upscale_overlap", default=64, min=8, max=256, step=8, advanced=True),
@@ -435,8 +437,8 @@ class TT_GuiderImageReferenceNode(io.ComfyNode):
             inputs=[
                 io.Vae.Input("vae"),
                 io.Guider.Input("guider"),
-                io.Combo.Input("megapixels", options=MEGAPIXELS),
-                io.Combo.Input("resize_method", options=RESIZE_METHODS, advanced=True),
+                io.Combo.Input("megapixels", options=CommonTypes.MEGAPIXELS),
+                io.Combo.Input("resize_method", options=CommonTypes.SCALE_METHODS, advanced=True),
                 io.Int.Input("dimension_step", default=1, min=1, max=256, advanced=True),
                 io.Combo.Input("image", options=get_image_files(), upload=io.UploadType.image)
             ],

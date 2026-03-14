@@ -4,6 +4,7 @@ import folder_paths
 from comfy import controlnet
 from comfy_api.latest import io, ui
 from .nodes_image import SingleCondCFGGuider, get_image_files, load_image
+from .utils import raise_if
 
 CATEGORY = "TenserTensor/ControlNet"
 
@@ -18,9 +19,11 @@ def load_control_net(filename):
     print(f"CNET path: {cnet_path}")
 
     cnet = controlnet.load_controlnet(cnet_path)
-
-    if cnet is None:
-        raise RuntimeError("ERROR: ControlNet file is invalid or corrupted.")
+    raise_if(
+        cnet is None,
+        RuntimeError,
+        "ControlNet file is invalid or corrupted."
+    )
 
     return cnet
 

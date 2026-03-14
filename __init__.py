@@ -2,6 +2,8 @@
 
 from .comfy_extension import TenserTensorExtension
 
+WEB_DIRECTORY = "./web"
+
 
 # ==============================================================================
 # V3 entrypoint — registers context nodes with ComfyUI

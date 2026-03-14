@@ -6,6 +6,7 @@ from comfy import samplers
 from comfy_api.latest import io
 from nodes import MAX_RESOLUTION
 from .nodes_context import Context
+from .utils import raise_if
 
 CATEGORY = "TenserTensor/Text Encoder"
 
@@ -32,9 +33,7 @@ class SingleCondCFGGuider(samplers.CFGGuider):
 
 def encode_prompts_sdxl(**kwargs):
     clip = kwargs.get("clip")
-
-    if clip is None:
-        raise ValueError("ERROR: CLIP is required for text encoder")
+    raise_if(clip is None, ValueError, "CLIP is required for text encoder")
 
     positive_tokens = clip.tokenize(kwargs.get("clip_g_positive"))
     positive_tokens["l"] = clip.tokenize(kwargs.get("clip_l_positive"))["l"]
@@ -128,9 +127,7 @@ class TT_SdxlClipTextEncoderContextNode(io.ComfyNode):
 
 def encode_prompts_flux(**kwargs):
     clip = kwargs.get("clip")
-
-    if clip is None:
-        raise ValueError("ERROR: CLIP is required for text encoder")
+    raise_if(clip is None, ValueError, "CLIP is required for text encoder")
 
     positive_tokens = clip.tokenize(kwargs.get("clip_l_positive"))
     positive_tokens["t5xxl"] = clip.tokenize(kwargs.get("t5xxl_positive"))["t5xxl"]
@@ -207,14 +204,9 @@ class TT_Flux1ClipTextEncoderContextNode(io.ComfyNode):
 
 
 def encode_prompts_flux2(**kwargs):
-    clip = kwargs.get("clip")
-    model = kwargs.get("model")
-
-    if model is None:
-        raise ValueError("ERROR: MODEL is required for text encoder")
-
-    if clip is None:
-        raise ValueError("ERROR: CLIP is required for text encoder")
+    model, clip = kwargs.get("clip"), kwargs.get("model")
+    raise_if(model is None, ValueError, "MODEL is required for text encoder")
+    raise_if(clip is None, ValueError, "CLIP is required for text encoder")
 
     prompt, lora_triggers, guidance = (
         kwargs.get("prompt"),
@@ -295,15 +287,9 @@ class TT_Flux2TextEncoderContextNode(io.ComfyNode):
 
 
 def encode_prompts_sd35(**kwargs):
-    model = kwargs.get("model")
-
-    if model is None:
-        raise ValueError("ERROR: MODEL is required for text encoder")
-
-    clip = kwargs.get("clip")
-
-    if clip is None:
-        raise ValueError("ERROR: CLIP is required for text encoder")
+    model, clip = kwargs.get("model"), kwargs.get("clip")
+    raise_if(model is None, ValueError, "MODEL is required for text encoder")
+    raise_if(clip is None, ValueError, "CLIP is required for text encoder")
 
     lora_triggers, t5xxl_positive = kwargs.get("lora_triggers"), kwargs.get("t5xxl_positive")
     if lora_triggers:
@@ -329,11 +315,6 @@ def encode_prompts_sd35(**kwargs):
     guider = SingleCondCFGGuider(model)
     guider.set_conds(positive, negative)
     guider.set_cfg(kwargs.get("cfg"))
-
-    # print(f"POSITIVE: {positive}")
-    # print(f"NEGATIVE: {negative}")
-    # print(f"MODEL: {model}")
-    # print(f"GUIDER: {guider}")
 
     return guider
 

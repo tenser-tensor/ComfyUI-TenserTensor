@@ -77,6 +77,7 @@ class WorkflowSettings:
         def __init__(self, id: str, **kwargs):
             super().__init__(id, **kwargs)
 
+
 class TT_SdxlWorkflowSettingsNode(io.ComfyNode):
     @classmethod
     def define_schema(cls) -> io.Schema:

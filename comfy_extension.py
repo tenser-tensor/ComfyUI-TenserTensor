@@ -45,6 +45,7 @@ class TenserTensorExtension(ComfyExtension):
             TT_LatentFactoryByModelNode,
             TT_LatentMultiTransformNode,
             TT_LatentMultiTransformOnPixelSpaceNode,
+            TT_Ltx23LatentsFactoryNode,
             # Loaders V3 Nodes
             TT_SdxlModelsLoaderNode,
             TT_SdxlModelsLoaderAdvancedNode,

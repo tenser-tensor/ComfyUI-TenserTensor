@@ -4,6 +4,7 @@ import torch
 
 from comfy_api.latest import io
 from .nodes_context import Context
+from .utils import raise_if
 
 CATEGORY = "TenserTensor/VAE"
 
@@ -81,13 +82,9 @@ class TT_VaeDecodeContextNode(io.ComfyNode):
 
     @classmethod
     def execute(cls, context) -> io.NodeOutput:
-        vae = context.get("vae")
-        if vae is None:
-            raise ValueError("ERROR: VAE is required for decode")
-
-        latent = context.get("latent")
-        if latent is None:
-            raise ValueError("ERROR: Latent image is required for decode")
+        vae, latent = context.get("vae"), context.get("latent")
+        raise_if(vae is None, ValueError, "VAE is required for text encoder")
+        raise_if(latent is None, ValueError, "LATENT is required for text encoder")
 
         image = vae_decode(latent, vae)
 
@@ -140,13 +137,9 @@ class TT_VaeEncodeContextNode(io.ComfyNode):
 
     @classmethod
     def execute(cls, context) -> io.NodeOutput:
-        vae = context.get("vae")
-        if vae is None:
-            raise ValueError("ERROR: VAE is required for encode")
-
-        image = context.get("image")
-        if image is None:
-            raise ValueError("ERROR: Pixel image is required for encode")
+        image, vae = context.get("image"), context.get("vae")
+        raise_if(image is None, ValueError, "PIXEL IMAGE is required for text encoder")
+        raise_if(vae is None, ValueError, "VAE is required for text encoder")
 
         latent = vae_encode(image, vae)
 

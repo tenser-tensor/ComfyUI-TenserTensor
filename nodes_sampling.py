@@ -6,20 +6,17 @@ import latent_preview
 from comfy import sample, model_management, samplers
 from comfy_api.latest import io
 from .nodes_context import Context
-from .nodes_latent import SCALE_FACTORS, SCALE_METHODS, scale_latent
+from .nodes_latent import scale_latent
 from .nodes_text_encoder import SingleCondCFGGuider
+from .utils import raise_if
 
 CATEGORY = "TenserTensor/Sampling"
 
 
 def do_sample(**kwargs):
-    model = kwargs.get("model", None)
-    if model is None:
-        raise ValueError("Model is required for sampling")
-
-    latent = kwargs.get("latent", None)
-    if latent is None:
-        raise ValueError("Latent image is required for sampling")
+    model, latent = kwargs.get("model"), kwargs.get("latent")
+    raise_if(model is None, ValueError, "MODEL is required for text encoder")
+    raise_if(latent is None, ValueError, "LATENT is required for text encoder")
 
     latent_dict = latent.copy()
     samples, add_noise, seed, steps, device = (
@@ -161,28 +158,21 @@ class TT_KSamplerContextNode(io.ComfyNode):
 
     @classmethod
     def execute(cls, context) -> io.NodeOutput:
-        model = context.get("model")
-        if model is None:
-            raise ValueError("Model is required for sampling")
-
-        latent = context.get("latent")
-        if latent is None:
-            raise ValueError("Latent image is required for sampling")
-
-        config = context.get("workflow_config")
-        if config is None:
-            raise ValueError("Workflow Config is required for sampling")
+        model, latent, workflow_config = context.get("model"), context.get("latent"), context.get("workflow_config")
+        raise_if(model is None, ValueError, "MODEL is required for text encoder")
+        raise_if(latent is None, ValueError, "LATENT is required for text encoder")
+        raise_if(workflow_config is None, ValueError, "WORKFLOW CONFIG is required for text encoder")
 
         args = {
             "model": model,
             "positive": context.get_attr("positive"),
             "negative": context.get_attr("negative"),
             "latent": latent,
-            "seed": config.get_attr("seed"),
-            "steps": config.get_attr("steps"),
-            "cfg": config.get_attr("cfg"),
-            "sampler_name": config.get_attr("sampler_name"),
-            "scheduler": config.get_attr("scheduler"),
+            "seed": workflow_config.get_attr("seed"),
+            "steps": workflow_config.get_attr("steps"),
+            "cfg": workflow_config.get_attr("cfg"),
+            "sampler_name": workflow_config.get_attr("sampler_name"),
+            "scheduler": workflow_config.get_attr("scheduler"),
         }
         latent = do_sample(**args)
         context.set_attr("latent", latent)

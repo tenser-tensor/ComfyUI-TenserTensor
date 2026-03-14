@@ -5,26 +5,15 @@ from typing import Any
 
 import torch
 
-from comfy import sample, utils
-from comfy.latent_formats import SDXL, Flux, Flux2, SD3
+from comfy import sample, utils, model_management
+from comfy.nested_tensor import NestedTensor
 from comfy_api.latest import io
-from .nodes_image import MEGAPIXELS, resize_image, rotate_image, flip_image
+from comfy_api.latest._io import NodeOutput
+from .nodes_image import resize_image, rotate_image, flip_image
 from .nodes_vae import vae_decode, vae_encode
+from .utils import CommonTypes
 
 CATEGORY = "TenserTensor/Latent"
-
-ASPECT_RATIOS = ["1:1", "4:3", "3:2", "16:9", "21:9"]
-CLIP_MULTIPLIERS = ["1x", "2x", "4x"]
-MODEL_TYPES = {
-    "FLUX1.D": Flux,
-    "FLUX2.D": Flux2,
-    "SDXL": SDXL,
-    "SD3.X": SD3
-}
-ORIENTATIONS = ["landscape", "portrait"]
-ROTATE_ANGLES = ["90°", "180°", "270°"]
-SCALE_METHODS = ["nearest-exact", "bilinear", "area", "bicubic", "bislerp"]
-SCALE_FACTORS = ["0.25x", "0.5x", "1x", "2x", "4x", "8x"]
 
 
 class RandomNoise:
@@ -38,14 +27,12 @@ class RandomNoise:
         return sample.prepare_noise(latent_image, self.seed, batch_idx)
 
 
-LATENT_DIMENSION_STEP = 64
-
-
 def calculate_dimensions(total_pixels: int, ratio_w: int, ratio_h: int) -> tuple[int, int]:
+    latent_dimension_step = CommonTypes.LATENT_DIMENSION_STEP
     height = int(math.sqrt(total_pixels * ratio_h / ratio_w))
     width = int(height * ratio_w / ratio_h)
-    width = round(width / LATENT_DIMENSION_STEP) * LATENT_DIMENSION_STEP
-    height = round(height / LATENT_DIMENSION_STEP) * LATENT_DIMENSION_STEP
+    width = round(width / latent_dimension_step) * latent_dimension_step
+    height = round(height / latent_dimension_step) * latent_dimension_step
     return width, height
 
 
@@ -63,16 +50,13 @@ def create_empty_latent(**kwargs) -> tuple[dict[str, Any], int, int]:
         else (int(ratio_parts[1]), int(ratio_parts[0]))
     )
     width, height = calculate_dimensions(total_pixels, ratio_w, ratio_h)
-
-    downscale_ratio, channels = None, None
-
     model = kwargs.get("model")
     if model:
         fmt = model.model.latent_format
         downscale_ratio, channels = fmt.spacial_downscale_ratio, fmt.latent_channels
     else:
         model_type = kwargs.get("model_type")
-        fmt = MODEL_TYPES[model_type]()
+        fmt = CommonTypes.MODEL_TYPES[model_type]()
         downscale_ratio, channels = fmt.spacial_downscale_ratio, fmt.latent_channels
 
     latent_width, latent_height = width // downscale_ratio, height // downscale_ratio
@@ -104,7 +88,7 @@ def build(**kwargs):
 class TT_LatentFactoryNode(io.ComfyNode):
     @classmethod
     def define_schema(cls) -> io.Schema:
-        model_types = list(MODEL_TYPES.keys())
+        model_types = list(CommonTypes.MODEL_TYPES.keys())
 
         return io.Schema(
             node_id="TT_LatentFactoryNode",
@@ -114,12 +98,12 @@ class TT_LatentFactoryNode(io.ComfyNode):
             inputs=[
                 io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
                 io.Int.Input("noise_seed", default=0, min=0, max=0xffffffffffffffff, control_after_generate=True),
-                io.Combo.Input("aspect_ratio", options=ASPECT_RATIOS),
-                io.Combo.Input("megapixels", options=MEGAPIXELS),
-                io.Combo.Input("orientation", options=ORIENTATIONS),
+                io.Combo.Input("aspect_ratio", options=CommonTypes.ASPECT_RATIOS),
+                io.Combo.Input("megapixels", options=CommonTypes.MEGAPIXELS),
+                io.Combo.Input("orientation", options=CommonTypes.ORIENTATIONS),
                 io.Combo.Input("model_type", options=model_types),
                 io.Int.Input("batch_size", default=1, min=1, max=64, advanced=True),
-                io.Combo.Input("clip_multiplier", options=CLIP_MULTIPLIERS, advanced=True),
+                io.Combo.Input("clip_multiplier", options=CommonTypes.CLIP_MULTIPLIERS, advanced=True),
             ],
             outputs=[
                 io.Latent.Output(display_name="LATENT"),
@@ -153,11 +137,11 @@ class TT_LatentFactoryByModelNode(io.ComfyNode):
                 io.Model.Input("model"),
                 io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
                 io.Int.Input("noise_seed", default=0, min=0, max=0xffffffffffffffff, control_after_generate=True),
-                io.Combo.Input("aspect_ratio", options=ASPECT_RATIOS),
-                io.Combo.Input("megapixels", options=MEGAPIXELS),
-                io.Combo.Input("orientation", options=ORIENTATIONS),
+                io.Combo.Input("aspect_ratio", options=CommonTypes.ASPECT_RATIOS),
+                io.Combo.Input("megapixels", options=CommonTypes.MEGAPIXELS),
+                io.Combo.Input("orientation", options=CommonTypes.ORIENTATIONS),
                 io.Int.Input("batch_size", default=1, min=1, max=64, advanced=True),
-                io.Combo.Input("clip_multiplier", options=CLIP_MULTIPLIERS, advanced=True),
+                io.Combo.Input("clip_multiplier", options=CommonTypes.CLIP_MULTIPLIERS, advanced=True),
             ],
             outputs=[
                 io.Model.Output("MODEL"),
@@ -227,10 +211,10 @@ class TT_LatentMultiTransformNode(io.ComfyNode):
                 io.Latent.Input("latent"),
                 io.Mask.Input("mask", optional=True),
                 io.Boolean.Input("scale_latent", default=True, label_on="Scale", label_off="Skip"),
-                io.Combo.Input("scale_factor", options=SCALE_FACTORS, default="1x"),
-                io.Combo.Input("scale_method", options=SCALE_METHODS, default="nearest-exact"),
+                io.Combo.Input("scale_factor", options=CommonTypes.SCALE_FACTORS, default="1x"),
+                io.Combo.Input("scale_method", options=CommonTypes.SCALE_METHODS, default="nearest-exact"),
                 io.Boolean.Input("rotate_latent", default=True, label_on="Rotate", label_off="Skip"),
-                io.Combo.Input("rotate_angle", options=ROTATE_ANGLES),
+                io.Combo.Input("rotate_angle", options=CommonTypes.ROTATE_ANGLES),
                 io.Boolean.Input("flip_latent", default=True, label_on="Flip", label_off="Skip"),
                 io.Combo.Input("flip_direction", options=["horizontal", "vertical"]),
             ],
@@ -274,10 +258,10 @@ class TT_LatentMultiTransformOnPixelSpaceNode(io.ComfyNode):
                 io.Latent.Input("latent"),
                 io.Mask.Input("mask", optional=True),
                 io.Boolean.Input("scale_latent", default=True, label_on="Scale", label_off="Skip"),
-                io.Combo.Input("scale_factor", options=SCALE_FACTORS, default="1x"),
-                io.Combo.Input("scale_method", options=SCALE_METHODS, default="nearest-exact"),
+                io.Combo.Input("scale_factor", options=CommonTypes.SCALE_FACTORS, default="1x"),
+                io.Combo.Input("scale_method", options=CommonTypes.SCALE_METHODS, default="nearest-exact"),
                 io.Boolean.Input("rotate_latent", default=True, label_on="Rotate", label_off="Skip"),
-                io.Combo.Input("rotate_angle", options=ROTATE_ANGLES),
+                io.Combo.Input("rotate_angle", options=CommonTypes.ROTATE_ANGLES),
                 io.Boolean.Input("flip_latent", default=True, label_on="Flip", label_off="Skip"),
                 io.Combo.Input("flip_direction", options=["horizontal", "vertical"]),
             ],
@@ -319,9 +303,104 @@ class TT_LatentMultiTransformOnPixelSpaceNode(io.ComfyNode):
         return io.NodeOutput(latent)
 
 
+def calc_total_length(**kwargs):
+    length_sec, frame_rate, batch_size = kwargs.get("length_sec"), kwargs.get("frame_rate"), kwargs.get("batch_size")
+    fps = int(frame_rate.replace('fps', ''))
+    frames_count = length_sec * fps
+    total_length = ((frames_count - 1) // 8) * 8 + 1
+
+    return total_length, fps
+
+
+def create_empty_video_latent(**kwargs):
+    total_length, fps = calc_total_length(**kwargs)
+    video_vae = kwargs.get("video_vae")
+
+    return {"samples": video_samples}
+
+
+def create_empty_audio_latent(**kwargs):
+    total_length, fps = calc_total_length(**kwargs)
+    audio_vae = kwargs.get("audio_vae")
+
+    channels = audio_vae.latent_channels
+    audio_freq = audio_vae.latent_frequency_bins
+    sampling_rate = int(audio_vae.sample_rate)
+    num_audio_latents = audio_vae.num_of_latents_from_frames(total_length, fps)
+
+    generator = torch.Generator().manual_seed(kwargs.get("seed"))
+    audio_samples = torch.randn(
+        kwargs.get("batch_size"), channels, num_audio_latents, audio_freq,
+        generator=generator, device=model_management.intermediate_device()
+    )
+
+    return {
+        "samples": audio_samples,
+        "sample_rate": sampling_rate,
+        "type": "audio",
+    }
+
+
+def concatenate_latents(video_latent, audio_latent):
+    concatenated_latent = audio_latent.copy()
+    video_noise_mask, audio_noise_mask = video_latent.get("noise_mask"), audio_latent.get("noise_mask")
+
+    if any((video_noise_mask, audio_noise_mask)):
+        video_noise_mask = torch.ones_like(video_latent["samples"]) if video_noise_mask is None else video_noise_mask
+        audio_noise_mask = torch.ones_like(audio_latent["samples"]) if audio_noise_mask is None else audio_noise_mask
+        concatenated_latent["noise_mask"] = NestedTensor((video_noise_mask, audio_noise_mask))
+
+    concatenated_latent["samples"] = NestedTensor((video_latent["samples"], audio_latent["samples"]))
+
+    return concatenated_latent
+
+
+def build_video_audio_latents(**kwargs):
+    video_latent = create_empty_video_latent(**kwargs)
+    audio_latent = create_empty_audio_latent(**kwargs)
+
+    concatenated_latent = concatenate_latents(video_latent, audio_latent)
+
+    return concatenated_latent, video_latent, audio_latent
+
+
+class TT_Ltx23LatentsFactoryNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_Ltx23LatentsFactoryNode",
+            display_name="TT LTX23 Latents Factory",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Vae.Input("video_vae"),
+                io.Vae.Input("audio_vae"),
+                io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
+                io.Combo.Input("aspect_ratio", options=CommonTypes.ASPECT_RATIOS),
+                io.Combo.Input("megapixels", options=CommonTypes.MEGAPIXELS),
+                io.Combo.Input("orientation", options=CommonTypes.ORIENTATIONS),
+                io.Int.Input("length_sec", default=5, min=1, max=20),
+                io.Combo.Input("frame_rate", options=CommonTypes.FRAME_RATES),
+                io.Int.Input("batch_size", default=1, min=1, max=64, advanced=True),
+            ],
+            outputs=[
+                io.Guider.Output("GUIDER"),
+                io.Latent.Output("LATENT_VIDEO"),
+                io.Latent.Output("LATENT_AUDIO"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> NodeOutput:
+        concatenated_latent, video_latent, audio_latent = build_video_audio_latents(**kwargs)
+
+        return io.NodeOutput(concatenated_latent, video_latent, audio_latent)
+
+
 __all__ = [
     "TT_LatentFactoryNode",
     "TT_LatentFactoryByModelNode",
     "TT_LatentMultiTransformNode",
     "TT_LatentMultiTransformOnPixelSpaceNode",
+    "TT_Ltx23LatentsFactoryNode",
 ]
