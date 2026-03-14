@@ -8,7 +8,7 @@ from comfy_api.latest import io
 from .nodes_context import Context
 from .nodes_latent import scale_latent
 from .nodes_text_encoder import SingleCondCFGGuider
-from .utils import raise_if
+from .utils import CommonTypes, raise_if
 
 CATEGORY = "TenserTensor/Sampling"
 
@@ -333,8 +333,8 @@ class TT_GuidedUpscaleKSamplerNode(io.ComfyNode):
                 io.Sampler.Input("sampler"),
                 io.Noise.Input("random_noise"),
                 io.Boolean.Input("scale_latent", default=False, label_on="Scale", label_off="Skip"),
-                io.Combo.Input("scale_factor", options=SCALE_FACTORS, default="1x", advanced=True),
-                io.Combo.Input("scale_method", options=SCALE_METHODS, default="bicubic", advanced=True),
+                io.Combo.Input("scale_factor", options=CommonTypes.SCALE_FACTORS, default="1x", advanced=True),
+                io.Combo.Input("scale_method", options=CommonTypes.SCALE_METHODS, default="bicubic", advanced=True),
                 io.Boolean.Input("preview_latent", default=False, label_on="Show Preview", label_off="Only Sample"),
             ],
             outputs=[
