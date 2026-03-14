@@ -33,11 +33,13 @@ def calculate_dimensions(total_pixels: int, ratio_w: int, ratio_h: int) -> tuple
     width = int(height * ratio_w / ratio_h)
     width = round(width / latent_dimension_step) * latent_dimension_step
     height = round(height / latent_dimension_step) * latent_dimension_step
+
     return width, height
 
 
 def build_latent(seed: int, batch_size: int, channels: int, latent_width: int, latent_height: int) -> torch.Tensor:
     generator = torch.Generator().manual_seed(seed)
+
     return torch.randn(batch_size, channels, latent_height, latent_width, generator=generator)
 
 
@@ -304,17 +306,43 @@ class TT_LatentMultiTransformOnPixelSpaceNode(io.ComfyNode):
 
 
 def calc_total_length(**kwargs):
-    length_sec, frame_rate, batch_size = kwargs.get("length_sec"), kwargs.get("frame_rate"), kwargs.get("batch_size")
+    video_vae, length_sec, frame_rate, batch_size = (
+        kwargs.get("video_vae"),
+        kwargs.get("length_sec"),
+        kwargs.get("frame_rate"),
+        kwargs.get("batch_size"),
+    )
+    temporal_compression_ratio = video_vae.temporal_compression_ratio
     fps = int(frame_rate.replace('fps', ''))
     frames_count = length_sec * fps
-    total_length = ((frames_count - 1) // 8) * 8 + 1
+    total_length = ((frames_count - 1) // temporal_compression_ratio) * temporal_compression_ratio + 1
 
     return total_length, fps
 
 
 def create_empty_video_latent(**kwargs):
     total_length, fps = calc_total_length(**kwargs)
-    video_vae = kwargs.get("video_vae")
+    video_vae, megapixels, orientation = kwargs.get("video_vae"), kwargs.get("megapixels"), kwargs.get("orientation")
+
+    total_pixels = int(float(megapixels.split()[0]) * 1_000_000)
+    ratio_parts = kwargs.get("aspect_ratio").split(':')
+    ratio_w, ratio_h = (
+        (int(ratio_parts[0]), int(ratio_parts[1]))
+        if orientation == "landscape"
+        else (int(ratio_parts[1]), int(ratio_parts[0]))
+    )
+    width, height = calculate_dimensions(total_pixels, ratio_w, ratio_h)
+
+    generator = torch.Generator().manual_seed(kwargs.get("seed"))
+    video_samples = torch.randn(
+        kwargs.get("batch_size"),
+        video_vae.latent_channels,
+        total_length,
+        height // video_vae.spacial_downscale_ratio,
+        width // video_vae.spacial_downscale_ratio,
+        generator=generator,
+        device=model_management.intermediate_device()
+    )
 
     return {"samples": video_samples}
 
@@ -359,9 +387,44 @@ def build_video_audio_latents(**kwargs):
     video_latent = create_empty_video_latent(**kwargs)
     audio_latent = create_empty_audio_latent(**kwargs)
 
-    concatenated_latent = concatenate_latents(video_latent, audio_latent)
+    return video_latent, audio_latent
 
-    return concatenated_latent, video_latent, audio_latent
+
+def inject_reference_frame(**kwargs):
+    vae, latent, image = kwargs.get("video_vae"), kwargs.get("video_latent"), kwargs.get("image_opt")
+    samples = latent["samples"]
+    _, height_scale_factor, width_scale_factor = (
+        vae.downscale_index_formula
+    )
+    batch, _, latent_frames, latent_height, latent_width = samples.shape
+    width = latent_width * width_scale_factor
+    height = latent_height * height_scale_factor
+
+    image_height, image_width = image.shape[1:3]
+
+    if image_height != height or image_width != width:
+        pixels = utils.common_upscale(
+            image.movedim(-1, 1),
+            width,
+            height,
+            kwargs.get("inplace_scale_mode"),
+            "center"
+        ).movedim(1, -1)
+    else:
+        pixels = image
+
+    pixel_space = pixels[..., :3]
+    encoded = vae.encode(pixel_space)
+    samples[:, :, :encoded.shape[2]] = encoded
+
+    latent_frames_mask = torch.ones(
+        (batch, 1, latent_frames, 1, 1),
+        dtype=torch.float32,
+        device=samples.device,
+    )
+    latent_frames_mask[:, :, :encoded.shape[2]] = 1.0 - kwargs.get("inplace_strength")
+
+    return {"samples": samples, "noise_mask": latent_frames_mask}
 
 
 class TT_Ltx23LatentsFactoryNode(io.ComfyNode):
@@ -369,22 +432,26 @@ class TT_Ltx23LatentsFactoryNode(io.ComfyNode):
     def define_schema(cls) -> io.Schema:
         return io.Schema(
             node_id="TT_Ltx23LatentsFactoryNode",
-            display_name="TT LTX23 Latents Factory",
+            display_name="TT LTX2.3 Latents Factory",
             category=CATEGORY,
             description="",
             inputs=[
                 io.Vae.Input("video_vae"),
                 io.Vae.Input("audio_vae"),
+                io.Image.Input("image_opt", optional=True),
+                io.Boolean.Input("use_ref_frame", default=True, label_on="Inplace", label_off="Bypass"),
                 io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
-                io.Combo.Input("aspect_ratio", options=CommonTypes.ASPECT_RATIOS),
-                io.Combo.Input("megapixels", options=CommonTypes.MEGAPIXELS),
+                io.Combo.Input("aspect_ratio", options=CommonTypes.ASPECT_RATIOS, default="16:9"),
+                io.Combo.Input("megapixels", options=CommonTypes.MEGAPIXELS, default="1 MP"),
                 io.Combo.Input("orientation", options=CommonTypes.ORIENTATIONS),
                 io.Int.Input("length_sec", default=5, min=1, max=20),
-                io.Combo.Input("frame_rate", options=CommonTypes.FRAME_RATES),
+                io.Combo.Input("frame_rate", options=CommonTypes.FRAME_RATES, default="24fps"),
+                io.Float.Input("inplace_strength", default=1.0, min=0.0, max=1.0),
+                io.Combo.Input("inplace_scale_mode", CommonTypes.SCALE_METHODS, default="bicubic"),
                 io.Int.Input("batch_size", default=1, min=1, max=64, advanced=True),
             ],
             outputs=[
-                io.Guider.Output("GUIDER"),
+                io.Latent.Output("LATENT"),
                 io.Latent.Output("LATENT_VIDEO"),
                 io.Latent.Output("LATENT_AUDIO"),
             ]
@@ -392,7 +459,14 @@ class TT_Ltx23LatentsFactoryNode(io.ComfyNode):
 
     @classmethod
     def execute(cls, **kwargs) -> NodeOutput:
-        concatenated_latent, video_latent, audio_latent = build_video_audio_latents(**kwargs)
+        video_latent, audio_latent = build_video_audio_latents(**kwargs)
+        use_ref_frame, image_opt = kwargs.get("use_ref_frame"), kwargs.get("image_opt")
+
+        if use_ref_frame and image_opt:
+            kwargs["video_latent"] = video_latent
+            video_latent = inject_reference_frame(**kwargs)
+
+        concatenated_latent = concatenate_latents(video_latent, audio_latent)
 
         return io.NodeOutput(concatenated_latent, video_latent, audio_latent)
 
