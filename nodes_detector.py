@@ -45,6 +45,6 @@ class TT_CannyEdgeDetectorNode(io.ComfyNode):
         return io.NodeOutput(cn_image, ui=ui.PreviewImage(timage, cls=cls))
 
 
-__all__ = [
-    "TT_CannyEdgeDetectorNode",
+NODES = [
+    TT_CannyEdgeDetectorNode,
 ]

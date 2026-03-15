@@ -456,11 +456,11 @@ class TT_PostproductionAdvancedNode(io.ComfyNode):
         return io.NodeOutput(kwargs.get("image"))
 
 
-__all__ = [
-    "TT_AddFilmGrainNode",
-    'TT_ApplyLutNode',
-    'TT_ImageEnhancerNode',
-    'TT_QuickImageUpscalerNode',
-    'TT_PostproductionNode',
-    'TT_PostproductionAdvancedNode',
+NODES = [
+    TT_AddFilmGrainNode,
+    TT_ApplyLutNode,
+    TT_ImageEnhancerNode,
+    TT_QuickImageUpscalerNode,
+    TT_PostproductionNode,
+    TT_PostproductionAdvancedNode,
 ]

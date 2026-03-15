@@ -704,15 +704,15 @@ class TT_Ltx23GgufWorkflowSettingsAdvancedNode(io.ComfyNode):
         )
 
 
-__all__ = [
-    "TT_SdxlWorkflowSettingsNode",
-    "TT_SdxlWorkflowSettingsAdvancedNode",
-    "TT_FluxWorkflowSettingsNode",
-    "TT_FluxWorkflowSettingsAdvancedNode",
-    "TT_Flux2WorkflowSettingsNode",
-    "TT_Flux2WorkflowSettingsAdvancedNode",
-    "TT_Sd35GgufWorkflowSettingsNode",
-    "TT_Sd35GgufWorkflowSettingsAdvancedNode",
-    "TT_Ltx23GgufWorkflowSettingsNode",
-    "TT_Ltx23GgufWorkflowSettingsAdvancedNode",
+NODES = [
+    TT_SdxlWorkflowSettingsNode,
+    TT_SdxlWorkflowSettingsAdvancedNode,
+    TT_FluxWorkflowSettingsNode,
+    TT_FluxWorkflowSettingsAdvancedNode,
+    TT_Flux2WorkflowSettingsNode,
+    TT_Flux2WorkflowSettingsAdvancedNode,
+    TT_Sd35GgufWorkflowSettingsNode,
+    TT_Sd35GgufWorkflowSettingsAdvancedNode,
+    TT_Ltx23GgufWorkflowSettingsNode,
+    TT_Ltx23GgufWorkflowSettingsAdvancedNode,
 ]

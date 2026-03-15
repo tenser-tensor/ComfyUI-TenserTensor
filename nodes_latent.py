@@ -509,10 +509,10 @@ class TT_Ltx23LatentsFactoryNode(io.ComfyNode):
         )
 
 
-__all__ = [
-    "TT_LatentFactoryNode",
-    "TT_LatentFactoryByModelNode",
-    "TT_LatentMultiTransformNode",
-    "TT_LatentMultiTransformOnPixelSpaceNode",
-    "TT_Ltx23LatentsFactoryNode",
+NODES = [
+    TT_LatentFactoryNode,
+    TT_LatentFactoryByModelNode,
+    TT_LatentMultiTransformNode,
+    TT_LatentMultiTransformOnPixelSpaceNode,
+    TT_Ltx23LatentsFactoryNode,
 ]

@@ -352,11 +352,11 @@ class TT_GuidedUpscaleKSamplerNode(io.ComfyNode):
         return io.NodeOutput(samples)
 
 
-__all__ = [
-    "TT_KSamplerNode",
-    "TT_KSamplerAdvancedNode",
-    "TT_KSamplerContextNode",
-    "TT_KSamplerTwoStageNode",
-    "TT_GuidedKSamplerNode",
-    "TT_GuidedUpscaleKSamplerNode",
+NODES = [
+    TT_KSamplerNode,
+    TT_KSamplerAdvancedNode,
+    TT_KSamplerContextNode,
+    TT_KSamplerTwoStageNode,
+    TT_GuidedKSamplerNode,
+    TT_GuidedUpscaleKSamplerNode,
 ]

@@ -146,9 +146,9 @@ class TT_VaeEncodeContextNode(io.ComfyNode):
         return io.NodeOutput(context, latent)
 
 
-__all__ = [
-    "TT_VaeDecodeTiledNode",
-    "TT_VaeDecodeContextNode",
-    "TT_VaeEncodeTiledNode",
-    "TT_VaeEncodeContextNode",
+NODES = [
+    TT_VaeDecodeTiledNode,
+    TT_VaeDecodeContextNode,
+    TT_VaeEncodeTiledNode,
+    TT_VaeEncodeContextNode,
 ]

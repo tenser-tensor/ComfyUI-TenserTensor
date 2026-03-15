@@ -167,7 +167,7 @@ class TT_Flux2ApplyControlNetAdvancedNode(io.ComfyNode):
         return io.NodeOutput(guider, ui=ui.PreviewImage(kwargs["cond_hint"], cls=cls))
 
 
-__all__ = [
-    "TT_Flux2ApplyControlNetNode",
-    "TT_Flux2ApplyControlNetAdvancedNode",
+NODES = [
+    TT_Flux2ApplyControlNetNode,
+    TT_Flux2ApplyControlNetAdvancedNode,
 ]

@@ -311,17 +311,17 @@ class TT_ContextExtractImageNode(ContextNode):
     RETURNS = ("context", "image",)
 
 
-__all__ = [
-    "TT_BaseContextNode",
-    "TT_BaseContextFlux2Node",
-    "TT_ContextPassthroughNode",
-    "TT_ContextNode",
-    "TT_ContextFlux2Node",
-    "TT_ContextSetGuiderNode",
-    "TT_ContextSetImageNode",
-    "TT_ContextSetLatentNode",
-    "TT_ContextExtractEncoderFlux2Node",
-    "TT_ContextExtractGuidedSamplerFlux2Node",
-    "TT_ContextExtractVaeNode",
-    "TT_ContextExtractImageNode",
+NODES = [
+    TT_BaseContextNode,
+    TT_BaseContextFlux2Node,
+    TT_ContextPassthroughNode,
+    TT_ContextNode,
+    TT_ContextFlux2Node,
+    TT_ContextSetGuiderNode,
+    TT_ContextSetImageNode,
+    TT_ContextSetLatentNode,
+    TT_ContextExtractEncoderFlux2Node,
+    TT_ContextExtractGuidedSamplerFlux2Node,
+    TT_ContextExtractVaeNode,
+    TT_ContextExtractImageNode,
 ]

@@ -1,5 +1,4 @@
 # (c) TenserTensor <tenser.tensor@proton.me> || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
-
 from typing import override
 
 from comfy import samplers
@@ -475,15 +474,54 @@ class TT_Ltx23TextEncoderContextNode(io.ComfyNode):
         return io.NodeOutput(context, guider)
 
 
-__all__ = [
-    "TT_SdxlClipTextEncoderNode",
-    "TT_SdxlClipTextEncoderContextNode",
-    "TT_Flux1ClipTextEncoderNode",
-    "TT_Flux1ClipTextEncoderContextNode",
-    "TT_Flux2TextEncoderNode",
-    "TT_Flux2TextEncoderContextNode",
-    "TT_Sd35TextEncoderNode",
-    "TT_Sd35TextEncoderContextNode",
-    "TT_Ltx23TextEncoderNode",
-    "TT_Ltx23TextEncoderContextNode",
+class TT_Ltx23TextGeneratorEncoderNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_Ltx23TextGeneratorEncoderNode",
+            display_name="TT LTX2.3 Prompt Generator And Encoder",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Model.Input("model"),
+                io.Clip.Input("clip"),
+                io.Float.Input("cfg", default=1.0, min=0.0, max=100.0, step=0.1),
+                io.DynamicCombo.Input("do_sample", options=[
+                    io.DynamicCombo.Option("Sample", [
+                        io.Image.Input("image"),
+                        io.Float.Input("temperature", default=0.7, min=0.0, max=2.0, step=0.01),
+                        io.Int.Input("top_k", default=64, min=0, max=1000),
+                        io.Float.Input("top_p", default=0.95, min=0.0, max=1.0, step=0.01),
+                        io.Float.Input("min_p", default=0.05, min=0.0, max=1.0, step=0.01),
+                        io.Float.Input("repetition_penalty", default=1.05, min=1.0, max=2.0, step=0.01),
+                    ]),
+                    io.DynamicCombo.Option("Greedy", []),
+                ]),
+                io.String.Input("positive_prompt", multiline=True, placeholder="Positive Prompt", dynamic_prompts=True),
+                io.String.Input("negative_prompt", multiline=True, placeholder="Negative Prompt", dynamic_prompts=True),
+                io.String.Input("lora_triggers", multiline=True, placeholder="LoRA Triggers", dynamic_prompts=True),
+                io.Combo.Input("frame_rate", options=CommonTypes.FRAME_RATES, default="24fps"),
+            ],
+            outputs=[
+                io.Guider.Output("GUIDER"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        raise NotImplementedError
+
+
+NODES = [
+    TT_SdxlClipTextEncoderNode,
+    TT_SdxlClipTextEncoderContextNode,
+    TT_Flux1ClipTextEncoderNode,
+    TT_Flux1ClipTextEncoderContextNode,
+    TT_Flux2TextEncoderNode,
+    TT_Flux2TextEncoderContextNode,
+    TT_Sd35TextEncoderNode,
+    TT_Sd35TextEncoderContextNode,
+    TT_Ltx23TextEncoderNode,
+    TT_Ltx23TextEncoderContextNode,
+    TT_Ltx23TextGeneratorEncoderNode,
 ]

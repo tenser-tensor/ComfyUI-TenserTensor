@@ -895,15 +895,15 @@ class TT_Ltx23GgufModelsLoaderAdvancedNode(io.ComfyNode):
         return io.NodeOutput(model, clip, video_vae, audio_vae)
 
 
-__all__ = [
-    "TT_SdxlModelsLoaderNode",
-    "TT_SdxlModelsLoaderAdvancedNode",
-    "TT_FluxModelsLoaderNode",
-    "TT_FluxModelsLoaderAdvancedNode",
-    "TT_Flux2GgufModelsLoaderNode",
-    "TT_Flux2GgufModelsLoaderAdvancedNode",
-    "TT_Sd35GgufModelsLoaderNode",
-    "TT_Sd35GgufModelsLoaderAdvancedNode",
-    "TT_Ltx23GgufModelsLoaderNode",
-    "TT_Ltx23GgufModelsLoaderAdvancedNode",
+NODES = [
+    TT_SdxlModelsLoaderNode,
+    TT_SdxlModelsLoaderAdvancedNode,
+    TT_FluxModelsLoaderNode,
+    TT_FluxModelsLoaderAdvancedNode,
+    TT_Flux2GgufModelsLoaderNode,
+    TT_Flux2GgufModelsLoaderAdvancedNode,
+    TT_Sd35GgufModelsLoaderNode,
+    TT_Sd35GgufModelsLoaderAdvancedNode,
+    TT_Ltx23GgufModelsLoaderNode,
+    TT_Ltx23GgufModelsLoaderAdvancedNode,
 ]

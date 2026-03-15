@@ -476,9 +476,9 @@ class TT_GuiderImageReferenceNode(io.ComfyNode):
         return io.NodeOutput(vae, guider, ui=ui.PreviewImage(timage, cls=cls))
 
 
-__all__ = [
-    "TT_ImageLoaderResizerNode",
-    "TT_ImagePreviewSaveNode",
-    "TT_ImagePreviewUpscaleSaveNode",
-    "TT_GuiderImageReferenceNode",
+NODES = [
+    TT_ImageLoaderResizerNode,
+    TT_ImagePreviewSaveNode,
+    TT_ImagePreviewUpscaleSaveNode,
+    TT_GuiderImageReferenceNode,
 ]
