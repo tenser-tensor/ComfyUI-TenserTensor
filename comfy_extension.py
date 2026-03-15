@@ -56,6 +56,7 @@ class TenserTensorExtension(ComfyExtension):
             TT_Sd35GgufModelsLoaderNode,
             TT_Sd35GgufModelsLoaderAdvancedNode,
             TT_Ltx23GgufModelsLoaderNode,
+            TT_Ltx23GgufModelsLoaderAdvancedNode,
             # Postproduction V3 Nodes
             TT_AddFilmGrainNode,
             TT_ApplyLutNode,

@@ -855,4 +855,5 @@ __all__ = [
     "TT_Sd35GgufModelsLoaderNode",
     "TT_Sd35GgufModelsLoaderAdvancedNode",
     "TT_Ltx23GgufModelsLoaderNode",
+    "TT_Ltx23GgufModelsLoaderAdvancedNode",
 ]

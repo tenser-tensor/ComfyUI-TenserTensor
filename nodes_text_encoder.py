@@ -440,6 +440,8 @@ class TT_Ltx23TextEncoderNode(io.ComfyNode):
 
         return io.NodeOutput(guider)
 
+class TT_Ltx23TextEncoderContextNode(io.ComfyNode):
+    pass
 
 __all__ = [
     "TT_SdxlClipTextEncoderNode",
@@ -451,4 +453,5 @@ __all__ = [
     "TT_Sd35TextEncoderNode",
     "TT_Sd35TextEncoderContextNode",
     "TT_Ltx23TextEncoderNode",
+    "TT_Ltx23TextEncoderContextNode",
 ]
