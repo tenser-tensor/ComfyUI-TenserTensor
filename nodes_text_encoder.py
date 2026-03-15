@@ -440,8 +440,40 @@ class TT_Ltx23TextEncoderNode(io.ComfyNode):
 
         return io.NodeOutput(guider)
 
+
 class TT_Ltx23TextEncoderContextNode(io.ComfyNode):
-    pass
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_Ltx23TextEncoderContextNode",
+            display_name="TT LTX2.3 Text Encoder (Context)",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                Context.Input("context")
+            ],
+            outputs=[
+                Context.Output("CONTEXT"),
+                io.Guider.Output("GUIDER"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, context) -> io.NodeOutput:
+        args = {}
+        for key in (
+                "model", "clip", "cfg",
+                "positive_prompt", "negative_prompt",
+                "lora_triggers",
+                "frame_rate",
+        ):
+            args[key] = context.get_attr(key)
+
+        guider = encode_prompts_ltx23(**args)
+        context.set_attr("guider", guider)
+
+        return io.NodeOutput(context, guider)
+
 
 __all__ = [
     "TT_SdxlClipTextEncoderNode",
