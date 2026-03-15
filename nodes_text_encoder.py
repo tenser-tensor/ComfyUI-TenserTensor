@@ -4,9 +4,10 @@ from typing import override
 
 from comfy import samplers
 from comfy_api.latest import io
+from node_helpers import conditioning_set_values
 from nodes import MAX_RESOLUTION
 from .nodes_context import Context
-from .utils import raise_if
+from .utils import CommonTypes, raise_if
 
 CATEGORY = "TenserTensor/Text Encoder"
 
@@ -390,6 +391,56 @@ class TT_Sd35TextEncoderContextNode(io.ComfyNode):
         return io.NodeOutput(context, guider)
 
 
+def encode_prompts_ltx23(**kwargs):
+    model, clip, positive_prompt, negative_prompt, frame_rate = (
+        kwargs.get("model"),
+        kwargs.get("clip"),
+        kwargs.get("positive_prompt"),
+        kwargs.get("negative_prompt"),
+        kwargs.get("frame_rate"),
+    )
+    positive_tokens, negative_tokens = clip.tokenize(positive_prompt), clip.tokenize(negative_prompt)
+    positive = clip.encode_from_tokens_scheduled(positive_tokens)
+    negative = clip.encode_from_tokens_scheduled(negative_tokens)
+    positive = conditioning_set_values(positive, {"frame_rate": frame_rate})
+    negative = conditioning_set_values(negative, {"frame_rate": frame_rate})
+
+    guider = SingleCondCFGGuider(model)
+    guider.set_conds(positive, negative)
+    guider.set_cfg(kwargs.get("cfg"))
+
+    return guider
+
+
+class TT_Ltx23TextEncoderNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_Ltx23TextEncoderNode",
+            display_name="TT LTX2.3 Text Encoder",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Model.Input("model"),
+                io.Clip.Input("clip"),
+                io.Float.Input("cfg", default=1.0, min=0.0, max=100.0, step=0.1),
+                io.String.Input("positive_prompt", multiline=True, placeholder="Positive Prompt", dynamic_prompts=True),
+                io.String.Input("negative_prompt", multiline=True, placeholder="Negative Prompt", dynamic_prompts=True),
+                io.Combo.Input("frame_rate", options=CommonTypes.FRAME_RATES, default="24fps"),
+                # io.String.Input("lora_triggers", multiline=True, placeholder="LoRA Triggers", dynamic_prompts=True),
+            ],
+            outputs=[
+                io.Guider.Output("GUIDER"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        guider = encode_prompts_ltx23(**kwargs)
+
+        return io.NodeOutput(guider)
+
+
 __all__ = [
     "TT_SdxlClipTextEncoderNode",
     "TT_SdxlClipTextEncoderContextNode",
@@ -399,4 +450,5 @@ __all__ = [
     "TT_Flux2TextEncoderContextNode",
     "TT_Sd35TextEncoderNode",
     "TT_Sd35TextEncoderContextNode",
+    "TT_Ltx23TextEncoderNode",
 ]

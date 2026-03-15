@@ -9,6 +9,7 @@ import torch
 from comfy.samplers import KSampler, sampler_object, Sampler
 from comfy_api.latest import io
 from nodes import MAX_RESOLUTION
+from .utils import CommonTypes
 
 CATEGORY = "TenserTensor/Workflow"
 
@@ -22,9 +23,12 @@ class TTWorkflowSettings():
     clip_l_negative: str | None = None
     clip_g_positive: str | None = None
     clip_l_positive: str | None = None
+    frame_rate: str | None = None
     guidance: float | None = None
     height: int | None = None
     lora_triggers: str | None = None
+    negative_prompt: str | None = None
+    positive_prompt: str | None = None
     prompt: str | None = None
     sampler: Sampler | None = None
     sampler_name: str | None = None
@@ -554,6 +558,152 @@ class TT_Sd35GgufWorkflowSettingsAdvancedNode(io.ComfyNode):
         return io.NodeOutput(*args.values())
 
 
+def get_ltxv_sigmas(**kwargs):
+    latent, base_shift, max_shift = (
+        kwargs.get("latent_opt"),
+        kwargs.get("schedule_base_shift", 0.95),
+        kwargs.get("schedule_max_shift", 2.05)
+    )
+    tokens = math.prod(latent["samples"].shape[2:]) if latent else 4096
+    sigmas = torch.linspace(1.0, 0.0, kwargs.get("steps") + 1)
+
+    min_steps, max_steps = 1024, 4096
+
+    slope = (max_shift - base_shift) / (max_steps - min_steps)
+    intercept = base_shift - slope * min_steps
+    sigma_shift = (tokens) * slope + intercept
+    sigma = 1.0
+    timesteps = math.exp(sigma_shift) / (math.exp(sigma_shift) + (1 / sigmas - 1) ** sigma)
+    sigmas = torch.where(sigmas != 0, timesteps, 0)
+
+    if kwargs.get("stretch_sigmas", True):
+        non_zero_mask = sigmas != 0
+        non_zero_sigmas = sigmas[non_zero_mask]
+        one_minus_z = 1.0 - non_zero_sigmas
+        scale_factor = one_minus_z[-1] / (1.0 - kwargs.get("sigmas_terminal", 0.1))
+        stretched = 1.0 - (one_minus_z / scale_factor)
+        sigmas[non_zero_mask] = stretched
+
+    return sigmas
+
+
+class TT_Ltx23GgufWorkflowSettingsNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_Ltx23GgufWorkflowSettingsNode",
+            display_name="TT LTX2.3 GGUF Workflow Settings",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Latent.Input("latent_opt", optional=True),
+                io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
+                io.Int.Input("steps", default=20, min=1, max=10_000),
+                io.Float.Input("cfg", default=1.0, min=0.0, max=100.0, step=0.1),
+                io.Combo.Input("sampler_name", options=KSampler.SAMPLERS),
+                io.Combo.Input("frame_rate", options=CommonTypes.FRAME_RATES, default="24fps"),
+                io.Int.Input("width", default=1024, min=16, max=MAX_RESOLUTION, step=8),
+                io.Int.Input("height", default=1024, min=16, max=MAX_RESOLUTION, step=8),
+            ],
+            outputs=[
+                WorkflowSettings.Output("WORKFLOW_CONFIG"),
+                io.Sampler.Output("SAMPLER"),
+                io.Sigmas.Output("SIGMAS"),
+                io.Int.Output("SEED"),
+                io.Float.Output("CFG"),
+                io.Int.Output("WIDTH"),
+                io.Int.Output("HEIGHT"),
+                io.Combo.Output("FRAME_RATE"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        sampler_name = kwargs.get("sampler_name")
+        sampler = sampler_object(sampler_name)
+        kwargs["sampler"] = sampler
+
+        sigmas = get_ltxv_sigmas(**kwargs)
+        kwargs["sigmas"] = sigmas
+
+        workflow_config = TTWorkflowSettings.create(**kwargs)
+        return io.NodeOutput(
+            workflow_config,
+            sampler,
+            sigmas,
+            kwargs.get("seed"),
+            kwargs.get("cfg"),
+            kwargs.get("width"),
+            kwargs.get("height"),
+            kwargs.get("frame_rate"),
+        )
+
+
+class TT_Ltx23GgufWorkflowSettingsAdvancedNode(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_Ltx23GgufWorkflowSettingsAdvancedNode",
+            display_name="TT LTX2.3 GGUF Workflow Settings (Advanced)",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Latent.Input("latent_opt", optional=True),
+                io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
+                io.Int.Input("steps", default=20, min=1, max=10_000),
+                io.Float.Input("cfg", default=1.0, min=0.0, max=100.0, step=0.1),
+                io.Combo.Input("sampler_name", options=KSampler.SAMPLERS),
+                io.Float.Input("schedule_base_shift", default=0.95, min=0.0, max=10.0, step=0.01),
+                io.Float.Input("schedule_max_shift", default=2.05, min=0.0, max=10.0, step=0.01),
+                io.Boolean.Input("stretch_sigmas", default=True, label_on="In Range", label_off="Bypass", advanced=True),
+                io.Float.Input("sigmas_terminal", default=0.1, min=0.0, max=0.99, step=0.01, advanced=True),
+                io.Combo.Input("frame_rate", options=CommonTypes.FRAME_RATES, default="24fps"),
+                io.Int.Input("width", default=1024, min=16, max=MAX_RESOLUTION, step=8),
+                io.Int.Input("height", default=1024, min=16, max=MAX_RESOLUTION, step=8),
+                io.String.Input("positive_prompt", multiline=True, placeholder="Positive Prompt", dynamic_prompts=True),
+                io.String.Input("negative_prompt", multiline=True, placeholder="Negative Prompt", dynamic_prompts=True),
+                io.String.Input("lora_triggers", multiline=True, placeholder="Negative Prompt", dynamic_prompts=True, advanced=True),
+            ],
+            outputs=[
+                WorkflowSettings.Output("WORKFLOW_CONFIG"),
+                io.Sampler.Output("SAMPLER"),
+                io.Sigmas.Output("SIGMAS"),
+                io.Int.Output("SEED"),
+                io.Float.Output("CFG"),
+                io.Int.Output("WIDTH"),
+                io.Int.Output("HEIGHT"),
+                io.String.Output("POSITIVE_PROMPT"),
+                io.String.Output("NEGATIVE_PROMPT"),
+                io.String.Output("LORA_TRIGGERS"),
+                io.Combo.Output("FRAME_RATE"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        sampler_name = kwargs.get("sampler_name")
+        sampler = sampler_object(sampler_name)
+        kwargs["sampler"] = sampler
+
+        sigmas = get_ltxv_sigmas(**kwargs)
+        kwargs["sigmas"] = sigmas
+
+        workflow_config = TTWorkflowSettings.create(**kwargs)
+        return io.NodeOutput(
+            workflow_config,
+            sampler,
+            sigmas,
+            kwargs.get("seed"),
+            kwargs.get("cfg"),
+            kwargs.get("width"),
+            kwargs.get("height"),
+            kwargs.get("positive_prompt"),
+            kwargs.get("negative_prompt"),
+            kwargs.get("lora_triggers"),
+            kwargs.get("frame_rate"),
+        )
+
+
 __all__ = [
     "TT_SdxlWorkflowSettingsNode",
     "TT_SdxlWorkflowSettingsAdvancedNode",
@@ -563,4 +713,6 @@ __all__ = [
     "TT_Flux2WorkflowSettingsAdvancedNode",
     "TT_Sd35GgufWorkflowSettingsNode",
     "TT_Sd35GgufWorkflowSettingsAdvancedNode",
+    "TT_Ltx23GgufWorkflowSettingsNode",
+    "TT_Ltx23GgufWorkflowSettingsAdvancedNode",
 ]

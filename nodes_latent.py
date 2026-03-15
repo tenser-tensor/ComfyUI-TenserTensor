@@ -6,6 +6,7 @@ from typing import Any
 import torch
 
 from comfy import sample, utils, model_management
+from comfy.latent_formats import LTXAV
 from comfy.nested_tensor import NestedTensor
 from comfy_api.latest import io
 from comfy_api.latest._io import NodeOutput
@@ -27,6 +28,19 @@ class RandomNoise:
         return sample.prepare_noise(latent_image, self.seed, batch_idx)
 
 
+def calculate_dimensions_from_megapixels(megapixels: str, aspect_ratio: str, orientation: str) -> tuple[int, int]:
+    total_pixels = int(float(megapixels.split()[0]) * 1_000_000)
+    ratio_parts = aspect_ratio.split(':')
+    ratio_w, ratio_h = (
+        (int(ratio_parts[0]), int(ratio_parts[1]))
+        if orientation == "landscape"
+        else (int(ratio_parts[1]), int(ratio_parts[0]))
+    )
+    width, height = calculate_dimensions(total_pixels, ratio_w, ratio_h)
+
+    return width, height
+
+
 def calculate_dimensions(total_pixels: int, ratio_w: int, ratio_h: int) -> tuple[int, int]:
     latent_dimension_step = CommonTypes.LATENT_DIMENSION_STEP
     height = int(math.sqrt(total_pixels * ratio_h / ratio_w))
@@ -44,14 +58,12 @@ def build_latent(seed: int, batch_size: int, channels: int, latent_width: int, l
 
 
 def create_empty_latent(**kwargs) -> tuple[dict[str, Any], int, int]:
-    total_pixels = int(float(kwargs.get("megapixels").split()[0]) * 1_000_000)
-    ratio_parts = kwargs.get("aspect_ratio").split(':')
-    ratio_w, ratio_h = (
-        (int(ratio_parts[0]), int(ratio_parts[1]))
-        if kwargs.get("orientation") == "landscape"
-        else (int(ratio_parts[1]), int(ratio_parts[0]))
+    width, height = calculate_dimensions_from_megapixels(
+        kwargs.get("megapixels"),
+        kwargs.get("aspect_ratio"),
+        kwargs.get("orientation")
     )
-    width, height = calculate_dimensions(total_pixels, ratio_w, ratio_h)
+
     model = kwargs.get("model")
     if model:
         fmt = model.model.latent_format
@@ -108,15 +120,15 @@ class TT_LatentFactoryNode(io.ComfyNode):
                 io.Combo.Input("clip_multiplier", options=CommonTypes.CLIP_MULTIPLIERS, advanced=True),
             ],
             outputs=[
-                io.Latent.Output(display_name="LATENT"),
-                io.Noise.Output(display_name="RND_NOISE"),
-                io.Int.Output(display_name="SEED"),
-                io.Int.Output(display_name="NOISE_SEED"),
-                io.String.Output(display_name="MEGAPIXELS"),
-                io.Int.Output(display_name="WIDTH"),
-                io.Int.Output(display_name="HEIGHT"),
-                io.Int.Output(display_name="TARGET_WIDTH"),
-                io.Int.Output(display_name="TARGET_HEIGHT"),
+                io.Latent.Output("LATENT"),
+                io.Noise.Output("RND_NOISE"),
+                io.Int.Output("SEED"),
+                io.Int.Output("NOISE_SEED"),
+                io.Combo.Output("MEGAPIXELS"),
+                io.Int.Output("WIDTH"),
+                io.Int.Output("HEIGHT"),
+                io.Int.Output("TARGET_WIDTH"),
+                io.Int.Output("TARGET_HEIGHT"),
             ]
         )
 
@@ -147,15 +159,15 @@ class TT_LatentFactoryByModelNode(io.ComfyNode):
             ],
             outputs=[
                 io.Model.Output("MODEL"),
-                io.Latent.Output(display_name="LATENT"),
-                io.Noise.Output(display_name="RND_NOISE"),
-                io.Int.Output(display_name="SEED"),
-                io.Int.Output(display_name="NOISE_SEED"),
-                io.String.Output(display_name="MEGAPIXELS"),
-                io.Int.Output(display_name="WIDTH"),
-                io.Int.Output(display_name="HEIGHT"),
-                io.Int.Output(display_name="TARGET_WIDTH"),
-                io.Int.Output(display_name="TARGET_HEIGHT"),
+                io.Latent.Output("LATENT"),
+                io.Noise.Output("RND_NOISE"),
+                io.Int.Output("SEED"),
+                io.Int.Output("NOISE_SEED"),
+                io.Combo.Output("MEGAPIXELS"),
+                io.Int.Output("WIDTH"),
+                io.Int.Output("HEIGHT"),
+                io.Int.Output("TARGET_WIDTH"),
+                io.Int.Output("TARGET_HEIGHT"),
             ]
         )
 
@@ -312,34 +324,25 @@ def calc_total_length(**kwargs):
         kwargs.get("frame_rate"),
         kwargs.get("batch_size"),
     )
-    temporal_compression_ratio = video_vae.temporal_compression_ratio
     fps = int(frame_rate.replace('fps', ''))
     frames_count = length_sec * fps
-    total_length = ((frames_count - 1) // temporal_compression_ratio) * temporal_compression_ratio + 1
+    total_length = ((frames_count - 1) // 8) * 8 + 1
 
     return total_length, fps
 
 
 def create_empty_video_latent(**kwargs):
     total_length, fps = calc_total_length(**kwargs)
-    video_vae, megapixels, orientation = kwargs.get("video_vae"), kwargs.get("megapixels"), kwargs.get("orientation")
+    video_vae = kwargs.get("video_vae")
 
-    total_pixels = int(float(megapixels.split()[0]) * 1_000_000)
-    ratio_parts = kwargs.get("aspect_ratio").split(':')
-    ratio_w, ratio_h = (
-        (int(ratio_parts[0]), int(ratio_parts[1]))
-        if orientation == "landscape"
-        else (int(ratio_parts[1]), int(ratio_parts[0]))
-    )
-    width, height = calculate_dimensions(total_pixels, ratio_w, ratio_h)
-
+    fmt = LTXAV()
     generator = torch.Generator().manual_seed(kwargs.get("seed"))
     video_samples = torch.randn(
         kwargs.get("batch_size"),
         video_vae.latent_channels,
         total_length,
-        height // video_vae.spacial_downscale_ratio,
-        width // video_vae.spacial_downscale_ratio,
+        kwargs.get("height") // fmt.spacial_downscale_ratio,
+        kwargs.get("width") // fmt.spacial_downscale_ratio,
         generator=generator,
         device=model_management.intermediate_device()
     )
@@ -440,35 +443,70 @@ class TT_Ltx23LatentsFactoryNode(io.ComfyNode):
                 io.Vae.Input("audio_vae"),
                 io.Image.Input("image_opt", optional=True),
                 io.Boolean.Input("use_ref_frame", default=True, label_on="Inplace", label_off="Bypass"),
+                io.Float.Input("inplace_strength", default=0.7, min=0.0, max=1.0),
+                io.Combo.Input("inplace_scale_mode", CommonTypes.SCALE_METHODS, default="bicubic"),
                 io.Int.Input("seed", default=0, min=0, max=0xffffffffffffffff),
+                io.Int.Input("noise_seed", default=0, min=0, max=0xffffffffffffffff, control_after_generate=True),
                 io.Combo.Input("aspect_ratio", options=CommonTypes.ASPECT_RATIOS, default="16:9"),
                 io.Combo.Input("megapixels", options=CommonTypes.MEGAPIXELS, default="1 MP"),
                 io.Combo.Input("orientation", options=CommonTypes.ORIENTATIONS),
                 io.Int.Input("length_sec", default=5, min=1, max=20),
                 io.Combo.Input("frame_rate", options=CommonTypes.FRAME_RATES, default="24fps"),
-                io.Float.Input("inplace_strength", default=1.0, min=0.0, max=1.0),
-                io.Combo.Input("inplace_scale_mode", CommonTypes.SCALE_METHODS, default="bicubic"),
                 io.Int.Input("batch_size", default=1, min=1, max=64, advanced=True),
             ],
             outputs=[
                 io.Latent.Output("LATENT"),
                 io.Latent.Output("LATENT_VIDEO"),
                 io.Latent.Output("LATENT_AUDIO"),
+                io.Noise.Output("RND_NOISE"),
+                io.Int.Output("SEED"),
+                io.Int.Output("NOISE_SEED"),
+                io.Combo.Output("MEGAPIXELS"),
+                io.Combo.Output("FRAME_RATE"),
+                io.Int.Output("WIDTH"),
+                io.Int.Output("HEIGHT"),
             ]
         )
 
     @classmethod
     def execute(cls, **kwargs) -> NodeOutput:
+        megapixels = kwargs.get("megapixels")
+        width, height = calculate_dimensions_from_megapixels(
+            megapixels,
+            kwargs.get("aspect_ratio"),
+            kwargs.get("orientation")
+        )
+
+        kwargs["width"] = width
+        kwargs["height"] = height
+
         video_latent, audio_latent = build_video_audio_latents(**kwargs)
-        use_ref_frame, image_opt = kwargs.get("use_ref_frame"), kwargs.get("image_opt")
+        use_ref_frame, image_opt, seed, noise_seed = (
+            kwargs.get("use_ref_frame"),
+            kwargs.get("image_opt"),
+            kwargs.get("seed"),
+            kwargs.get("noise_seed"),
+        )
 
         if use_ref_frame and image_opt:
             kwargs["video_latent"] = video_latent
             video_latent = inject_reference_frame(**kwargs)
 
         concatenated_latent = concatenate_latents(video_latent, audio_latent)
+        noise = RandomNoise(noise_seed)
 
-        return io.NodeOutput(concatenated_latent, video_latent, audio_latent)
+        return io.NodeOutput(
+            concatenated_latent,
+            video_latent,
+            audio_latent,
+            noise,
+            seed,
+            noise_seed,
+            megapixels,
+            kwargs.get("frame_rate"),
+            width,
+            height
+        )
 
 
 __all__ = [

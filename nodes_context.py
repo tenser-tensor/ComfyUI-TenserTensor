@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import torch
 
 from comfy.clip_vision import Output
-from comfy_api.latest import IO, Input
+from comfy_api.latest import io, Input
 from .nodes_workflow import TTWorkflowSettings, WorkflowSettings
 
 CATEGORY = "TenserTensor/Context"
@@ -24,29 +24,30 @@ class TTContext():
     Use create() to instantiate from kwargs, and set_attr/get_attr for safe field access.
     Workflow config fields are accessible via set_workflow_config_attr/get_workflow_config_attr.
     """
-    cfg: IO.Float | None = None
-    clip: IO.Clip | None = None
-    control_net: IO.ControlNet | None = None
-    conditioning: IO.Conditioning | None = None
-    guidance: IO.Float | None = None
-    guider: IO.Guider | None = None
-    image: IO.Image | None = None
-    latent: IO.Latent | None = None
-    lora_triggers: IO.String | None = None
-    mask: IO.Mask | None = None
-    model: IO.Model | None = None
-    negative: IO.Conditioning | None = None
-    positive: IO.Conditioning | None = None
-    prompt: IO.String | None = None
-    rnd_noise: IO.Noise | None = None
-    sampler: IO.Sampler | None = None
-    seed: IO.Int | None = None
-    sigmas: IO.Sigmas | None = None
-    steps: IO.Int | None = None
-    vae: IO.Vae | None = None
+    cfg: io.Float | None = None
+    clip: io.Clip | None = None
+    control_net: io.ControlNet | None = None
+    conditioning: io.Conditioning | None = None
+    # frame_rate: io.String | None = None
+    guidance: io.Float | None = None
+    guider: io.Guider | None = None
+    image: io.Image | None = None
+    latent: io.Latent | None = None
+    lora_triggers: io.String | None = None
+    mask: io.Mask | None = None
+    model: io.Model | None = None
+    negative: io.Conditioning | None = None
+    positive: io.Conditioning | None = None
+    prompt: io.String | None = None
+    rnd_noise: io.Noise | None = None
+    sampler: io.Sampler | None = None
+    seed: io.Int | None = None
+    sigmas: io.Sigmas | None = None
+    steps: io.Int | None = None
+    vae: io.Vae | None = None
     workflow_config: WorkflowSettings | None = None
-    sampler_name: IO.String | None = None
-    scheduler: IO.String | None = None
+    sampler_name: io.String | None = None
+    scheduler: io.String | None = None
 
     @classmethod
     def create(cls, **kwargs):
@@ -102,20 +103,20 @@ class TTContext():
             raise AttributeError(f"ERROR: Workflow Config is not set in context")
 
 
-@IO.comfytype(io_type="TT_CONTEXT")
+@io.comfytype(io_type="TT_CONTEXT")
 class Context:
     Type = TTContext
 
-    class Input(IO.Input):
+    class Input(io.Input):
         def __init__(self, id: str, **kwargs):
             super().__init__(id, **kwargs)
 
-    class Output(IO.Output):
+    class Output(io.Output):
         def __init__(self, id: str, **kwargs):
             super().__init__(id, **kwargs)
 
 
-class ContextNode(IO.ComfyNode):
+class ContextNode(io.ComfyNode):
     """
     Abstract base class for all context nodes.
     Handles context creation, delegation to handle(), and building return tuple.
@@ -140,7 +141,7 @@ class ContextNode(IO.ComfyNode):
                     return Context.Input(input_name, optional=optional)
                 case _:
                     f_type = cls.F_TYPES[input_name]
-                    if f_type in (IO.Boolean, IO.Int, IO.Float, IO.String,):
+                    if f_type in (io.Boolean, io.Int, io.Float, io.String,):
                         return f_type.Input(input_name, optional=optional, force_input=True)
                     else:
                         return f_type.Input(input_name, optional=optional)
@@ -169,24 +170,24 @@ class ContextNode(IO.ComfyNode):
         return output_schema
 
     @classmethod
-    def node_output(cls, context) -> IO.NodeOutput:
+    def node_output(cls, context) -> io.NodeOutput:
         args = [context]
         for f_name in cls.RETURNS if len(cls.RETURNS) > 0 else cls.REQUIRED + cls.OPTIONAL:
             if f_name != "context":
                 args.append(context.get_attr(f_name))
 
-        return IO.NodeOutput(*args)
+        return io.NodeOutput(*args)
 
     @classmethod
     def display_name(cls):
         return re.sub(r'(?<=[a-z])(?=[A-Z])', ' ', cls.__name__.replace("TT_", "TT ").replace("Node", ""))
 
     @classmethod
-    def define_schema(cls) -> IO.Schema:
+    def define_schema(cls) -> io.Schema:
         if len(cls.F_TYPES) == 0:
             cls.fill_field_types()
 
-        return IO.Schema(
+        return io.Schema(
             node_id=cls.__name__,
             display_name=cls.display_name(),
             category=CATEGORY,
@@ -207,7 +208,7 @@ class ContextNode(IO.ComfyNode):
         return (context, kwargs,)
 
     @classmethod
-    def execute(cls, context=None, **kwargs) -> IO.NodeOutput:
+    def execute(cls, context=None, **kwargs) -> io.NodeOutput:
         if not context:
             context = TTContext.create(**kwargs)
             cls.handle(context, **kwargs)

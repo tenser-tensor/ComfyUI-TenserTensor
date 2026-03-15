@@ -14,7 +14,9 @@ from torch import device, tensor
 
 import folder_paths
 from comfy import sd, model_management, utils, model_sampling, model_patcher, lora, float
+from comfy.ldm.lightricks.vae.audio_vae import AudioVAE
 from comfy_api.latest import io
+from comfy_api.latest._io import NodeOutput
 from nodes import VAELoader, MAX_RESOLUTION
 from .gguf.dequant import is_quantized, is_torch_compatible
 from .gguf.loader import gguf_sd_loader, gguf_clip_loader
@@ -105,6 +107,27 @@ def load_vae(vae_name, vae_device="default", vae_dtype="bfloat16"):
     return vae
 
 
+def load_audio_vae(vae_name):
+    vae_path = folder_paths.get_full_path_or_raise("vae", vae_name)
+    state_dict, metadata = utils.load_torch_file(vae_path, return_metadata=True)
+    vae = AudioVAE(state_dict=state_dict, metadata=metadata)
+
+    return vae
+
+
+# def load_video_vae(vae_name):
+#     vae_path = folder_paths.get_full_path_or_raise("vae", vae_name)
+#     state_dict, metadata = utils.load_torch_file(vae_path, return_metadata=True)
+#
+#     print(f"vae config: {metadata.get("config")}")
+#
+#     config = json.loads(metadata.get("config", "{}"))
+#     vae = VideoVAE(config=config)
+#     vae.load_state_dict(state_dict, strict=False)
+#
+#     return vae
+
+
 def load_sdxl_pipeline(cls, apply_loras, **kwargs):
     model = load_checkpoint(kwargs.get("primary_ckpt"))
 
@@ -169,7 +192,7 @@ class TT_SdxlModelsLoaderNode(io.ComfyNode):
 
     @classmethod
     def execute(cls, **kwargs) -> io.NodeOutput:
-        model, clip, vae = load_sdxl_pipeline(cls, apply_loras=False, **kwargs)
+        model, clip, vae = load_sdxl_pipeline(cls, **kwargs)
 
         return io.NodeOutput(model, clip, vae)
 
@@ -528,14 +551,15 @@ def load_sd3_clip_patcher(clip_l, clip_g, t5xxl, type="sd3"):
     return clip
 
 
-def apply_bypass_lora_for_models(loaded_lora, model, clip, lora_name, strength):
+def apply_bypass_lora_for_models(loaded_lora, model, clip, lora_name, strength_model, strength_clip=None):
     if loaded_lora == None:
         lora_path = folder_paths.get_full_path_or_raise("loras", lora_name)
         lora = utils.load_torch_file(lora_path, safe_load=True)
     else:
         lora = loaded_lora
 
-    patched_model, patched_clip = sd.load_bypass_lora_for_models(model, clip, lora, strength, strength)
+    strength_clip = strength_clip if strength_clip is not None else strength_model
+    patched_model, patched_clip = sd.load_bypass_lora_for_models(model, clip, lora, strength_model, strength_clip)
 
     return (patched_model, patched_clip, lora,)
 
@@ -579,6 +603,17 @@ def load_gguf_pipeline(cls, **kwargs):
         clip_l, clip_g, t5xxl = kwargs.get("clip_l"), kwargs.get("clip_g"), kwargs.get("t5xxl")
         clip = load_sd3_clip_patcher(clip_l, clip_g, t5xxl)
 
+    if kwargs.get("apply_distilled_lora"):
+        distilled_lora, strength_model, strength_clip = (
+            kwargs.get("distilled_lora"),
+            kwargs.get("strength_model"),
+            kwargs.get("strength_clip")
+        )
+        if distilled_lora != "None" and (strength_model != 0 or strength_clip != 0):
+            cached = getattr(cls, "loaded_distilled_lora")
+            model, clip, lora = apply_bypass_lora_for_models(cached, model, clip, distilled_lora, strength_model, strength_clip)
+            setattr(cls, "loaded_distilled_lora", lora)
+
     if kwargs.get("apply_bypass_lora"):
         loras = [
             (kwargs.get("lora_name_1"), kwargs.get("strength_1"), 'loaded_lora_1'),
@@ -593,13 +628,24 @@ def load_gguf_pipeline(cls, **kwargs):
                 model, clip, lora = apply_bypass_lora_for_models(cached, model, clip, name, strength)
                 setattr(cls, attr, lora)
 
-    vae = load_vae(
-        kwargs.get("vae_name"),
-        kwargs.get("vae_device", "default"),
-        kwargs.get("vae_dtype", "bfloat16"),
-    )
+    vae_name = kwargs.get("vae_name")
+    if vae_name:
+        vae = load_vae(
+            vae_name,
+            kwargs.get("vae_device", "default"),
+            kwargs.get("vae_dtype", "bfloat16"),
+        )
 
-    return model, clip, vae
+        return model, clip, vae, None
+    else:
+        video_vae = load_vae(
+            kwargs.get("video_vae_name"),
+            kwargs.get("vae_device", "default"),
+            kwargs.get("vae_dtype", "bfloat16"),
+        )
+        audio_vae = load_audio_vae(kwargs.get("audio_vae_name"))
+
+        return model, clip, video_vae, audio_vae
 
 
 class TT_Flux2GgufModelsLoaderNode(io.ComfyNode):
@@ -625,7 +671,7 @@ class TT_Flux2GgufModelsLoaderNode(io.ComfyNode):
     @classmethod
     def execute(cls, **kwargs) -> io.NodeOutput:
         kwargs["apply_bypass_lora"] = False
-        model, clip, vae = load_gguf_pipeline(cls, apply_loras=True, **kwargs)
+        model, clip, vae, _ = load_gguf_pipeline(cls, **kwargs)
 
         return io.NodeOutput(model, clip, vae)
 
@@ -676,7 +722,7 @@ class TT_Flux2GgufModelsLoaderAdvancedNode(io.ComfyNode):
     @classmethod
     def execute(cls, **kwargs) -> io.NodeOutput:
         kwargs["apply_bypass_lora"] = False
-        model, clip, vae = load_gguf_pipeline(cls, apply_loras=True, **kwargs)
+        model, clip, vae, _ = load_gguf_pipeline(cls, **kwargs)
 
         return io.NodeOutput(model, clip, vae)
 
@@ -706,7 +752,7 @@ class TT_Sd35GgufModelsLoaderNode(io.ComfyNode):
     @classmethod
     def execute(cls, **kwargs) -> io.NodeOutput:
         kwargs["apply_bypass_lora"] = False
-        model, clip, vae = load_gguf_pipeline(cls, apply_loras=True, **kwargs)
+        model, clip, vae, _ = load_gguf_pipeline(cls, **kwargs)
 
         return io.NodeOutput(model, clip, vae)
 
@@ -754,9 +800,45 @@ class TT_Sd35GgufModelsLoaderAdvancedNode(io.ComfyNode):
     @classmethod
     def execute(cls, **kwargs) -> io.NodeOutput:
         kwargs["apply_bypass_lora"] = True
-        model, clip, vae = load_gguf_pipeline(cls, apply_loras=True, **kwargs)
+        model, clip, vae, _ = load_gguf_pipeline(cls, **kwargs)
 
         return io.NodeOutput(model, clip, vae)
+
+
+class TT_Ltx23GgufModelsLoaderNode(io.ComfyNode):
+    loaded_distilled_lora = None
+
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_Ltx23GgufModelsLoaderNode",
+            display_name="TT LTX2.3 GGUF Models Loader",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Combo.Input("diffusion_model", options=get_gguf_diffusion_models_files()),
+                io.Combo.Input("clip", options=get_gguf_text_encoder_files()),
+                io.Combo.Input("distilled_lora", options=get_lora_files()),
+                io.Float.Input("strength_model", default=1.0, min=-2.0, max=2.0, step=0.01),
+                io.Float.Input("strength_clip", default=1.0, min=-2.0, max=2.0, step=0.01),
+                io.Combo.Input("video_vae_name", options=get_vae_files()),
+                io.Combo.Input("audio_vae_name", options=get_vae_files()),
+            ],
+            outputs=[
+                io.Model.Output("MODEL"),
+                io.Clip.Output("CLIP"),
+                io.Vae.Output("VIDEO_VAE"),
+                io.Vae.Output("AUDIO_VAE"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> NodeOutput:
+        kwargs["apply_distilled_lora"] = True
+        kwargs["clip_type"] = "ltxv"
+        model, clip, video_vae, audio_vae = load_gguf_pipeline(cls, **kwargs)
+
+        return io.NodeOutput(model, clip, video_vae, audio_vae)
 
 
 class TT_Ltx23GgufModelsLoaderAdvancedNode(io.ComfyNode):
@@ -772,4 +854,5 @@ __all__ = [
     "TT_Flux2GgufModelsLoaderAdvancedNode",
     "TT_Sd35GgufModelsLoaderNode",
     "TT_Sd35GgufModelsLoaderAdvancedNode",
+    "TT_Ltx23GgufModelsLoaderNode",
 ]

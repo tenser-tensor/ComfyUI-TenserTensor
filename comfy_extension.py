@@ -2,9 +2,9 @@
 
 from comfy_api.latest import ComfyExtension, io
 from .nodes_context import *
+from .nodes_controlnet import *
 from .nodes_detector import *
 from .nodes_image import *
-from .nodes_controlnet import *
 from .nodes_latent import *
 from .nodes_loaders import *
 from .nodes_postproduction import *
@@ -55,6 +55,7 @@ class TenserTensorExtension(ComfyExtension):
             TT_Flux2GgufModelsLoaderAdvancedNode,
             TT_Sd35GgufModelsLoaderNode,
             TT_Sd35GgufModelsLoaderAdvancedNode,
+            TT_Ltx23GgufModelsLoaderNode,
             # Postproduction V3 Nodes
             TT_AddFilmGrainNode,
             TT_ApplyLutNode,
@@ -78,6 +79,7 @@ class TenserTensorExtension(ComfyExtension):
             TT_Flux2TextEncoderContextNode,
             TT_Sd35TextEncoderNode,
             TT_Sd35TextEncoderContextNode,
+            TT_Ltx23TextEncoderNode,
             # VAE V3 Nodes
             TT_VaeDecodeTiledNode,
             TT_VaeDecodeContextNode,
@@ -93,4 +95,6 @@ class TenserTensorExtension(ComfyExtension):
             TT_Flux2WorkflowSettingsAdvancedNode,
             TT_Sd35GgufWorkflowSettingsNode,
             TT_Sd35GgufWorkflowSettingsAdvancedNode,
+            TT_Ltx23GgufWorkflowSettingsNode,
+            TT_Ltx23GgufWorkflowSettingsAdvancedNode,
         ]
