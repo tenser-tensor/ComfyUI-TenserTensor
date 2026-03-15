@@ -426,8 +426,8 @@ class TT_Ltx23TextEncoderNode(io.ComfyNode):
                 io.Float.Input("cfg", default=1.0, min=0.0, max=100.0, step=0.1),
                 io.String.Input("positive_prompt", multiline=True, placeholder="Positive Prompt", dynamic_prompts=True),
                 io.String.Input("negative_prompt", multiline=True, placeholder="Negative Prompt", dynamic_prompts=True),
+                io.String.Input("lora_triggers", multiline=True, placeholder="LoRA Triggers", dynamic_prompts=True),
                 io.Combo.Input("frame_rate", options=CommonTypes.FRAME_RATES, default="24fps"),
-                # io.String.Input("lora_triggers", multiline=True, placeholder="LoRA Triggers", dynamic_prompts=True),
             ],
             outputs=[
                 io.Guider.Output("GUIDER"),

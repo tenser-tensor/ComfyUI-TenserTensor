@@ -842,7 +842,57 @@ class TT_Ltx23GgufModelsLoaderNode(io.ComfyNode):
 
 
 class TT_Ltx23GgufModelsLoaderAdvancedNode(io.ComfyNode):
-    pass
+    loaded_distilled_lora = None
+    loaded_lora_1 = None
+    loaded_lora_2 = None
+    loaded_lora_3 = None
+    loaded_lora_4 = None
+
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="TT_Ltx23GgufModelsLoaderAdvancedNode",
+            display_name="TT LTX2.3 GGUF Models Loader (Advanced)",
+            category=CATEGORY,
+            description="",
+            inputs=[
+                io.Combo.Input("diffusion_model", options=get_gguf_diffusion_models_files()),
+                io.Combo.Input("dequant_dtype", options=list(CommonTypes.TORCH_DTYPES.keys()), default="bfloat16", advanced=True),
+                io.Combo.Input("patch_dtype", options=list(CommonTypes.TORCH_DTYPES.keys()), default="bfloat16", advanced=True),
+                io.Combo.Input("clip", options=get_gguf_text_encoder_files()),
+                io.Combo.Input("clip_device", options=CommonTypes.TORCH_DEVICES, default="default", advanced=True),
+                io.Combo.Input("lora_name_1", options=get_lora_files()),
+                io.Float.Input("strength_1", default=1.0, min=-10.0, max=10.0, step=0.1),
+                io.Combo.Input("lora_name_2", options=get_lora_files()),
+                io.Float.Input("strength_2", default=1.0, min=-10.0, max=10.0, step=0.1),
+                io.Combo.Input("lora_name_3", options=get_lora_files()),
+                io.Float.Input("strength_3", default=1.0, min=-10.0, max=10.0, step=0.1),
+                io.Combo.Input("lora_name_4", options=get_lora_files()),
+                io.Float.Input("strength_4", default=1.0, min=-10.0, max=10.0, step=0.1),
+                io.Combo.Input("distilled_lora", options=get_lora_files()),
+                io.Float.Input("strength_model", default=1.0, min=-2.0, max=2.0, step=0.01),
+                io.Float.Input("strength_clip", default=1.0, min=-2.0, max=2.0, step=0.01),
+                io.Combo.Input("video_vae_name", options=get_vae_files()),
+                io.Combo.Input("video_vae_device", options=CommonTypes.TORCH_DEVICES, default="default", advanced=True),
+                io.Combo.Input("video_vae_dtype", options=list(CommonTypes.TORCH_DTYPES.keys()), advanced=True),
+                io.Combo.Input("audio_vae_name", options=get_vae_files()),
+            ],
+            outputs=[
+                io.Model.Output("MODEL"),
+                io.Clip.Output("CLIP"),
+                io.Vae.Output("VIDEO_VAE"),
+                io.Vae.Output("AUDIO_VAE"),
+            ]
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> NodeOutput:
+        kwargs["apply_distilled_lora"] = True
+        kwargs["apply_bypass_lora"] = True
+        kwargs["clip_type"] = "ltxv"
+        model, clip, video_vae, audio_vae = load_gguf_pipeline(cls, **kwargs)
+
+        return io.NodeOutput(model, clip, video_vae, audio_vae)
 
 
 __all__ = [
