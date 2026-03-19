@@ -2,47 +2,46 @@
 
 *This description was generated with AI assistance. If you spot any errors, please create an issue on GitHub.*
 
-General-purpose context node for FLUX and SDXL workflows. Accepts any combination of pipeline fields and
-merges them into the context object. All fields are optional.
+General-purpose context node for FLUX and SDXL workflows. Merges or updates fields in an existing context object. All fields are optional.
 
 ### Inputs
 
-| Parameter         | Type               | Required | Description                   |
-|-------------------|--------------------|----------|-------------------------------|
-| `context`         | TT_CONTEXT         | No       | Existing context to update    |
-| `workflow_config` | TT_WORKFLOW_CONFIG | No       | Workflow configuration object |
-| `model`           | MODEL              | No       | Diffusion model               |
-| `clip`            | CLIP               | No       | CLIP text encoder             |
-| `vae`             | VAE                | No       | VAE encoder/decoder           |
-| `latent`          | LATENT             | No       | Latent image tensor           |
-| `positive`        | CONDITIONING       | No       | Positive conditioning         |
-| `negative`        | CONDITIONING       | No       | Negative conditioning         |
-| `image`           | IMAGE              | No       | Pixel-space image             |
-| `seed`            | INT                | No       | Generation seed               |
-| `steps`           | INT                | No       | Number of sampling steps      |
-| `cfg`             | FLOAT              | No       | CFG scale                     |
+| Parameter         | Type               | Required | Description                       |
+|-------------------|--------------------|----------|-----------------------------------|
+| `context`         | TT_CONTEXT         | No       | Existing context object to update |
+| `workflow_config` | TT_WORKFLOW_CONFIG | No       | Workflow configuration object     |
+| `model`           | MODEL              | No       | Diffusion model                   |
+| `clip`            | CLIP               | No       | CLIP text encoder                 |
+| `vae`             | VAE                | No       | VAE encoder/decoder               |
+| `latent`          | LATENT             | No       | Latent tensor                     |
+| `positive`        | CONDITIONING       | No       | Positive conditioning             |
+| `negative`        | CONDITIONING       | No       | Negative conditioning             |
+| `image`           | IMAGE              | No       | Image tensor                      |
+| `seed`            | INT                | No       | Sampling seed                     |
+| `steps`           | INT                | No       | Number of denoising steps         |
+| `cfg`             | FLOAT              | No       | Classifier-free guidance scale    |
 
 ### Outputs
 
-| Parameter         | Type               | Description              |
-|-------------------|--------------------|--------------------------|
-| `CONTEXT`         | TT_CONTEXT         | Updated context object   |
-| `WORKFLOW_CONFIG` | TT_WORKFLOW_CONFIG | Workflow configuration   |
-| `MODEL`           | MODEL              | Diffusion model          |
-| `CLIP`            | CLIP               | CLIP text encoder        |
-| `VAE`             | VAE                | VAE encoder/decoder      |
-| `LATENT`          | LATENT             | Latent image tensor      |
-| `POSITIVE`        | CONDITIONING       | Positive conditioning    |
-| `NEGATIVE`        | CONDITIONING       | Negative conditioning    |
-| `IMAGE`           | IMAGE              | Pixel-space image        |
-| `SEED`            | INT                | Generation seed          |
-| `STEPS`           | INT                | Number of sampling steps |
-| `CFG`             | FLOAT              | CFG scale                |
+| Parameter         | Type               | Description                       |
+|-------------------|--------------------|-----------------------------------|
+| `CONTEXT`         | TT_CONTEXT         | Updated context object            |
+| `WORKFLOW_CONFIG` | TT_WORKFLOW_CONFIG | Workflow config passthrough       |
+| `MODEL`           | MODEL              | Model passthrough                 |
+| `CLIP`            | CLIP               | CLIP passthrough                  |
+| `VAE`             | VAE                | VAE passthrough                   |
+| `LATENT`          | LATENT             | Latent passthrough                |
+| `POSITIVE`        | CONDITIONING       | Positive conditioning passthrough |
+| `NEGATIVE`        | CONDITIONING       | Negative conditioning passthrough |
+| `IMAGE`           | IMAGE              | Image passthrough                 |
+| `SEED`            | INT                | Seed passthrough                  |
+| `STEPS`           | INT                | Steps passthrough                 |
+| `CFG`             | FLOAT              | CFG passthrough                   |
 
 ### Usage
 
-Use this node to create or update a context object with any combination of pipeline fields. If `context` is
-connected, existing fields are updated with the provided values. If not connected, a new context is created.
+Use to update or extend an existing context object mid-pipeline. Connect `context` from an upstream context node and override only the fields you
+need.
 
 ---
 

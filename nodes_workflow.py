@@ -3,10 +3,8 @@
 import dataclasses
 import math
 from dataclasses import dataclass
-from typing import override
 
 import torch
-
 from comfy.samplers import KSampler, sampler_object, Sampler
 from comfy_api.latest import io, ComfyExtension
 from nodes import MAX_RESOLUTION
@@ -560,36 +558,13 @@ class TT_Sd35GgufWorkflowSettingsAdvancedNode(io.ComfyNode):
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
 
-class WorkflowNodesExtension(ComfyExtension):
-    @override
-    async def get_node_list(self) -> list[type[io.ComfyNode]]:
-        return [
-            TT_SdxlWorkflowSettingsNode,
-            TT_SdxlWorkflowSettingsAdvancedNode,
-            TT_FluxWorkflowSettingsNode,
-            TT_FluxWorkflowSettingsAdvancedNode,
-            TT_Flux2WorkflowSettingsNode,
-            TT_Flux2WorkflowSettingsAdvancedNode,
-            TT_Sd35GgufWorkflowSettingsNode,
-            TT_Sd35GgufWorkflowSettingsAdvancedNode,
-        ]
-
-
-async def comfy_entrypoint() -> WorkflowNodesExtension:
-    return WorkflowNodesExtension()
-
-
-# ==============================================================================
-# Re-exports for backward compatibility
-# ==============================================================================
-
-__all__ = [
-    "TT_SdxlWorkflowSettingsNode",
-    "TT_SdxlWorkflowSettingsAdvancedNode",
-    "TT_FluxWorkflowSettingsNode",
-    "TT_FluxWorkflowSettingsAdvancedNode",
-    "TT_Flux2WorkflowSettingsNode",
-    "TT_Flux2WorkflowSettingsAdvancedNode",
-    "TT_Sd35GgufWorkflowSettingsNode",
-    "TT_Sd35GgufWorkflowSettingsAdvancedNode",
+NODES = [
+    TT_SdxlWorkflowSettingsNode,
+    TT_SdxlWorkflowSettingsAdvancedNode,
+    TT_FluxWorkflowSettingsNode,
+    TT_FluxWorkflowSettingsAdvancedNode,
+    TT_Flux2WorkflowSettingsNode,
+    TT_Flux2WorkflowSettingsAdvancedNode,
+    TT_Sd35GgufWorkflowSettingsNode,
+    TT_Sd35GgufWorkflowSettingsAdvancedNode,
 ]

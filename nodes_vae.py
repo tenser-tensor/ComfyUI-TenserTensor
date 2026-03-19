@@ -159,6 +159,11 @@ class TT_VaeEncodeContextNode(io.ComfyNode):
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
 
+NODES=[]
+
+
+
+
 class VaeNodesExtension(ComfyExtension):
     @override
     async def get_node_list(self) -> list[type[io.ComfyNode]]:

@@ -5,17 +5,17 @@ import math
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import override, Any
+from typing import Any
 
+import folder_paths
 import numpy
 import torch
 from PIL import Image, ImageOps, ImageSequence
-from spandrel import ModelLoader, ImageModelDescriptor
-
-import folder_paths
 from comfy import model_management, utils
 from comfy_api.latest import ComfyExtension, io, ui
 from node_helpers import conditioning_set_values, pillow
+from spandrel import ModelLoader, ImageModelDescriptor
+
 from .nodes_text_encoder import SingleCondCFGGuider
 from .nodes_vae import vae_encode
 
@@ -478,28 +478,9 @@ class TT_GuiderImageReferenceNode(io.ComfyNode):
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
 
-class ImageNodesExtension(ComfyExtension):
-    @override
-    async def get_node_list(self) -> list[type[io.ComfyNode]]:
-        return [
-            TT_ImageLoaderResizerNode,
-            TT_ImagePreviewSaveNode,
-            TT_ImagePreviewUpscaleSaveNode,
-            TT_GuiderImageReferenceNode,
-        ]
-
-
-async def comfy_entrypoint() -> ImageNodesExtension:
-    return ImageNodesExtension()
-
-
-# ==============================================================================
-# Re-exports for backward compatibility
-# ==============================================================================
-
-__all__ = [
-    "TT_ImageLoaderResizerNode",
-    "TT_ImagePreviewSaveNode",
-    "TT_ImagePreviewUpscaleSaveNode",
-    "TT_GuiderImageReferenceNode",
+NODES = [
+    TT_ImageLoaderResizerNode,
+    TT_ImagePreviewSaveNode,
+    TT_ImagePreviewUpscaleSaveNode,
+    TT_GuiderImageReferenceNode,
 ]

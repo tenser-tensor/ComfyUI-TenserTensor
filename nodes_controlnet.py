@@ -1,10 +1,9 @@
 # (c) TenserTensor <tenser.tensor@proton.me> || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
-from typing import override
-
 import folder_paths
 from comfy import controlnet
 from comfy_api.latest import io, ui, ComfyExtension
+
 from .nodes_image import SingleCondCFGGuider, get_image_files, load_image
 
 CATEGORY = "TenserTensor/ControlNet"
@@ -170,24 +169,7 @@ class TT_Flux2ApplyControlNetAdvancedNode(io.ComfyNode):
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
 
-class ControlNetNodesExtension(ComfyExtension):
-    @override
-    async def get_node_list(self) -> list[type[io.ComfyNode]]:
-        return [
-            TT_Flux2ApplyControlNetNode,
-            TT_Flux2ApplyControlNetAdvancedNode,
-        ]
-
-
-async def comfy_entrypoint() -> ControlNetNodesExtension:
-    return ControlNetNodesExtension()
-
-
-# ==============================================================================
-# Re-exports for backward compatibility
-# ==============================================================================
-
-__all__ = [
-    "TT_Flux2ApplyControlNetNode",
-    "TT_Flux2ApplyControlNetAdvancedNode",
+NODES = [
+    TT_Flux2ApplyControlNetNode,
+    TT_Flux2ApplyControlNetAdvancedNode,
 ]

@@ -4,6 +4,7 @@ from typing import override
 
 from comfy import samplers
 from comfy_api.latest import io, ComfyExtension
+
 from nodes import MAX_RESOLUTION
 from .nodes_context import Context
 
@@ -413,36 +414,13 @@ class TT_Sd35TextEncoderContextNode(io.ComfyNode):
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
 
-class TextEncodeNodesExtension(ComfyExtension):
-    @override
-    async def get_node_list(self) -> list[type[io.ComfyNode]]:
-        return [
-            TT_SdxlClipTextEncoderNode,
-            TT_SdxlClipTextEncoderContextNode,
-            TT_Flux1ClipTextEncoderNode,
-            TT_Flux1ClipTextEncoderContextNode,
-            TT_Flux2TextEncoderNode,
-            TT_Flux2TextEncoderContextNode,
-            TT_Sd35TextEncoderNode,
-            TT_Sd35TextEncoderContextNode,
-        ]
-
-
-async def comfy_entrypoint() -> TextEncodeNodesExtension:
-    return TextEncodeNodesExtension()
-
-
-# ==============================================================================
-# Re-exports for backward compatibility
-# ==============================================================================
-
-__all__ = [
-    "TT_SdxlClipTextEncoderNode",
-    "TT_SdxlClipTextEncoderContextNode",
-    "TT_Flux1ClipTextEncoderNode",
-    "TT_Flux1ClipTextEncoderContextNode",
-    "TT_Flux2TextEncoderNode",
-    "TT_Flux2TextEncoderContextNode",
-    "TT_Sd35TextEncoderNode",
-    "TT_Sd35TextEncoderContextNode",
+NODES = [
+    TT_SdxlClipTextEncoderNode,
+    TT_SdxlClipTextEncoderContextNode,
+    TT_Flux1ClipTextEncoderNode,
+    TT_Flux1ClipTextEncoderContextNode,
+    TT_Flux2TextEncoderNode,
+    TT_Flux2TextEncoderContextNode,
+    TT_Sd35TextEncoderNode,
+    TT_Sd35TextEncoderContextNode,
 ]
