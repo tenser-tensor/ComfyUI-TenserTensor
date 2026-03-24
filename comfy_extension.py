@@ -2,7 +2,7 @@
 
 from typing import override
 
-from comfy_api.latest import ComfyExtension, io
+from comfy_api.latest import ComfyAPI, ComfyExtension, io
 from .nodes_context import NODES as NODES_CONTEXT
 from .nodes_controlnet import NODES as NODES_CONTROLNET
 from .nodes_debug import NODES as NODES_DEBUG
@@ -15,8 +15,12 @@ from .nodes_loaders_d import NODES as NODES_LOADERS_D
 from .nodes_postproduction import NODES as NODES_POSTPRODUCTION
 from .nodes_sampling import NODES as NODES_SAMPLING
 from .nodes_text_encoder import NODES as NODES_TEXT_ENCODER
-from .nodes_vae import NODES as NODES_VAE
+from .nodes_text_encoder_d import NODES as NODES_TEXT_ENCODER_D
+from .nodes_vae_d import NODES as NODES_VAE_D
 from .nodes_workflow import NODES as NODES_WORKFLOW
+from .nodes_workflow_d import NODES as NODES_WORKFLOW_D
+
+api = ComfyAPI()
 
 
 class TenserTensorExtension(ComfyExtension):
@@ -35,6 +39,8 @@ class TenserTensorExtension(ComfyExtension):
             *NODES_POSTPRODUCTION,
             *NODES_SAMPLING,
             *NODES_TEXT_ENCODER,
-            *NODES_VAE,
+            *NODES_TEXT_ENCODER_D,
+            *NODES_VAE_D,
             *NODES_WORKFLOW,
+            *NODES_WORKFLOW_D,
         ]

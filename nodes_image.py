@@ -7,17 +7,17 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import folder_paths
 import numpy
 import torch
 from PIL import Image, ImageOps, ImageSequence
-from comfy import model_management, utils
-from comfy_api.latest import ComfyExtension, io, ui
-from node_helpers import conditioning_set_values, pillow
 from spandrel import ModelLoader, ImageModelDescriptor
 
-from .nodes_text_encoder import SingleCondCFGGuider
-from .nodes_vae import vae_encode
+import folder_paths
+from comfy import model_management, utils
+from comfy_api.latest import io, ui
+from node_helpers import conditioning_set_values, pillow
+from .nodes_text_encoder import AdaptiveCFGGuider
+from .nodes_vae_d import vae_encode
 
 CATEGORY = "TenserTensor/Image"
 RESIZE_METHODS = ["nearest-exact", "bilinear", "area", "bicubic", "bislerp"]
@@ -457,8 +457,8 @@ class TT_GuiderImageReferenceNode(io.ComfyNode):
             kwargs.get("dimension_step")
         )
 
-        if not isinstance(guider, SingleCondCFGGuider):
-            guider = SingleCondCFGGuider.from_cfg_guider(guider)
+        if not isinstance(guider, AdaptiveCFGGuider):
+            guider = AdaptiveCFGGuider.from_cfg_guider(guider)
 
         resized = resize_image_to_megapixels(timage, resize_method, megapixels, dimension_step)
         latent = vae_encode(resized, vae)

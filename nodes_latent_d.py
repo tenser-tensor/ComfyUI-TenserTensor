@@ -9,7 +9,7 @@ from comfy.latent_formats import SDXL, Flux, Flux2, SD3
 from comfy_api.latest import io, ComfyExtension
 
 from .nodes_image import MEGAPIXELS, resize_image, rotate_image, flip_image
-from .nodes_vae import vae_decode, vae_encode
+from .nodes_vae_d import vae_decode, vae_encode
 
 CATEGORY = "TenserTensor/Latent"
 

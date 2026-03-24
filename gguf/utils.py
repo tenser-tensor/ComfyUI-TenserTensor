@@ -10,7 +10,7 @@ from comfy import ldm, sd, utils, model_patcher, model_management, lora, float
 from .dequant import is_quantized, is_torch_compatible
 from .loader import gguf_clip_loader, gguf_sd_loader
 from .ops import GGMLOps, move_patch_to_device
-from ..utils import raise_unless, get_embedding_directory, apply_lora_stack
+from ..utils import raise_unless, get_embedding_directory
 
 
 def attention_override_pytorch(func, *args, **kwargs):

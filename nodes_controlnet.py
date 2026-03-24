@@ -2,9 +2,9 @@
 
 import folder_paths
 from comfy import controlnet
-from comfy_api.latest import io, ui, ComfyExtension
+from comfy_api.latest import io, ui
 
-from .nodes_image import SingleCondCFGGuider, get_image_files, load_image
+from .nodes_image import AdaptiveCFGGuider, get_image_files, load_image
 
 CATEGORY = "TenserTensor/ControlNet"
 
@@ -92,8 +92,8 @@ class TT_Flux2ApplyControlNetNode(io.ComfyNode):
             kwargs.get("strength"),
             kwargs.get("control_net"))
 
-        if not isinstance(guider, SingleCondCFGGuider):
-            guider = SingleCondCFGGuider.from_cfg_guider(guider)
+        if not isinstance(guider, AdaptiveCFGGuider):
+            guider = AdaptiveCFGGuider.from_cfg_guider(guider)
 
         if strength == 0.0:
             return io.NodeOutput(guider)
@@ -141,8 +141,8 @@ class TT_Flux2ApplyControlNetAdvancedNode(io.ComfyNode):
             kwargs.get("strength"),
             kwargs.get("control_net"))
 
-        if not isinstance(guider, SingleCondCFGGuider):
-            guider = SingleCondCFGGuider.from_cfg_guider(guider)
+        if not isinstance(guider, AdaptiveCFGGuider):
+            guider = AdaptiveCFGGuider.from_cfg_guider(guider)
 
         if strength == 0.0:
             return io.NodeOutput(guider)

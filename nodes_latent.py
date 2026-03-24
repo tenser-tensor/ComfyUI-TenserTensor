@@ -176,7 +176,7 @@ def prepare_multimodal_latents(**kwargs):
         kwargs.get("use_ref_frame"),
         kwargs.get("seed"),
         kwargs.get("noise_seed"),
-        kwargs.get("megapixels")
+        kwargs.get("megapixels"),
     )
 
     video_latent, width, height, total_length, fps = create_empty_video_latent(**kwargs)
@@ -196,6 +196,7 @@ def prepare_multimodal_latents(**kwargs):
         seed,
         noise_seed,
         megapixels,
+        kwargs.get("length_sec"),
         total_length,
         fps,
         width,
@@ -232,7 +233,7 @@ class TT_LtxvLatentFactoryNode(io.ComfyNode):
                 io.Combo.Input("aspect_ratio", options=CommonTypes.ASPECT_RATIOS),
                 io.Combo.Input("megapixels", options=CommonTypes.MEGAPIXELS),
                 io.Combo.Input("orientation", options=CommonTypes.ORIENTATIONS),
-                io.Int.Input("length_sec", default=5, min=1, max=20),
+                io.Float.Input("length_sec", default=5.0, min=0.1, max=120.0, step=0.1),
                 io.Combo.Input("frame_rate", options=CommonTypes.FRAME_RATES, default="24fps"),
                 io.Int.Input("batch_size", default=1, min=1, max=64),
             ],
@@ -244,8 +245,9 @@ class TT_LtxvLatentFactoryNode(io.ComfyNode):
                 io.Int.Output(display_name="SEED"),
                 io.Int.Output(display_name="NOISE_SEED"),
                 io.String.Output(display_name="MEGAPIXELS"),
+                io.String.Output(display_name="LENGTH_SEC"),
                 io.Int.Output(display_name="TOTAL_LENGTH"),
-                io.Int.Output(display_name="FPS"),
+                io.Int.Output(display_name="FRAME_RATE"),
                 io.Int.Output(display_name="WIDTH"),
                 io.Int.Output(display_name="HEIGHT"),
             ]
