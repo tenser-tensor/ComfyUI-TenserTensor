@@ -1,12 +1,15 @@
 # (c) City96 || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
-import gguf
-import torch
+
 import logging
 
-import comfy.ops
+import torch
+
 import comfy.lora
 import comfy.model_management
+import comfy.ops
+import gguf
 from .dequant import dequantize_tensor, is_quantized
+
 
 def chained_hasattr(obj, chained_attr):
     probe = obj
@@ -17,34 +20,39 @@ def chained_hasattr(obj, chained_attr):
             return False
     return True
 
+
 # A bakcward and forward compatible way to get `torch.compiler.disable`.
 def get_torch_compiler_disable_decorator():
     def dummy_decorator(*args, **kwargs):
         def noop(x):
             return x
+
         return noop
 
     from packaging import version
 
     if not chained_hasattr(torch, "compiler.disable"):
         logging.info("ComfyUI-GGUF: Torch too old for torch.compile - bypassing")
-        return dummy_decorator # torch too old
+        return dummy_decorator  # torch too old
     elif version.parse(torch.__version__) >= version.parse("2.8"):
         logging.info("ComfyUI-GGUF: Allowing full torch compile")
-        return dummy_decorator # torch compile works
+        return dummy_decorator  # torch compile works
     if chained_hasattr(torch, "_dynamo.config.nontraceable_tensor_subclasses"):
         logging.info("ComfyUI-GGUF: Allowing full torch compile (nightly)")
-        return dummy_decorator # torch compile works, nightly before 2.8 release
+        return dummy_decorator  # torch compile works, nightly before 2.8 release
     else:
         logging.info("ComfyUI-GGUF: Partial torch compile only, consider updating pytorch")
         return torch.compiler.disable
 
+
 torch_compiler_disable = get_torch_compiler_disable_decorator()
+
 
 class GGMLTensor(torch.Tensor):
     """
     Main tensor-like class for storing quantized weights
     """
+
     def __init__(self, *args, tensor_type, tensor_shape, patches=[], **kwargs):
         super().__init__()
         self.tensor_type = tensor_type
@@ -78,10 +86,10 @@ class GGMLTensor(torch.Tensor):
         # Intel Arc fix, ref#50
         new_tensor = super().new_empty(size, *args, **kwargs)
         return GGMLTensor(
-                new_tensor,
-                tensor_type = getattr(self, "tensor_type", None),
-                tensor_shape = size,
-                patches = getattr(self, "patches", []).copy()
+            new_tensor,
+            tensor_type=getattr(self, "tensor_type", None),
+            tensor_shape=size,
+            patches=getattr(self, "patches", []).copy()
         )
 
     @property
@@ -89,6 +97,7 @@ class GGMLTensor(torch.Tensor):
         if not hasattr(self, "tensor_shape"):
             self.tensor_shape = self.size()
         return self.tensor_shape
+
 
 class GGMLLayer(torch.nn.Module):
     """
@@ -119,7 +128,7 @@ class GGMLLayer(torch.nn.Module):
 
     def ggml_load_from_state_dict(self, state_dict, prefix, local_metadata, strict, missing_keys, unexpected_keys, error_msgs):
         prefix_len = len(prefix)
-        for k,v in state_dict.items():
+        for k, v in state_dict.items():
             if k[prefix_len:] == "weight":
                 self.weight = torch.nn.Parameter(v, requires_grad=False)
             elif k[prefix_len:] == "bias" and v is not None:
@@ -131,7 +140,7 @@ class GGMLLayer(torch.nn.Module):
         if self.weight is None and isinstance(self, torch.nn.Linear):
             v = torch.zeros(self.in_features, self.out_features)
             self.weight = torch.nn.Parameter(v, requires_grad=False)
-            missing_keys.append(prefix+"weight")
+            missing_keys.append(prefix + "weight")
 
         # for vram estimation (TODO: less fragile logic?)
         if getattr(self.weight, "is_largest_weight", False):
@@ -224,10 +233,12 @@ class GGMLLayer(torch.nn.Module):
     def forward_ggml_cast_weights(self, input):
         raise NotImplementedError
 
+
 class GGMLOps(comfy.ops.manual_cast):
     """
     Dequantize weights on the fly before doing the compute
     """
+
     class Linear(GGMLLayer, comfy.ops.manual_cast.Linear):
         def __init__(self, in_features, out_features, bias=True, device=None, dtype=None):
             torch.nn.Module.__init__(self)
@@ -269,6 +280,7 @@ class GGMLOps(comfy.ops.manual_cast):
         def forward_ggml_cast_weights(self, input):
             weight, bias = self.cast_bias_weight(input)
             return torch.nn.functional.group_norm(input, self.num_groups, weight, bias, self.eps)
+
 
 def move_patch_to_device(item, device):
     if isinstance(item, torch.Tensor):

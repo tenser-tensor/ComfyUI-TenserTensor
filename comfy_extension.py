@@ -3,16 +3,19 @@
 from typing import override
 
 from comfy_api.latest import ComfyExtension, io
-
 from .nodes_context import NODES as NODES_CONTEXT
 from .nodes_controlnet import NODES as NODES_CONTROLNET
+from .nodes_debug import NODES as NODES_DEBUG
 from .nodes_detector import NODES as NODES_DETECTOR
 from .nodes_image import NODES as NODES_IMAGE
 from .nodes_latent import NODES as NODES_LATENT
+from .nodes_latent_d import NODES as NODES_LATENT_D
 from .nodes_loaders import NODES as NODES_LOADERS
+from .nodes_loaders_d import NODES as NODES_LOADERS_D
 from .nodes_postproduction import NODES as NODES_POSTPRODUCTION
 from .nodes_sampling import NODES as NODES_SAMPLING
 from .nodes_text_encoder import NODES as NODES_TEXT_ENCODER
+from .nodes_vae import NODES as NODES_VAE
 from .nodes_workflow import NODES as NODES_WORKFLOW
 
 
@@ -22,12 +25,16 @@ class TenserTensorExtension(ComfyExtension):
         return [
             *NODES_CONTEXT,
             *NODES_CONTROLNET,
+            *NODES_DEBUG,
             *NODES_DETECTOR,
             *NODES_IMAGE,
             *NODES_LATENT,
+            *NODES_LATENT_D,
             *NODES_LOADERS,
+            *NODES_LOADERS_D,
             *NODES_POSTPRODUCTION,
             *NODES_SAMPLING,
             *NODES_TEXT_ENCODER,
+            *NODES_VAE,
             *NODES_WORKFLOW,
         ]

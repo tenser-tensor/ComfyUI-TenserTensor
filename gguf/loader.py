@@ -1,17 +1,20 @@
 # (c) City96 || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
-import warnings
-import logging
-import torch
-import gguf
-import re
-import os
 
-from .ops import GGMLTensor
+import logging
+import os
+import re
+import warnings
+
+import torch
+
+import gguf
 from .dequant import is_quantized, dequantize_tensor
+from .ops import GGMLTensor
 
 IMG_ARCH_LIST = {"flux", "sd1", "sdxl", "sd3", "aura", "hidream", "cosmos", "ltxv", "hyvid", "wan", "lumina2", "qwen_image"}
 TXT_ARCH_LIST = {"t5", "t5encoder", "llama", "qwen2vl", "qwen3", "qwen3vl", "gemma3"}
 VIS_TYPE_LIST = {"clip-vision", "mmproj"}
+
 
 def get_orig_shape(reader, tensor_name):
     field_key = f"comfy.gguf.orig_shape.{tensor_name}"
@@ -22,6 +25,7 @@ def get_orig_shape(reader, tensor_name):
     if len(field.types) != 2 or field.types[0] != gguf.GGUFValueType.ARRAY or field.types[1] != gguf.GGUFValueType.INT32:
         raise TypeError(f"Bad original shape metadata for {field_key}: Expected ARRAY of INT32, got {field.types}")
     return torch.Size(tuple(int(field.parts[part_idx][0]) for part_idx in field.data))
+
 
 def get_field(reader, field_name, field_type):
     field = reader.get_field(field_name)
@@ -37,6 +41,7 @@ def get_field(reader, field_name, field_type):
     else:
         raise TypeError(f"Unknown field type {field_type}")
 
+
 def get_list_field(reader, field_name, field_type):
     field = reader.get_field(field_name)
     if field is None:
@@ -47,6 +52,7 @@ def get_list_field(reader, field_name, field_type):
         return tuple(field_type(field.parts[part_idx][0]) for part_idx in field.data)
     else:
         raise TypeError(f"Unknown field type {field_type}")
+
 
 def get_gguf_metadata(reader):
     """Extract all simple metadata fields like safetensors"""
@@ -66,6 +72,7 @@ def get_gguf_metadata(reader):
         except:
             continue
     return metadata
+
 
 def gguf_sd_loader(path, handle_prefix="model.diffusion_model.", is_text_model=False):
     """
@@ -122,7 +129,7 @@ def gguf_sd_loader(path, handle_prefix="model.diffusion_model.", is_text_model=F
         # NOTE: line above replaced with this block to avoid persistent numpy warning about mmap
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", message="The given NumPy array is not writable")
-            torch_tensor = torch.from_numpy(tensor.data) # mmap
+            torch_tensor = torch.from_numpy(tensor.data)  # mmap
 
         shape = get_orig_shape(reader, tensor_name)
         if shape is None:
@@ -150,7 +157,7 @@ def gguf_sd_loader(path, handle_prefix="model.diffusion_model.", is_text_model=F
     logging.info("gguf qtypes: " + ", ".join(f"{k} ({v})" for k, v in qtype_dict.items()))
 
     # mark largest tensor for vram estimation
-    qsd = {k:v for k,v in state_dict.items() if is_quantized(v)}
+    qsd = {k: v for k, v in state_dict.items() if is_quantized(v)}
     if len(qsd) > 0:
         max_key = max(qsd.keys(), key=lambda k: qsd[k].numel())
         state_dict[max_key].is_largest_weight = True
@@ -161,6 +168,7 @@ def gguf_sd_loader(path, handle_prefix="model.diffusion_model.", is_text_model=F
         "metadata": get_gguf_metadata(reader)
     }
     return (state_dict, extra)
+
 
 # for remapping llama.cpp -> original key names
 T5_SD_MAP = {
@@ -219,25 +227,28 @@ CLIP_VISION_SD_MAP = {
     "ln2.": "norm2.",
 }
 
+
 def sd_map_replace(raw_sd, key_map):
     sd = {}
-    for k,v in raw_sd.items():
-        for s,d in key_map.items():
-            k = k.replace(s,d)
+    for k, v in raw_sd.items():
+        for s, d in key_map.items():
+            k = k.replace(s, d)
         sd[k] = v
     return sd
+
 
 def llama_permute(raw_sd, n_head, n_head_kv):
     # Reverse version of LlamaModel.permute in llama.cpp convert script
     sd = {}
-    permute = lambda x,h: x.reshape(h, x.shape[0] // h // 2, 2, *x.shape[1:]).swapaxes(1, 2).reshape(x.shape)
-    for k,v in raw_sd.items():
+    permute = lambda x, h: x.reshape(h, x.shape[0] // h // 2, 2, *x.shape[1:]).swapaxes(1, 2).reshape(x.shape)
+    for k, v in raw_sd.items():
         if k.endswith(("q_proj.weight", "q_proj.bias")):
             v.data = permute(v.data, n_head)
         if k.endswith(("k_proj.weight", "k_proj.bias")):
             v.data = permute(v.data, n_head_kv)
         sd[k] = v
     return sd
+
 
 def gemma3_norm_corrections(sd):
     # Reverse change from Gemma3Model modify_tensors in llama.cpp convert script
@@ -258,8 +269,9 @@ def gemma3_norm_corrections(sd):
             else:
                 sd[key] = sd[key].float() - 1.0
             corrected += 1
-    #logging.info(f"Gemma3: Applied -1 norm correction to {corrected} tensors")
+    # logging.info(f"Gemma3: Applied -1 norm correction to {corrected} tensors")
     return sd
+
 
 def strip_quant_suffix(name):
     pattern = r"[-_]?(?:ud-)?i?q[0-9]_[a-z0-9_\-]{1,8}$"
@@ -267,6 +279,7 @@ def strip_quant_suffix(name):
     if match:
         name = name[:match.start()]
     return name
+
 
 def gguf_mmproj_loader(path):
     # Reverse version of Qwen2VLVisionModel.modify_tensors
@@ -312,7 +325,7 @@ def gguf_mmproj_loader(path):
     if "visual.blocks.0.attn_q.weight" in vsd:
         attns = {}
         # filter out attentions + group
-        for k,v in vsd.items():
+        for k, v in vsd.items():
             if any(x in k for x in ["attn_q", "attn_k", "attn_v"]):
                 k_attn, k_name = k.rsplit(".attn_", 1)
                 k_attn += ".attn.qkv." + k_name.split(".")[-1]
@@ -323,7 +336,7 @@ def gguf_mmproj_loader(path):
                 )
 
         # recombine
-        for k,v in attns.items():
+        for k, v in attns.items():
             suffix = k.split(".")[-1]
             vsd[k] = torch.cat([
                 v[f"q.{suffix}"],
@@ -333,6 +346,7 @@ def gguf_mmproj_loader(path):
         del attns
 
     return vsd
+
 
 def gguf_tokenizer_loader(path, temb_shape):
     # convert gguf tokenizer to spiece
@@ -346,8 +360,8 @@ def gguf_tokenizer_loader(path, temb_shape):
     reader = gguf.GGUFReader(path)
 
     if get_field(reader, "tokenizer.ggml.model", str) == "t5":
-        if temb_shape == (256384, 4096): # probably UMT5
-            spm.trainer_spec.model_type == 1 # Unigram (do we have a T5 w/ BPE?)
+        if temb_shape == (256384, 4096):  # probably UMT5
+            spm.trainer_spec.model_type == 1  # Unigram (do we have a T5 w/ BPE?)
         else:
             raise NotImplementedError("Unknown model, can't set tokenizer!")
     else:
@@ -373,7 +387,7 @@ def gguf_tokenizer_loader(path, temb_shape):
 
     # unsure if any of these are correct
     spm.trainer_spec.byte_fallback = True
-    spm.trainer_spec.vocab_size = len(tokens) # split off unused?
+    spm.trainer_spec.vocab_size = len(tokens)  # split off unused?
     spm.trainer_spec.max_sentence_length = 4096
     spm.trainer_spec.eos_id = get_field(reader, "tokenizer.ggml.eos_token_id", int)
     spm.trainer_spec.pad_id = get_field(reader, "tokenizer.ggml.padding_token_id", int)
@@ -381,6 +395,7 @@ def gguf_tokenizer_loader(path, temb_shape):
     logging.info(f"Created tokenizer with vocab size of {len(spm.pieces)}")
     del reader
     return torch.ByteTensor(list(spm.SerializeToString()))
+
 
 def gguf_tekken_tokenizer_loader(path, temb_shape):
     # convert ggml (hf) tokenizer metadata to tekken/comfy data
@@ -393,7 +408,7 @@ def gguf_tekken_tokenizer_loader(path, temb_shape):
 
     model_str = get_field(reader, "tokenizer.ggml.model", str)
     if model_str == "gpt2":
-        if temb_shape == (131072, 5120): # probably Mistral
+        if temb_shape == (131072, 5120):  # probably Mistral
             data = {
                 "config": {"num_vocab_tokens": 150000, "default_vocab_size": 131072},
                 "vocab": [],
@@ -418,15 +433,16 @@ def gguf_tekken_tokenizer_loader(path, temb_shape):
             data["vocab"].append({
                 "rank": len(data["vocab"]),
                 "token_bytes": base64.b64encode(tok).decode("ascii"),
-                "token_str": tok.decode("utf-8", errors="replace") # ?
+                "token_str": tok.decode("utf-8", errors="replace")  # ?
             })
 
     logging.info(f"Created tekken tokenizer with vocab size of {len(data['vocab'])} (+{len(data['special_tokens'])})")
     del reader
     return torch.ByteTensor(list(json.dumps(data).encode('utf-8')))
 
+
 def gguf_gemma3_tokenizer_loader(path):
-    #TODO: merge into gguf_tokenizer_loader
+    # TODO: merge into gguf_tokenizer_loader
     logging.info("Attempting to recreate sentencepiece tokenizer from GGUF file metadata...")
     try:
         from sentencepiece import sentencepiece_model_pb2 as model
@@ -446,61 +462,63 @@ def gguf_gemma3_tokenizer_loader(path):
     tokens = get_list_field(reader, "tokenizer.ggml.tokens", str)
     scores = get_list_field(reader, "tokenizer.ggml.scores", float)
     toktype = get_list_field(reader, "tokenizer.ggml.token_type", int)
-    
+
     if not tokens or not scores or not toktype:
         raise ValueError("Missing tokenizer metadata")
-    
+
     for idx in range(len(tokens)):
         piece = spm.SentencePiece()
         piece.piece = tokens[idx]
         if idx == 3:  # UNK position
             piece.type = 2  # UNK Token
-            piece.score = 0.0 # UNK Score
+            piece.score = 0.0  # UNK Score
         else:
             piece.type = toktype[idx]
             piece.score = scores[idx]
         spm.pieces.append(piece)
-    
+
     spm.trainer_spec.vocab_size = len(spm.pieces)
     logging.info(f"Created tokenizer with vocab size of {len(spm.pieces)}")
-    
+
     del reader
     return torch.ByteTensor(list(spm.SerializeToString()))
 
+
 def gguf_clip_loader(path):
-    sd, extra = gguf_sd_loader(path, is_text_model=True)
+    state_dict, extra = gguf_sd_loader(path, is_text_model=True)
     arch = extra.get("arch_str", None)
     if arch in {"t5", "t5encoder"}:
         temb_key = "token_embd.weight"
-        if temb_key in sd and sd[temb_key].shape == (256384, 4096):
+        if temb_key in state_dict and state_dict[temb_key].shape == (256384, 4096):
             # non-standard Comfy-Org tokenizer
-            sd["spiece_model"] = gguf_tokenizer_loader(path, sd[temb_key].shape)
+            state_dict["spiece_model"] = gguf_tokenizer_loader(path, state_dict[temb_key].shape)
             # TODO: dequantizing token embed here is janky but otherwise we OOM due to tensor being massive.
             logging.warning(f"Dequantizing {temb_key} to prevent runtime OOM.")
-            sd[temb_key] = dequantize_tensor(sd[temb_key], dtype=torch.float16)
-        sd = sd_map_replace(sd, T5_SD_MAP)
+            state_dict[temb_key] = dequantize_tensor(state_dict[temb_key], dtype=torch.float16)
+        state_dict = sd_map_replace(state_dict, T5_SD_MAP)
     elif arch in {"llama", "qwen2vl", "qwen3", "qwen3vl", "gemma3"}:
         # TODO: pass model_options["vocab_size"] to loader somehow
         temb_key = "token_embd.weight"
-        if temb_key in sd and sd[temb_key].shape[0] >= (64 * 1024):
-            if arch == "llama" and sd[temb_key].shape == (131072, 5120):
+        if temb_key in state_dict and state_dict[temb_key].shape[0] >= (64 * 1024):
+            if arch == "llama" and state_dict[temb_key].shape == (131072, 5120):
                 # non-standard Comfy-Org tokenizer
-                sd["tekken_model"] = gguf_tekken_tokenizer_loader(path, sd[temb_key].shape)
+                state_dict["tekken_model"] = gguf_tekken_tokenizer_loader(path, state_dict[temb_key].shape)
             elif arch == "gemma3":
-                sd["spiece_model"] = gguf_gemma3_tokenizer_loader(path)
+                state_dict["spiece_model"] = gguf_gemma3_tokenizer_loader(path)
             # See note above for T5.
             logging.warning(f"Dequantizing {temb_key} to prevent runtime OOM.")
-            sd[temb_key] = dequantize_tensor(sd[temb_key], dtype=torch.float16)
+            state_dict[temb_key] = dequantize_tensor(state_dict[temb_key], dtype=torch.float16)
         if arch == "gemma3":
-            sd = sd_map_replace(sd, GEMMA3_SD_MAP)
-            sd = gemma3_norm_corrections(sd)
+            state_dict = sd_map_replace(state_dict, GEMMA3_SD_MAP)
+            state_dict = gemma3_norm_corrections(state_dict)
         else:
-            sd = sd_map_replace(sd, LLAMA_SD_MAP)
+            state_dict = sd_map_replace(state_dict, LLAMA_SD_MAP)
         if arch == "llama":
-            sd = llama_permute(sd, 32, 8) # L3 / Mistral
+            state_dict = llama_permute(state_dict, 32, 8)  # L3 / Mistral
         if arch == "qwen2vl":
             vsd = gguf_mmproj_loader(path)
-            sd.update(vsd)
+            state_dict.update(vsd)
     else:
         pass
-    return sd
+
+    return state_dict

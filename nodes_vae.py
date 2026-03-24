@@ -1,10 +1,7 @@
 # (c) TenserTensor <tenser.tensor@proton.me> || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
 
-from typing import override
-
-import torch
-
 from comfy_api.latest import io, ComfyExtension
+
 from .nodes_context import Context
 
 CATEGORY = "TenserTensor/VAE"
@@ -159,33 +156,9 @@ class TT_VaeEncodeContextNode(io.ComfyNode):
 # V3 entrypoint — registers context nodes with ComfyUI
 # ==============================================================================
 
-NODES=[]
-
-
-
-
-class VaeNodesExtension(ComfyExtension):
-    @override
-    async def get_node_list(self) -> list[type[io.ComfyNode]]:
-        return [
-            TT_VaeDecodeTiledNode,
-            TT_VaeDecodeContextNode,
-            TT_VaeEncodeTiledNode,
-            TT_VaeEncodeContextNode,
-        ]
-
-
-async def comfy_entrypoint() -> VaeNodesExtension:
-    return VaeNodesExtension()
-
-
-# ==============================================================================
-# Re-exports for backward compatibility
-# ==============================================================================
-
-__all__ = [
-    "TT_VaeDecodeTiledNode",
-    "TT_VaeDecodeContextNode",
-    "TT_VaeEncodeTiledNode",
-    "TT_VaeEncodeContextNode",
+NODES = [
+    TT_VaeDecodeTiledNode,
+    TT_VaeDecodeContextNode,
+    TT_VaeEncodeTiledNode,
+    TT_VaeEncodeContextNode,
 ]

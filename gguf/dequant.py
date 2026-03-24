@@ -1,16 +1,20 @@
 # (c) City96 || Apache-2.0 (apache.org/licenses/LICENSE-2.0)
-import gguf
+
 import torch
 from tqdm import tqdm
 
+import gguf
 
 TORCH_COMPATIBLE_QTYPES = (None, gguf.GGMLQuantizationType.F32, gguf.GGMLQuantizationType.F16)
+
 
 def is_torch_compatible(tensor):
     return tensor is None or getattr(tensor, "tensor_type", None) in TORCH_COMPATIBLE_QTYPES
 
+
 def is_quantized(tensor):
     return not is_torch_compatible(tensor)
+
 
 def dequantize_tensor(tensor, dtype=None, dequant_dtype=None):
     qtype = getattr(tensor, "tensor_type", None)
@@ -26,6 +30,7 @@ def dequantize_tensor(tensor, dtype=None, dequant_dtype=None):
         tqdm.write(f"Falling back to numpy dequant for qtype: {getattr(qtype, 'name', repr(qtype))}")
         new = gguf.quants.dequantize(tensor.cpu().numpy(), qtype)
         return torch.from_numpy(new).to(tensor.device, dtype=dtype)
+
 
 def dequantize(data, qtype, oshape, dtype=None):
     """
@@ -43,23 +48,28 @@ def dequantize(data, qtype, oshape, dtype=None):
     blocks = dequantize_blocks(blocks, block_size, type_size, dtype)
     return blocks.reshape(oshape)
 
+
 def to_uint32(x):
     # no uint32 :(
     x = x.view(torch.uint8).to(torch.int32)
     return (x[:, 0] | x[:, 1] << 8 | x[:, 2] << 16 | x[:, 3] << 24).unsqueeze(1)
 
+
 def to_uint16(x):
     x = x.view(torch.uint8).to(torch.int32)
     return (x[:, 0] | x[:, 1] << 8).unsqueeze(1)
+
 
 def split_block_dims(blocks, *args):
     n_max = blocks.shape[1]
     dims = list(args) + [n_max - sum(args)]
     return torch.split(blocks, dims, dim=1)
 
+
 # Full weights #
 def dequantize_blocks_BF16(blocks, block_size, type_size, dtype=None):
     return (blocks.view(torch.int16).to(torch.int32) << 16).view(torch.float32)
+
 
 # Legacy Quants #
 def dequantize_blocks_Q8_0(blocks, block_size, type_size, dtype=None):
@@ -67,6 +77,7 @@ def dequantize_blocks_Q8_0(blocks, block_size, type_size, dtype=None):
     d = d.view(torch.float16).to(dtype)
     x = x.view(torch.int8)
     return (d * x)
+
 
 def dequantize_blocks_Q5_1(blocks, block_size, type_size, dtype=None):
     n_blocks = blocks.shape[0]
@@ -84,11 +95,12 @@ def dequantize_blocks_Q5_1(blocks, block_size, type_size, dtype=None):
     qs = (ql | (qh << 4))
     return (d * qs) + m
 
+
 def dequantize_blocks_Q5_0(blocks, block_size, type_size, dtype=None):
     n_blocks = blocks.shape[0]
 
     d, qh, qs = split_block_dims(blocks, 2, 4)
-    d  = d.view(torch.float16).to(dtype)
+    d = d.view(torch.float16).to(dtype)
     qh = to_uint32(qh)
 
     qh = qh.reshape(n_blocks, 1) >> torch.arange(32, device=d.device, dtype=torch.int32).reshape(1, 32)
@@ -99,6 +111,7 @@ def dequantize_blocks_Q5_0(blocks, block_size, type_size, dtype=None):
 
     qs = (ql | (qh << 4)).to(torch.int8) - 16
     return (d * qs)
+
 
 def dequantize_blocks_Q4_1(blocks, block_size, type_size, dtype=None):
     n_blocks = blocks.shape[0]
@@ -112,19 +125,22 @@ def dequantize_blocks_Q4_1(blocks, block_size, type_size, dtype=None):
 
     return (d * qs) + m
 
+
 def dequantize_blocks_Q4_0(blocks, block_size, type_size, dtype=None):
     n_blocks = blocks.shape[0]
 
     d, qs = split_block_dims(blocks, 2)
-    d  = d.view(torch.float16).to(dtype)
+    d = d.view(torch.float16).to(dtype)
 
     qs = qs.reshape((n_blocks, -1, 1, block_size // 2)) >> torch.tensor([0, 4], device=d.device, dtype=torch.uint8).reshape((1, 1, 2, 1))
     qs = (qs & 0x0F).reshape((n_blocks, -1)).to(torch.int8) - 8
     return (d * qs)
 
+
 # K Quants #
 QK_K = 256
 K_SCALE_SIZE = 12
+
 
 def get_scale_min(scales):
     n_blocks = scales.shape[0]
@@ -137,6 +153,7 @@ def get_scale_min(scales):
     min = torch.cat([m & 0x3F, (m_d >> 4) | ((m >> 2) & 0x30)], dim=-1)
 
     return (sc.reshape((n_blocks, 8)), min.reshape((n_blocks, 8)))
+
 
 def dequantize_blocks_Q6_K(blocks, block_size, type_size, dtype=None):
     n_blocks = blocks.shape[0]
@@ -155,6 +172,7 @@ def dequantize_blocks_Q6_K(blocks, block_size, type_size, dtype=None):
     q = q.reshape((n_blocks, QK_K // 16, -1))
 
     return (d * q).reshape((n_blocks, QK_K))
+
 
 def dequantize_blocks_Q5_K(blocks, block_size, type_size, dtype=None):
     n_blocks = blocks.shape[0]
@@ -177,6 +195,7 @@ def dequantize_blocks_Q5_K(blocks, block_size, type_size, dtype=None):
 
     return (d * q - dm).reshape((n_blocks, QK_K))
 
+
 def dequantize_blocks_Q4_K(blocks, block_size, type_size, dtype=None):
     n_blocks = blocks.shape[0]
 
@@ -193,6 +212,7 @@ def dequantize_blocks_Q4_K(blocks, block_size, type_size, dtype=None):
     qs = (qs & 0x0F).reshape((n_blocks, -1, 32))
 
     return (d * qs - dm).reshape((n_blocks, QK_K))
+
 
 def dequantize_blocks_Q3_K(blocks, block_size, type_size, dtype=None):
     n_blocks = blocks.shape[0]
@@ -218,6 +238,7 @@ def dequantize_blocks_Q3_K(blocks, block_size, type_size, dtype=None):
 
     return (dl * q).reshape((n_blocks, QK_K))
 
+
 def dequantize_blocks_Q2_K(blocks, block_size, type_size, dtype=None):
     n_blocks = blocks.shape[0]
 
@@ -237,8 +258,10 @@ def dequantize_blocks_Q2_K(blocks, block_size, type_size, dtype=None):
 
     return qs.reshape((n_blocks, -1))
 
+
 # IQ quants
 KVALUES = torch.tensor([-127, -104, -83, -65, -49, -35, -22, -10, 1, 13, 25, 38, 53, 69, 89, 113], dtype=torch.int8)
+
 
 def dequantize_blocks_IQ4_NL(blocks, block_size, type_size, dtype=None):
     n_blocks = blocks.shape[0]
@@ -246,14 +269,15 @@ def dequantize_blocks_IQ4_NL(blocks, block_size, type_size, dtype=None):
     d, qs = split_block_dims(blocks, 2)
     d = d.view(torch.float16).to(dtype)
 
-    qs = qs.reshape((n_blocks, -1, 1, block_size//2)) >> torch.tensor([0, 4], device=d.device, dtype=torch.uint8).reshape((1, 1, 2, 1))
+    qs = qs.reshape((n_blocks, -1, 1, block_size // 2)) >> torch.tensor([0, 4], device=d.device, dtype=torch.uint8).reshape((1, 1, 2, 1))
     qs = (qs & 0x0F).reshape((n_blocks, -1, 1)).to(torch.int64)
 
     kvalues = KVALUES.to(qs.device).expand(*qs.shape[:-1], 16)
     qs = torch.gather(kvalues, dim=-1, index=qs).reshape((n_blocks, -1))
-    del kvalues # should still be view, but just to be safe
+    del kvalues  # should still be view, but just to be safe
 
     return (d * qs)
+
 
 def dequantize_blocks_IQ4_XS(blocks, block_size, type_size, dtype=None):
     n_blocks = blocks.shape[0]
@@ -278,11 +302,12 @@ def dequantize_blocks_IQ4_XS(blocks, block_size, type_size, dtype=None):
 
     kvalues = KVALUES.to(qs.device).expand(*qs.shape[:-1], 16)
     qs = torch.gather(kvalues, dim=-1, index=qs.to(torch.int64)).reshape((n_blocks, -1, 32))
-    del kvalues # see IQ4_NL
+    del kvalues  # see IQ4_NL
     del shift_a
     del shift_b
 
     return (dl * qs).reshape((n_blocks, -1))
+
 
 dequantize_functions = {
     gguf.GGMLQuantizationType.BF16: dequantize_blocks_BF16,
